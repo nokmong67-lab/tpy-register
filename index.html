@@ -555,6 +555,9 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
   .rptbar{display:none!important}
   .rptpage{box-shadow:none!important;margin:0!important;max-width:none!important;padding:0!important}
 }
+.split2{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+@media(min-width:1100px){.split2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.split2 .sp-left{position:sticky;top:12px}}
+.split2 .grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 </style>
 
 <div id="shell">
@@ -599,12 +602,14 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
     <h2>คู่มือการใช้งานโดยสังเขป</h2>
     <p class="sub">ระบบนี้ใช้ติดตามหนังสือ “เรียกเก็บ” (หน่วยงานเรียกเก็บเงินเรา) และ “แจ้งโอน” (หน่วยงานโอนเงินให้เรา) ให้ครบทุกขั้นตอน</p>
     <div class="gcols">
-    <div><h3>4 ขั้นตอนหลัก (เมนูด้านซ้าย)</h3><ol>
+    <div><h3>เมนูด้านซ้าย (แสดงตามสิทธิ์ของผู้ใช้)</h3><ol>
+      <li><b>แดชบอร์ด</b> สรุปยอดและสถานะทั้งหมด ปรับแต่งส่วนที่แสดงได้</li>
       <li><b>รับหนังสือ</b> บันทึกเลขรับ หน่วยงาน เลขที่/วันที่หนังสือ ประเภท ยอดเงิน และแนบลิงก์เอกสาร</li>
-      <li><b>ตรวจสอบ</b> บันทึกผลตรวจสอบ ดาวน์โหลดบันทึกข้อความ แล้วส่งต่อเอกสารให้ธุรการ การเงิน และบัญชี</li>
+      <li><b>ตรวจสอบ</b> บันทึกผลตรวจสอบและบันทึกข้อความ (ตัวอย่างอยู่ซ้าย ช่องกรอกอยู่ขวา)</li>
+      <li><b>ส่งต่อเอกสาร</b> ธุรการ → การเงิน → บัญชี ตามประเภทหนังสือ</li>
       <li><b>ทำหนังสือ</b> ออกหนังสือแจ้งโอน (กรณีเรียกเก็บ) หรือหนังสือส่งใบเสร็จ (กรณีแจ้งโอน)</li>
       <li><b>ติดตามใบเสร็จ</b> เรียกเก็บ: รอใบเสร็จจากหน่วยงานภายใน 30 วัน · แจ้งโอน: บันทึกวันที่ส่งใบเสร็จ</li></ol></div>
-    <div><h3>ส่งต่อเอกสารภายใน (ในขั้นตอน “ตรวจสอบ”)</h3><ul>
+    <div><h3>ส่งต่อเอกสารภายใน (เมนู “ส่งต่อเอกสาร”)</h3><ul>
       <li><b>ธุรการ</b> ตรวจเบื้องต้น ครบถ้วน → ส่งต่อ / ไม่ครบ → ส่งคืนแก้ไข</li>
       <li><b>แจ้งโอน</b> การเงินออกใบเสร็จ (เล่มที่/เลขที่/วันที่) → บัญชีตรวจและ “บันทึกบัญชีรับจ่าย”</li>
       <li><b>เรียกเก็บ</b> บัญชี “บันทึกบัญชีค้างจ่าย” → การเงินลงวันที่จ่าย/เลขที่เช็ค → บัญชี “บันทึกบัญชีรับจ่าย”</li>
@@ -706,8 +711,8 @@ function bahtText(n){var f=(Math.round(Number(n||0)*100)/100).toFixed(2).split('
 /*ENDBAHT*/
 
 /* ---------- state ---------- */
-var TABS=[['D','แดชบอร์ด','สรุปยอดทั้งหมด'],['1','รับหนังสือ','บันทึกข้อมูล'],['2','ตรวจสอบ','บันทึกข้อความ'],['3','ทำหนังสือ','แจ้งโอน / ส่งใบเสร็จ'],['4','ติดตามใบเสร็จ','ภายใน 30 วัน']];
-var state={records:[],settings:{},tab:'D',editId:null,sel:null,q:'',f:{1:'',2:'pending',3:'pending',4:'all'},hasDb:false,canWrite:true,err:'',loaded:false,me:null,users:[],hasUsers:null,isEditor:false,editUser:null,booting:true,mesig:''};
+var TABS=[['D','แดชบอร์ด','สรุปยอดทั้งหมด'],['1','รับหนังสือ','บันทึกข้อมูล'],['2','ตรวจสอบ','บันทึกข้อความ'],['5','ส่งต่อเอกสาร','ธุรการ / การเงิน / บัญชี'],['3','ทำหนังสือ','แจ้งโอน / ส่งใบเสร็จ'],['4','ติดตามใบเสร็จ','ภายใน 30 วัน']];
+var state={records:[],settings:{},tab:'D',editId:null,sel:null,q:'',f:{1:'',2:'pending',3:'pending',4:'all',5:'pending'},hasDb:false,canWrite:true,err:'',loaded:false,me:null,users:[],hasUsers:null,isEditor:false,editUser:null,booting:true,mesig:''};
 state.dir4='pay';state.agencies={};
 var db=null,dl=null,usr=null;
 try{var saved=localStorage.getItem('reg-tab');if(saved&&/^[1-4D]$/.test(saved))state.tab=saved}catch(e){}
@@ -782,7 +787,7 @@ function inp(id,v,attrs){if(attrs&&/type="date"/.test(attrs))return dateInp(id,v
 function area(id,v,rows){return '<textarea id="'+id+'" rows="'+(rows||3)+'">'+esc(v)+'</textarea>'}
 function val(id){var e=document.getElementById(id);return e?e.value.trim():''}
 function isSuper(){return !!(state.me&&state.me.role==='super')}
-function perm(t){if(!state.me)return 'none';if(t==='D'){if(isSuper())return 'view';var an=[1,2,3,4].some(function(i){var q=(state.me.perms||{})['p'+i];return q==='edit'||q==='view'});return an?'view':'none'}if(isSuper())return 'edit';var p=(state.me.perms||{})['p'+t];return (p==='edit'||p==='view')?p:'none'}
+function perm(t){if(!state.me)return 'none';if(t==='D'){if(isSuper())return 'view';var an=[1,2,3,4,5].some(function(i){var q=(state.me.perms||{})['p'+i];if(i===5&&q===undefined)q=(state.me.perms||{}).p2;return q==='edit'||q==='view'});return an?'view':'none'}if(isSuper())return 'edit';var pp=state.me.perms||{},p=pp['p'+t];if(t==='5'&&p===undefined)p=pp.p2;return (p==='edit'||p==='view')?p:'none'}
 function canEdit(t){return state.hasDb&&state.canWrite&&perm(t)==='edit'}
 function canDel(){return canEdit('1')&&(isSuper()||!!(state.me&&state.me.del))}
 function uname(){return state.me?state.me.username:''}
@@ -846,7 +851,7 @@ function drawStats(){
   $('#quick').innerHTML=q.map(function(x){return '<button type="button" class="qcard" data-act="go" data-t="'+x[3]+'" data-f="'+x[4]+'"><i class="ic '+(x[0]==='add'?'':x[0])+'">'+ico(IC[x[0]])+'</i><span><b>'+x[1]+'</b><small>'+esc(x[2])+'</small></span><span class="chev">'+ico(IC.chev,18)+'</span></button>'}).join('');
 }
 function drawTabs(){
-  $('#tabs').innerHTML=TABS.filter(function(t){return (t[0]==='D'||t[0]==='1')&&perm(t[0])!=='none'}).map(function(t){return '<button type="button" role="tab" class="tab" data-tab="'+t[0]+'" aria-selected="'+(state.tab===t[0]||(t[0]==='1'&&/^[234]$/.test(state.tab)))+'"><span class="n">'+(t[0]==='D'?ico('<path d="M5 20V11M12 20V5M19 20v-7"/>',16):t[0])+'</span><span class="tt">'+t[1]+'<small>'+t[2]+'</small></span></button>'}).join('');
+  $('#tabs').innerHTML=TABS.filter(function(t){return perm(t[0])!=='none'}).map(function(t){return '<button type="button" role="tab" class="tab" data-tab="'+t[0]+'" aria-selected="'+(state.tab===t[0])+'"><span class="n">'+(TABS.indexOf(t)+1)+'</span><span class="tt">'+t[1]+'<small>'+t[2]+'</small></span></button>'}).join('');
 }
 
 /* ---------- toolbar ---------- */
@@ -855,6 +860,7 @@ var CHIPS={
   1:[['','ทั้งหมด'],['เรียกเก็บ','เรียกเก็บ'],['แจ้งโอน','แจ้งโอน']],
   2:[['pending','รอตรวจสอบ'],['done','ตรวจสอบแล้ว'],['all','ทั้งหมด']],
   3:[['pending','รอทำหนังสือ'],['done','ทำหนังสือแล้ว'],['all','ทั้งหมด']],
+  5:[['pending','กำลังดำเนินการ'],['done','เสร็จสิ้น'],['all','ทั้งหมด']],
   4:[['all','ทั้งหมด'],['wait','รอใบเสร็จ'],['soon','ใกล้ครบกำหนด'],['late','เกินกำหนด'],['done','ได้รับแล้ว']]
 };
 function drawToolbar(){
@@ -875,11 +881,11 @@ function drawForm(){
   if(t==='1'){box.innerHTML=canEdit('1')?form1():'<div class="hint">คุณดูรายการได้อย่างเดียว ไม่มีสิทธิ์เพิ่มหรือแก้ไขหนังสือ</div>';return}
   var r=cur();
   if(!r){
-    var msg={2:'เลือก “ตรวจสอบ” ที่รายการในตารางด้านล่าง เพื่อบันทึกผลและทำบันทึกข้อความ',3:'เลือก “ทำหนังสือ” ที่รายการในตารางด้านล่าง รายการจะแสดงในขั้นตอนนี้หลังตรวจสอบแล้ว',4:(state.dir4==='recv'?'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่ส่งใบเสร็จให้หน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือส่งใบเสร็จแล้ว':'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่โอนเงินและวันที่รับใบเสร็จจากหน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือแจ้งโอนแล้ว')}[t];
+    var msg={5:'เลือก “ส่งต่อ” ที่รายการในตารางด้านล่าง เพื่อดำเนินการของงานธุรการ การเงิน และบัญชี รายการจะแสดงในส่วนนี้หลังตรวจสอบแล้ว',2:'เลือก “ตรวจสอบ” ที่รายการในตารางด้านล่าง เพื่อบันทึกผลและทำบันทึกข้อความ',3:'เลือก “ทำหนังสือ” ที่รายการในตารางด้านล่าง รายการจะแสดงในขั้นตอนนี้หลังตรวจสอบแล้ว',4:(state.dir4==='recv'?'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่ส่งใบเสร็จให้หน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือส่งใบเสร็จแล้ว':'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่โอนเงินและวันที่รับใบเสร็จจากหน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือแจ้งโอนแล้ว')}[t];
     box.innerHTML='<div class="hint">'+msg+'</div>';return;
   }
-  box.innerHTML=t==='2'?form2(r)+wfCard(r):(t==='3'?form3(r)+'<div style="height:18px"></div><div class="pair one">'+(flowOf(r)==='recv'?paperCard('paper3b','ตัวอย่างหนังสือส่งใบเสร็จ'):paperCard('paper3a','ตัวอย่างหนังสือแจ้งโอน'))+'</div>':form4(r));
-  if(t==='4')updateDue();else if(t==='3'){syncKind();drawPapers3()}
+  box.innerHTML=t==='2'?'<div class="split2"><div class="sp-left">'+paperCard('paper2','บันทึกข้อความ')+'</div><div class="sp-right">'+form2(r)+'</div></div>':(t==='5'?head5(r)+wfCard(r):(t==='3'?form3(r)+'<div style="height:18px"></div><div class="pair one">'+(flowOf(r)==='recv'?paperCard('paper3b','ตัวอย่างหนังสือส่งใบเสร็จ'):paperCard('paper3a','ตัวอย่างหนังสือแจ้งโอน'))+'</div>':form4(r)));
+  if(t==='4')updateDue();else if(t==='3'){syncKind();drawPapers3()}else if(t==='2')drawPaper2();
 }
 function detailList(){var o=uniqRecent(state.records,function(x){return x.detail},200);return '<datalist id="detailList">'+o.map(function(t){return '<option value="'+esc(t)+'">'}).join('')+'</datalist>'}
 function form1(){
@@ -932,8 +938,8 @@ var JOB_LBL={fin:'งานการเงิน',acc:'งานบัญชี'
 function wfJob(step){return step==='clerk'?'clerk':(step==='fin'?'fin':(step==='ins'?'ins':'acc'))}
 function canJob(step){if(isSuper())return true;var j=state.me&&state.me.job;return !j||j===wfJob(step)}
 function audOk(){return canEdit('2')&&(isSuper()||!state.me.job||state.me.job==='ins')}
-var JOB_DEF={ins:{p1:'edit',p2:'edit',p3:'edit',p4:'edit'},clerk:{p1:'view',p2:'edit',p3:'view',p4:'view'},fin:{p1:'view',p2:'edit',p3:'view',p4:'view'},acc:{p1:'view',p2:'edit',p3:'view',p4:'view'}};
-function jobPermsOf(j){return ((state.settings||{}).jobPerms||{})[j]||JOB_DEF[j]||{p1:'none',p2:'none',p3:'none',p4:'none'}}
+var JOB_DEF={ins:{p1:'edit',p2:'edit',p3:'edit',p4:'edit',p5:'view'},clerk:{p1:'view',p2:'view',p3:'view',p4:'view',p5:'edit'},fin:{p1:'view',p2:'view',p3:'view',p4:'view',p5:'edit'},acc:{p1:'view',p2:'view',p3:'view',p4:'view',p5:'edit'}};
+function jobPermsOf(j){return ((state.settings||{}).jobPerms||{})[j]||JOB_DEF[j]||{p1:'none',p2:'none',p3:'none',p4:'none',p5:'none'}}
 function wfStep(r){return (r.wf&&r.wf.step)||'clerk'}
 function wfShort(r){
   var a=r.audit||{};if(!a.date)return '';var st=wfStep(r);
@@ -943,6 +949,7 @@ function wfShort(r){
 function wfBy(){return (state.me&&(state.me.displayName||state.me.username))||'ผู้ใช้'}
 function wfNow(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
 function wfFmtAt(t){var m=/^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})$/.exec(t||'');return m?(+m[3])+' '+TH_MS[+m[2]-1]+' '+(+m[1]+543)+' '+m[4]:(t||'')}
+function head5(r){return '<div class="card" style="margin-bottom:16px">'+head(r,'ส่งต่อเอกสารภายใน (งานธุรการ / การเงิน / บัญชี)')+'</div>'}
 function wfCard(r){
   var w=r.wf||{},st=wfStep(r),a=r.audit||{},recv=flowOf(r)==='recv',seq=wfSeq(r),d=dis(),f=w.fin||{};
   var ready=!!a.date;
@@ -953,7 +960,7 @@ function wfCard(r){
     var cls=st==='ins'&&i===idx?'ret':(i<idx||st==='done'?'done':(i===idx?'now':''));
     return '<li class="'+cls+(vs===k?' view':'')+'"><button type="button" data-act="wfview" data-id="'+r.id+'" data-v="'+k+'" aria-pressed="'+(vs===k)+'"><b>'+(i<idx||st==='done'?'✓':i+1)+'</b>'+WF_LBL[k]+'</button></li>'}).join('')+'</ol>';
   var h='<section class="card wfcard" id="wfCard"><h3>ส่งต่อเอกสารภายใน</h3><p class="sub">'+(recv?'หนังสือแจ้งโอนเงิน: ธุรการ → การเงิน (ออกใบเสร็จ) → บัญชี':'หนังสือเรียกเก็บ: ธุรการ → บัญชี (ค้างจ่าย) → การเงิน (จ่าย) → บัญชี (รับจ่าย)')+'</p>'+steps;
-  if(!ready)h+='<div class="hint">บันทึกผลการตรวจสอบ (ด้านบน) ก่อน แล้วจึงส่งต่อเอกสารได้</div>';
+  if(!ready)h+='<div class="hint">ต้องบันทึกผลการตรวจสอบ (เมนู 2 ตรวจสอบ) ก่อน แล้วจึงส่งต่อเอกสารได้</div>';
   var box='',nt='<div class="fld wide"><label for="wf_note">ข้อความ / เหตุผล (จำเป็นเมื่อส่งคืน)</label><textarea id="wf_note" rows="2" autocomplete="off"></textarea></div>';
   var B=function(act,txt,cls){return '<button class="btn '+(cls||'')+'" type="button" data-act="wf" data-w="'+act+'"'+((ready&&active&&jobOk)?d:' disabled')+'>'+txt+'</button>'};
   if(vs==='clerk'){
@@ -992,7 +999,7 @@ function wfCard(r){
 }
 function wfHint(el){var h=document.getElementById(el.id+'_h');if(h)h.textContent=el.value?fmtShort(el.value):''}
 async function wfDo(act){
-  var r=cur();if(!r||!canEdit('2'))return;
+  var r=cur();if(!r||!canEdit('5'))return;
   var w=JSON.parse(JSON.stringify(r.wf||{})),st=wfStep(r),recv=flowOf(r)==='recv',now=wfNow(),by=wfBy();
   var note=val('wf_note'),f=w.fin=w.fin||{};w.log=w.log||[];
   var lg=function(t,n){w.log.push({at:now,by:by,act:t,note:n||''})};
@@ -1091,6 +1098,7 @@ function viewRows(){
   var t=state.tab,f=state.f[t],q=state.q.trim().toLowerCase(),rows=state.records.slice();
   if(t==='1'&&f)rows=rows.filter(function(r){return r.type===f});
   if(t==='2')rows=rows.filter(function(r){return f==='all'||(f==='pending'?!audited(r):audited(r))});
+  if(t==='5')rows=rows.filter(function(r){return audited(r)&&(f==='all'||(f==='pending'?wfStep(r)!=='done':wfStep(r)==='done'))});
   if(t==='3')rows=rows.filter(function(r){return audited(r)&&(f==='all'||(f==='pending'?!lettered(r):lettered(r)))});
   if(t==='4')rows=rows.filter(function(r){if(flowOf(r)!==state.dir4||!lettered(r))return false;var k=status(r).k;
     if(state.dir4==='recv')return f==='all'||k===f;
@@ -1108,7 +1116,7 @@ function two(a,b){return esc(a||'-')+'<span class="sub2">'+b+'</span>'}
 function stepBtns(r){
   var a=audited(r),L=lettered(r),t=r.track||{},tr=flowOf(r)==='recv'?!!t.sentDate:!!t.receivedDate;
   var b=function(tab,txt,en,next){return perm(tab)==='none'?'':'<button class="btn sm'+(next?' primary':'')+'" type="button" data-act="rowgo" data-t="'+tab+'" data-id="'+r.id+'"'+(en?'':' disabled title="ต้องทำขั้นก่อนหน้าให้เสร็จก่อน"')+'>'+txt+'</button>'};
-  return b('2','ตรวจสอบ',true,!a)+b('3','ทำหนังสือ',a,a&&!L)+b('4','ใบเสร็จ',L,L&&!tr);
+  return b('2','ตรวจสอบ',true,!a)+b('5','ส่งต่อ',a,false)+b('3','ทำหนังสือ',a,a&&!L)+b('4','ใบเสร็จ',L,L&&!tr);
 }
 state.pageSize=20;
 function drawList(){
@@ -1129,6 +1137,11 @@ function drawList(){
     h=table([['เลขรับ'],['หน่วยงาน'],['หนังสือ'],['ประเภท'],['เป็นเงิน (บาท)','r'],['บันทึกข้อความ'],['ผลตรวจสอบ'],['']],rows.map(function(r){
       var a=r.audit||{};
       return '<tr class="'+(state.sel===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+two(r.docNo,'ลงวันที่ '+fmtShort(r.docDate))+'</td><td><span class="tag">'+esc(r.type)+'</span></td><td class="r num">'+fmtMoney(r.amount)+'</td><td>'+(a.date?two(a.memoNo,'ลงวันที่ '+fmtShort(a.memoDate)):'-')+'</td><td>'+(a.date?'<span class="pill '+(a.result==='fix'?'soon':'done')+'">'+(a.result==='fix'?'มีข้อสังเกต':'ถูกต้อง')+'</span>':'<span class="pill audit">รอตรวจสอบ</span>')+wfShort(r)+'</td><td><button class="btn sm'+(a.date?'':' primary')+'" type="button" data-act="pick" data-id="'+r.id+'">'+(a.date?'เปิด':'ตรวจสอบ')+'</button></td></tr>';
+    }).join(''),foot.replace('__C__','4').replace('__D__','3'));
+  }else if(t==='5'){
+    h=table([['เลขรับ'],['หน่วยงาน'],['หนังสือ'],['ประเภท'],['เป็นเงิน (บาท)','r'],['ตรวจสอบเมื่อ'],['สถานะส่งต่อ'],['']],rows.map(function(r){
+      var w=r.wf||{},f2=w.fin||{};
+      return '<tr class="'+(state.sel===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+two(r.docNo,'ลงวันที่ '+fmtShort(r.docDate))+'</td><td><span class="tag">'+esc(r.type)+'</span></td><td class="r num">'+fmtMoney(r.amount)+'</td><td>'+fmtShort((r.audit||{}).date)+'</td><td><span class="pill '+(wfStep(r)==='done'?'done':(wfStep(r)==='ins'?'late':'wait'))+'">'+esc(wfLabel(r))+'</span>'+(f2.no?'<span class="sub2">ใบเสร็จ '+esc(f2.book||'-')+'/'+esc(f2.no)+'</span>':'')+'</td><td><button class="btn sm'+(wfStep(r)==='done'?'':' primary')+'" type="button" data-act="pick" data-id="'+r.id+'">'+(wfStep(r)==='done'?'เปิด':'ส่งต่อ')+'</button></td></tr>';
     }).join(''),foot.replace('__C__','4').replace('__D__','3'));
   }else if(t==='3'){
     h=table([['เลขรับ'],['หน่วยงาน'],['หนังสือ'],['เป็นเงิน (บาท)','r'],['หนังสือแจ้งโอน'],['หนังสือส่งใบเสร็จ'],['']],rows.map(function(r){
@@ -1151,7 +1164,7 @@ function drawList(){
   else if(allRows.length)pg='<div class="pager"><span>แสดง '+allRows.length+' รายการ</span></div>';
   box.innerHTML=h+pg;
 }
-function refresh(){if(!state.me||state.tab==='0')return;drawNotices();drawStats();drawList();if(state.tab==='D'&&typeof drawDash==='function')drawDash()}
+function refresh(){if(!state.me||state.tab==='0')return;if(state.tab==='2'&&state.sel&&document.getElementById('paper2'))drawPaper2();drawNotices();drawStats();drawList();if(state.tab==='D'&&typeof drawDash==='function')drawDash()}
 
 /* ---------- docx ---------- */
 var FONT='TH SarabunPSK';
@@ -1271,6 +1284,9 @@ function memoXml(r,a){
   b+=P(['ตามหนังสือ '+r.agency+' ที่ '+r.docNo+' ลงวันที่ '+fmtLong(r.docDate)+' เรื่อง '+v2+obj],{first:1417,align:'thaiDistribute',after:60});
   b+=P([{t:'2.ข้อเท็จจริง',b:true}],{first:1417,before:60});
   b+=P([r.agency+' ได้'+v2+obj+cnt+' รวมเป็นเงินทั้งสิ้น '+money],{first:1417,align:'thaiDistribute',after:60});
+  var fin=((r.wf||{}).fin)||{};
+  if(fin.no||fin.date){b+=P(['งานการเงินได้ออกใบเสร็จรับเงิน'+(fin.book?' เล่มที่ '+fin.book:'')+(fin.no?' เลขที่ '+fin.no:'')+(fin.date?' ลงวันที่ '+fmtLong(fin.date):'')],{first:1417,align:'thaiDistribute',after:60})}
+  if(fin.payDate||fin.cheque){b+=P(['งานการเงินได้จ่ายเงิน'+(fin.payDate?' เมื่อวันที่ '+fmtLong(fin.payDate):'')+(fin.cheque?' ตามเช็คเลขที่ '+fin.cheque:'')],{first:1417,align:'thaiDistribute',after:60})}
   var amA=(a.amount!==undefined&&a.amount!==null&&a.amount!==''&&!isNaN(Number(a.amount)))?Number(a.amount):(Number(r.amount)||0);
   var moneyA=fmtMoneyDoc(amA)+' บาท ('+bahtText(amA)+')';
   var cons=(s.unitFull||s.unit||'ผู้ตรวจสอบ')+' ได้ดำเนินการตรวจสอบการ'+v2+obj+cnt+' รวมเป็นเงินทั้งสิ้น '+moneyA+(Math.abs(amA-(Number(r.amount)||0))>=0.005?' (จากยอดที่'+v2+' '+money+')':'')+' ผลการตรวจสอบดังเอกสารแนบท้าย';
@@ -1433,7 +1449,7 @@ function drawPapers3(){
   });
 }
 var prevTimer;
-function schedulePreview(){clearTimeout(prevTimer);prevTimer=setTimeout(function(){if(state.tab==='3')drawPapers3()},120)}
+function schedulePreview(){clearTimeout(prevTimer);prevTimer=setTimeout(function(){if(state.tab==='3')drawPapers3();else if(state.tab==='2')drawPaper2()},120)}
 
 /* ---------- actions ---------- */
 function normNo(x){return String(x||'').replace(/\s+/g,'').toLowerCase()}
@@ -1472,7 +1488,7 @@ function expBtns(sec,dir){
   var b=function(f,t){return '<button type="button" class="btn sm" data-act="exp" data-f="'+f+'" data-s="'+sec+'"'+(dir?' data-d="'+dir+'"':'')+'>'+t+'</button>'};
   return '<span class="expgrp"><span class="lbl2">ส่งออก</span>'+b('report','รายงาน')+b('xlsx','Excel')+b('pdf','PDF')+'</span>';
 }
-var SEC_NAME={D:'แดชบอร์ด','1':'รับหนังสือ','2':'ตรวจสอบ','3':'ทำหนังสือ','4p':'ติดตามใบเสร็จ (เขาเรียกเก็บเรา)','4r':'ติดตามใบเสร็จ (เขาแจ้งโอน)',logs:'ประวัติการใช้งาน'};
+var SEC_NAME={D:'แดชบอร์ด','1':'รับหนังสือ','2':'ตรวจสอบ','3':'ทำหนังสือ','5':'ส่งต่อเอกสาร','4p':'ติดตามใบเสร็จ (เขาเรียกเก็บเรา)','4r':'ติดตามใบเสร็จ (เขาแจ้งโอน)',logs:'ประวัติการใช้งาน'};
 function secRows(sec,dir,keep){
   var t=sec==='4p'||sec==='4r'?'4':sec;
   if(keep)return viewRows();
@@ -1486,6 +1502,8 @@ function tblFor(sec,rows){
     rows:rows.map(function(r){return [r.receiveNo,r.agency,r.docNo,fmtShort(r.docDate),r.type,r.detail||'',r.period||'',M(r.amount),status(r).label]})};
   if(sec==='2')return {head:['เลขรับ','หน่วยงาน','เลขหนังสือ','ประเภท','ยอดเรียกเก็บ/แจ้งโอน (บาท)','วันที่ตรวจสอบ','ผู้ตรวจสอบ','ผลตรวจสอบ','ยอดที่ตรวจสอบ (บาท)','บันทึกข้อความที่','ข้อสังเกต','ส่งต่อเอกสาร'],money:[4,8],
     rows:rows.map(function(r){var a=r.audit||{};return [r.receiveNo,r.agency,r.docNo,r.type,M(r.amount),a.date?fmtShort(a.date):'-',a.auditor||'',a.date?(a.result==='fix'?'มีข้อสังเกต':'ถูกต้อง'):'รอตรวจสอบ',(a.amount!==undefined&&a.amount!==null&&a.amount!=='')?M(a.amount):'',a.memoNo||'',a.note||'',wfLabel(r)]})};
+  if(sec==='5')return {head:['เลขรับ','หน่วยงาน','ประเภท','ยอดเงิน (บาท)','วันที่ตรวจสอบ','สถานะส่งต่อ','ใบเสร็จเล่มที่','ใบเสร็จเลขที่','วันที่ใบเสร็จ','วันที่จ่าย','เช็คเลขที่'],money:[3],
+    rows:rows.map(function(r){var f=(r.wf||{}).fin||{};return [r.receiveNo,r.agency,r.type,M(r.amount),fmtShort((r.audit||{}).date),wfLabel(r),f.book||'',f.no||'',f.date?fmtShort(f.date):'',f.payDate?fmtShort(f.payDate):'',f.cheque||'']})};
   if(sec==='3')return {head:['เลขรับ','หน่วยงาน','ประเภท','ยอดเงิน (บาท)','หนังสือแจ้งโอนที่','ลงวันที่','หนังสือส่งใบเสร็จที่','ลงวันที่'],money:[3],
     rows:rows.map(function(r){var l=r.letter||{};return [r.receiveNo,r.agency,r.type,M(r.amount),l.transferNo||'',l.transferDate?fmtShort(l.transferDate):'',l.receiptLetterNo||'',l.receiptLetterDate?fmtShort(l.receiptLetterDate):'']})};
   if(sec==='4p')return {head:['เลขรับ','หน่วยงาน','หนังสือแจ้งโอนที่','ยอดเงิน (บาท)','วันที่โอน','ครบกำหนด','สถานะ','ใบเสร็จเลขที่','วันที่รับใบเสร็จ'],money:[3],
@@ -1589,7 +1607,7 @@ async function exportXlsx(sec,dir,keep){
   if(sec==='D'){
     // แดชบอร์ด: ส่งออกทุกส่วนเป็นหลายชีต
     var dr=dashReport();sheets.push({name:'แดชบอร์ด',blocks:repToBlocks(dr)});
-    [['1','รับหนังสือ'],['2','ตรวจสอบ'],['3','ทำหนังสือ'],['4p','ติดตาม-เขาเรียกเก็บเรา'],['4r','ติดตาม-เขาแจ้งโอน']].forEach(function(x){
+    [['1','รับหนังสือ'],['2','ตรวจสอบ'],['5','ส่งต่อเอกสาร'],['3','ทำหนังสือ'],['4p','ติดตาม-เขาเรียกเก็บเรา'],['4r','ติดตาม-เขาแจ้งโอน']].forEach(function(x){
       var rp=buildReport(x[0]==='4p'?'4':x[0],x[0]==='4r'?'recv':'pay',false);sheets.push({name:x[1],blocks:repToBlocks(rp)})});
     if(isSuper()&&logRows.length){var lr=buildReport('logs');sheets.push({name:'ประวัติการใช้งาน',blocks:repToBlocks(lr)})}
     name='รายงานทะเบียนคุม_ทุกส่วน_'+TODAY+'.xlsx';
@@ -1759,7 +1777,7 @@ document.addEventListener('change',function(ev){
   else if(ev.target.id==='d_ag'){state.dash.ag=ev.target.value;drawDash()}
   else if(ev.target.name==='flt'){state.f[state.tab]=ev.target.value;drawList()}
   else if(ev.target.id==='u_role')togglePerm();
-  else if(ev.target.id==='u_job'){var jp0=jobPermsOf(ev.target.value);if(ev.target.value){[1,2,3,4].forEach(function(i){var e=document.getElementById('u_p'+i);if(e)e.value=jp0['p'+i]||'none'})}}
+  else if(ev.target.id==='u_job'){var jp0=jobPermsOf(ev.target.value);if(ev.target.value){[1,2,3,4,5].forEach(function(i){var e=document.getElementById('u_p'+i);if(e)e.value=jp0['p'+i]||'none'})}}
   else if(/^(a_|m_|la_|lb_)/.test(ev.target.id||'')){if(/_kind_/.test(ev.target.id))syncKind();schedulePreview()}
   else if(ev.target.id==='t_transfer')updateDue();
 });
@@ -1791,7 +1809,7 @@ var PERM_LABEL={edit:'แก้ไข',view:'ดู',none:'-'};
 function permText(u){
   if(u.role==='super')return 'ทำได้ทุกอย่าง';
   var p=u.perms||{};
-  return ['1','2','3','4'].map(function(k){return k+':'+PERM_LABEL[p['p'+k]||'none']}).join('  ')+(u.del?'  ลบได้':'');
+  return ['1','2','3','4','5'].map(function(k){return k+':'+PERM_LABEL[p['p'+k]||(k==='5'?p.p2:'')||'none']}).join('  ')+(u.del?'  ลบได้':'');
 }
 
 function drawAuth(){
@@ -1836,7 +1854,7 @@ async function doBootstrap(){
   setErr('eb','กำลังสร้าง…');
   try{
     var salt=rndHex(16),h=await hashPw(p,salt,ITER),now=Date.now();
-    var d={username:u,displayName:n||u,role:'super',active:true,salt:salt,hash:h,iter:ITER,perms:{p1:'edit',p2:'edit',p3:'edit',p4:'edit'},del:true,createdAt:now,updatedAt:now};
+    var d={username:u,displayName:n||u,role:'super',active:true,salt:salt,hash:h,iter:ITER,perms:{p1:'edit',p2:'edit',p3:'edit',p4:'edit',p5:'edit'},del:true,createdAt:now,updatedAt:now};
     await db.doc('users/'+u).set(d);
     state.hasUsers=true;await startSession(u,d);logAct('เข้าสู่ระบบ','สร้างผู้ใช้คนแรก');
   }catch(e){setErr('eb',(e&&(e.code==='invalid_argument'||e.code==='permission_denied'))?'รหัสลับ (API_KEY) ไม่ถูกต้อง หรือมีผู้ใช้อยู่ในระบบแล้ว':'สร้างไม่สำเร็จ ลองอีกครั้ง')}
@@ -1906,11 +1924,11 @@ function ensureUsersSub(){
 /* ---------- user admin ---------- */
 function drawJobPerms(){
   var b=$('#jobPermBox');if(!b)return;
-  var rows=Object.keys(JOB_LBL).map(function(k){var p=jobPermsOf(k);return '<tr><td><b>'+JOB_LBL[k]+'</b></td>'+[1,2,3,4].map(function(i){return '<td>'+permSel('jp_'+k+'_'+i,p['p'+i])+'</td>'}).join('')+'</tr>'}).join('');
-  b.innerHTML='<div class="sect">สิทธิ์ตามบทบาท (งาน)</div><p class="sub">กำหนดว่าแต่ละงานมีสิทธิ์ในขั้นตอนใดบ้าง เมื่อบันทึก ระบบจะปรับสิทธิ์ของผู้ใช้ทุกคนที่เลือกบทบาทนั้นให้ตรงกัน</p><div class="tablebox"><table><thead><tr><th>บทบาท</th><th>1 รับหนังสือ</th><th>2 ตรวจสอบ / ส่งต่อเอกสาร</th><th>3 ทำหนังสือ</th><th>4 ติดตามใบเสร็จ</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="actions"><button class="btn" type="button" data-act="savejobperms"'+(state.isEditor?'':' disabled')+'>บันทึกสิทธิ์ตามบทบาท</button></div>';
+  var rows=Object.keys(JOB_LBL).map(function(k){var p=jobPermsOf(k);return '<tr><td><b>'+JOB_LBL[k]+'</b></td>'+[1,2,3,4,5].map(function(i){return '<td>'+permSel('jp_'+k+'_'+i,p['p'+i])+'</td>'}).join('')+'</tr>'}).join('');
+  b.innerHTML='<div class="sect">สิทธิ์ตามบทบาท (งาน)</div><p class="sub">กำหนดว่าแต่ละงานมีสิทธิ์ในขั้นตอนใดบ้าง เมื่อบันทึก ระบบจะปรับสิทธิ์ของผู้ใช้ทุกคนที่เลือกบทบาทนั้นให้ตรงกัน</p><div class="tablebox"><table><thead><tr><th>บทบาท</th><th>1 รับหนังสือ</th><th>2 ตรวจสอบ / บันทึกข้อความ</th><th>3 ทำหนังสือ</th><th>4 ติดตามใบเสร็จ</th><th>5 ส่งต่อเอกสาร (ธุรการ/การเงิน/บัญชี)</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="actions"><button class="btn" type="button" data-act="savejobperms"'+(state.isEditor?'':' disabled')+'>บันทึกสิทธิ์ตามบทบาท</button></div>';
 }
 async function saveJobPerms(){
-  var jp={};Object.keys(JOB_LBL).forEach(function(k){jp[k]={p1:val('jp_'+k+'_1')||'none',p2:val('jp_'+k+'_2')||'none',p3:val('jp_'+k+'_3')||'none',p4:val('jp_'+k+'_4')||'none'}});
+  var jp={};Object.keys(JOB_LBL).forEach(function(k){jp[k]={p1:val('jp_'+k+'_1')||'none',p2:val('jp_'+k+'_2')||'none',p3:val('jp_'+k+'_3')||'none',p4:val('jp_'+k+'_4')||'none',p5:val('jp_'+k+'_5')||'none'}});
   await guard(async function(){
     await db.doc('settings/main').set(Object.assign({},state.settings,{jobPerms:jp}));
     var us=state.users.filter(function(u){return u.role!=='super'&&u.job&&jp[u.job]});
@@ -1948,7 +1966,7 @@ function drawUserForm(){
     +'<div class="fld" style="justify-content:flex-end"><button class="btn" type="button" data-act="genpw">สุ่มรหัสผ่าน</button></div>'
     +'</div><div id="permBox"'+(u.role==='super'?' hidden':'')+'><div class="sect">สิทธิ์รายขั้นตอน</div><div class="permgrid">'
     +fld('u_p1','1 รับหนังสือ',permSel('u_p1',perms.p1))+fld('u_p2','2 ตรวจสอบ / บันทึกข้อความ',permSel('u_p2',perms.p2))
-    +fld('u_p3','3 ทำหนังสือ',permSel('u_p3',perms.p3))+fld('u_p4','4 ติดตามใบเสร็จ',permSel('u_p4',perms.p4))
+    +fld('u_p3','3 ทำหนังสือ',permSel('u_p3',perms.p3))+fld('u_p4','4 ติดตามใบเสร็จ',permSel('u_p4',perms.p4))+fld('u_p5','5 ส่งต่อเอกสาร (ธุรการ/การเงิน/บัญชี)',permSel('u_p5',perms.p5!==undefined?perms.p5:perms.p2))
     +'</div><label class="check" style="margin-top:12px"><input type="checkbox" id="u_del"'+(u.del?' checked':'')+'><span>ลบรายการหนังสือได้ (ต้องมีสิทธิ์แก้ไขขั้นตอน 1)</span></label></div>'
     +'<p class="err" id="eu" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+off+'>'+(editing?'บันทึกการแก้ไข':'เพิ่มผู้ใช้')+'</button>'+(editing?'<button class="btn" type="button" data-act="uclear">ยกเลิก</button>':'')+'</div></form>';
 }
@@ -1967,7 +1985,7 @@ async function saveUser(){
   if(cur0&&cur0.role==='super'&&cur0.active!==false&&(role!=='super'||status!=='on')&&otherActiveSupers(u)===0)return setErr('eu','ต้องมีซูเปอร์แอดมินที่ใช้งานอยู่อย่างน้อย 1 คน');
   setErr('eu','');
   var isSup=role==='super';
-  var perms=isSup?{p1:'edit',p2:'edit',p3:'edit',p4:'edit'}:{p1:val('u_p1')||'none',p2:val('u_p2')||'none',p3:val('u_p3')||'none',p4:val('u_p4')||'none'};
+  var perms=isSup?{p1:'edit',p2:'edit',p3:'edit',p4:'edit',p5:'edit'}:{p1:val('u_p1')||'none',p2:val('u_p2')||'none',p3:val('u_p3')||'none',p4:val('u_p4')||'none',p5:val('u_p5')||'none'};
   var del=isSup?true:!!(document.getElementById('u_del')||{}).checked;
   var d={displayName:val('u_display')||u,role:role,active:status==='on',perms:perms,del:del,job:isSup?'':val('u_job'),updatedAt:Date.now()};
   var prevHash=state.me.hash,self=editing&&u===uname();

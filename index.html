@@ -276,7 +276,10 @@ td .sub2{display:block;color:var(--ink-2);font-size:.82rem}
 .pill.late{background:var(--pink);color:var(--pink-ink)}
 .pill.done{background:var(--lav);color:var(--lav-ink)}
 .tag{display:inline-block;padding:1px 10px;border-radius:8px;border:1.5px solid var(--line);font-size:.82rem}
-.rowact{display:flex;gap:6px;flex-wrap:nowrap}
+.rowact{display:flex;gap:6px;flex-wrap:wrap;min-width:230px}
+.backrow{margin:0 0 12px}
+.lsearch input{min-height:38px;min-width:260px;padding:4px 14px}
+.pager{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 18px;color:var(--ink-2);font-size:.9rem}
 tfoot td{font-weight:700;background:var(--lav);color:var(--lav-ink)}
 .empty{padding:30px 16px;text-align:center;color:var(--ink-2)}
 .hint{padding:16px 20px;border:2px dashed var(--line);border-radius:20px;color:var(--ink-2);background:var(--surface)}
@@ -474,12 +477,16 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
 .pickrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
 .pickchip{font:inherit;font-size:14px;min-height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer;max-width:100%}
 .pickchip:hover{border-color:var(--accent);background:var(--accent-soft)}
+.dsel2{display:flex;gap:6px;align-items:center;position:relative;width:100%}
+.dsel2 .dtxt{flex:1;min-width:0;font-variant-numeric:tabular-nums}
+.dsel2 .dtxt.bad{border-color:var(--pink-ink)}
+.dsel2 .calbtn{min-width:46px;padding:0 10px}
+.dnat{position:absolute;right:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.dhint{display:block;font-size:.8rem;color:var(--ink-2);margin-top:3px;min-height:1.1em}
 .dsel{display:grid;grid-template-columns:64px minmax(0,1fr) 84px;gap:6px;width:100%}
 
 .dsel select{padding-inline:8px;text-overflow:clip}
-.fld:has(.dsel){grid-column:1/-1}
-@media(min-width:900px){.fld:has(.dsel){grid-column:span 2}}
-.authcard .fld:has(.dsel){grid-column:auto}
+
 
 .wfcard{margin-top:18px;padding:22px 24px}
 .wfcard h3{margin:0 0 4px}
@@ -491,6 +498,9 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
 .wfsteps li.now{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:600}
 .wfsteps li.now b{background:hsl(0 0% 100%/.28)}
 .wfsteps li.ret{background:var(--pink);color:var(--pink-ink);border-color:transparent;font-weight:600}
+.wfsteps li button{all:unset;display:flex;align-items:center;gap:8px;cursor:pointer;border-radius:999px}
+.wfsteps li.view{outline:2.5px solid var(--accent);outline-offset:2px}
+.wfview{margin:0 0 10px;padding:8px 12px;border-radius:12px;background:var(--sun);color:var(--sun-ink);font-size:.86rem}
 .wfbox{border:1.5px solid var(--line);border-radius:20px;padding:16px 18px;background:var(--surface)}
 .wfbox h4{margin:0 0 4px;font-size:1rem}
 .wfbox .sub{margin:0 0 12px}
@@ -515,6 +525,36 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
 #guideBox h3{margin:20px 0 6px;font-size:1.02rem}
 #guideBox ol,#guideBox ul{margin:6px 0;padding-left:1.3em;line-height:1.7}
 #guideBox .gcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+
+.expgrp{display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center}
+.expgrp .lbl2{font-size:.82rem;color:var(--ink-2);margin-right:2px}
+#rptBox{position:fixed;inset:0;z-index:200;background:hsl(0 0% 88%);overflow:auto;display:none;color:#111}
+#rptBox.on{display:block}
+.rptbar{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;background:#fff;border-bottom:1px solid #ccc}
+.rptbar .grow{flex:1}
+.rptbar .btn{background:#fff;color:#111;border-color:#999}
+.rptbar .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.rptpage{background:#fff;color:#111;max-width:1180px;margin:18px auto;padding:30px 34px;box-shadow:0 2px 14px hsl(0 0% 0%/.18);font-size:.92rem}
+.rptpage h1{font-size:1.35rem;margin:0 0 2px}
+.rptpage .rsub{color:#444;margin:0 0 14px;font-size:.88rem}
+.rptpage h2{font-size:1.02rem;margin:20px 0 6px}
+.rptpage .rk{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:10px 0}
+.rptpage .rk div{border:1px solid #bbb;border-radius:8px;padding:8px 12px}
+.rptpage .rk b{display:block;font-size:1.15rem}
+.rptpage .rk span{font-size:.8rem;color:#444}
+.rptpage table{width:100%;border-collapse:collapse;font-size:.82rem}
+.rptpage th,.rptpage td{border:1px solid #999;padding:4px 7px;text-align:left;vertical-align:top;color:#111;background:#fff}
+.rptpage th{background:#e8e8e8}
+.rptpage td.r,.rptpage th.r{text-align:right;font-variant-numeric:tabular-nums}
+.rptpage tr{page-break-inside:avoid}
+.rptpage .rfoot{margin-top:14px;font-size:.78rem;color:#555}
+@media print{
+  @page{size:A4 landscape;margin:12mm}
+  body>*:not(#rptBox){display:none!important}
+  #rptBox{position:static!important;display:block!important;overflow:visible!important;background:#fff!important}
+  .rptbar{display:none!important}
+  .rptpage{box-shadow:none!important;margin:0!important;max-width:none!important;padding:0!important}
+}
 </style>
 
 <div id="shell">
@@ -579,13 +619,14 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
 
   <section id="logBox" class="card" hidden>
     <div class="fhead"><h2>ประวัติการใช้งาน</h2><p class="recline">ใครเข้ามาทำอะไร เมื่อไร (วันเวลา) · เห็นได้เฉพาะซูเปอร์แอดมิน · ไม่นับผู้เยี่ยมชม</p></div>
-    <div class="actions" style="padding:0 24px 12px"><label class="sub" style="display:inline">ผู้ใช้ <select id="logUser"><option value="">ทุกคน</option></select></label><button class="btn sm" type="button" data-act="logreload">โหลดใหม่</button><span class="sub" id="logCount" style="display:inline"></span></div>
+    <div class="actions" style="padding:0 24px 12px"><label class="sub" style="display:inline">ผู้ใช้ <select id="logUser"><option value="">ทุกคน</option></select></label><button class="btn sm" type="button" data-act="logreload">โหลดใหม่</button><span id="logExp"></span><span class="sub" id="logCount" style="display:inline"></span></div>
     <div class="tablebox"><table><thead><tr><th>วันเวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>รายละเอียด</th></tr></thead><tbody id="logBody"></tbody></table></div>
   </section>
 
   <section id="usersBox" class="card" hidden>
     <div class="fhead"><h2>ผู้ใช้งานและสิทธิ์</h2><p class="recline">เพิ่มผู้ใช้ กำหนดรหัสผ่าน และเลือกว่าแต่ละคนทำอะไรได้ในแต่ละขั้นตอน รหัสผ่านเก็บแบบเข้ารหัส ดูย้อนหลังไม่ได้ ให้แจ้งผู้ใช้เมื่อตั้งหรือรีเซ็ต</p></div>
     <div id="usersNote"></div>
+    <div id="jobPermBox"></div>
     <div id="userFormBox"></div>
     <div id="usersList" class="tablebox"></div>
   </section>
@@ -700,20 +741,42 @@ var toastTimer;
 function toast(m){var t=$('#toast');t.textContent=m;clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.textContent=''},3200)}
 function fld(id,label,inner,cls){return '<div class="fld '+(cls||'')+'"><label for="'+id+'">'+label+'</label>'+inner+'</div>'}
 var TH_MFULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-function dateInp(id,v){
-  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v||''),y=m?+m[1]:0,mo=m?+m[2]:0,d=m?+m[3]:0;
-  var cy=new Date().getFullYear(),lo=Math.min(cy-6,y||cy),hi=Math.max(cy+2,y||cy);
-  var dO='<option value="">วัน</option>',mO='<option value="">เดือน</option>',yO='<option value="">พ.ศ.</option>',i;
-  for(i=1;i<=31;i++)dO+='<option value="'+i+'"'+(i===d?' selected':'')+'>'+i+'</option>';
-  for(i=0;i<12;i++)mO+='<option value="'+(i+1)+'"'+(i+1===mo?' selected':'')+'>'+TH_MFULL[i]+'</option>';
-  for(i=hi;i>=lo;i--)yO+='<option value="'+i+'"'+(i===y?' selected':'')+'>'+(i+543)+'</option>';
-  return '<div class="dsel" role="group" aria-label="วันที่ (พ.ศ.)"><input type="hidden" id="'+id+'" value="'+esc(m?v:'')+'" data-bedate="1"><select class="d" data-dfor="'+id+'" aria-label="วัน">'+dO+'</select><select class="m" data-dfor="'+id+'" aria-label="เดือน">'+mO+'</select><select class="y" data-dfor="'+id+'" aria-label="ปี พ.ศ.">'+yO+'</select></div>';
+function fmtDMY(iso){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');return m?m[3]+'/'+m[2]+'/'+('0'+((+m[1]+543)%100)).slice(-2):''}
+function parseDMY(t){
+  t=String(t||'').trim();if(!t)return '';
+  var p=t.split(/[\/\-.\s]+/).filter(Boolean),d,mo,y;
+  if(p.length===1&&/^\d{6}$|^\d{8}$/.test(p[0])){d=+p[0].slice(0,2);mo=+p[0].slice(2,4);y=+p[0].slice(4)}
+  else if(p.length===3&&p.every(function(x){return /^\d+$/.test(x)})){d=+p[0];mo=+p[1];y=+p[2]}
+  else return '';
+  if(y<100)y+=2500;
+  if(y>=2400)y-=543;
+  if(y<1900||y>2300||mo<1||mo>12||d<1)return '';
+  var dt=new Date(y,mo-1,d);if(dt.getFullYear()!==y||dt.getMonth()!==mo-1||dt.getDate()!==d)return '';
+  return y+'-'+('0'+mo).slice(-2)+'-'+('0'+d).slice(-2);
 }
-function syncDate(sel){
-  var id=sel.dataset.dfor,h=document.getElementById(id);if(!h)return;
-  var g=sel.parentNode,d=+g.querySelector('.d').value,mo=+g.querySelector('.m').value,y=+g.querySelector('.y').value,v='';
-  if(d&&mo&&y){var last=new Date(y,mo,0).getDate();if(d>last){d=last;g.querySelector('.d').value=String(d)}v=y+'-'+('0'+mo).slice(-2)+'-'+('0'+d).slice(-2)}
-  if(h.value!==v){h.value=v;h.dispatchEvent(new Event('input',{bubbles:true}));h.dispatchEvent(new Event('change',{bubbles:true}))}
+function dateInp(id,v){
+  var ok=/^\d{4}-\d{2}-\d{2}$/.test(v||''),iso=ok?v:'';
+  return '<div class="dsel2" role="group" aria-label="วันที่ (พ.ศ.)"><input type="hidden" id="'+id+'" value="'+esc(iso)+'" data-bedate="1"><input type="text" class="dtxt" data-dtxt="'+id+'" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="วว/ดด/ปป" value="'+fmtDMY(iso)+'" aria-label="วันที่ พิมพ์ วว/ดด/ปป (พ.ศ.)"><button type="button" class="btn calbtn" data-act="calopen" data-for="'+id+'" aria-label="เลือกจากปฏิทิน" title="เลือกจากปฏิทิน"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></button><input type="date" class="dnat" tabindex="-1" aria-hidden="true" data-nat="'+id+'" value="'+esc(iso)+'"></div><span class="dhint" id="'+id+'_hint">'+(iso?fmtShort(iso):'')+'</span>';
+}
+function setDateIso(id,iso,fromTxt){
+  var h=document.getElementById(id);if(!h)return;
+  var t=document.querySelector('[data-dtxt="'+id+'"]'),n=document.querySelector('[data-nat="'+id+'"]'),hint=document.getElementById(id+'_hint');
+  if(!fromTxt&&t)t.value=fmtDMY(iso);
+  if(n)n.value=iso;if(hint)hint.textContent=iso?fmtShort(iso):'';
+  if(t)t.classList.remove('bad');
+  if(h.value!==iso){h.value=iso;h.dispatchEvent(new Event('input',{bubbles:true}));h.dispatchEvent(new Event('change',{bubbles:true}))}
+}
+function dateTxtInput(el,ev){
+  var raw=el.value;
+  if(ev&&ev.inputType==='insertText'&&/^\d{2}$|^\d{2}\/\d{2}$/.test(raw))el.value=raw+'/';
+  var iso=parseDMY(el.value);
+  if(iso)setDateIso(el.dataset.dtxt,iso,true);
+  else if(!el.value.trim())setDateIso(el.dataset.dtxt,'',true);
+}
+function dateTxtBlur(el){
+  var iso=parseDMY(el.value),id=el.dataset.dtxt;
+  if(iso){setDateIso(id,iso,false)}
+  else if(el.value.trim()){el.classList.add('bad');var h=document.getElementById(id+'_hint');if(h)h.textContent='รูปแบบไม่ถูกต้อง พิมพ์เช่น 22/10/69';var hd=document.getElementById(id);if(hd&&hd.value){hd.value='';hd.dispatchEvent(new Event('input',{bubbles:true}));hd.dispatchEvent(new Event('change',{bubbles:true}))}}
 }
 function inp(id,v,attrs){if(attrs&&/type="date"/.test(attrs))return dateInp(id,v);return '<input type="text" id="'+id+'" value="'+esc(v)+'" '+(attrs||'')+'>'}
 function area(id,v,rows){return '<textarea id="'+id+'" rows="'+(rows||3)+'">'+esc(v)+'</textarea>'}
@@ -779,14 +842,11 @@ function drawStats(){
   $('#stats').innerHTML=it.map(function(x){return '<div class="stat"><i class="ic '+(x[2]==='all'?'':x[2])+'">'+ico(IC[x[2]])+'</i><div class="sv"><span>'+x[0]+'</span><b>'+x[1]+'</b></div></div>'}).join('');
   var q=[];
   if(canEdit('1'))q.push(['add','เพิ่มหนังสือใหม่','บันทึกหนังสือเรียกเก็บ / แจ้งโอน','1','']);
-  if(perm('2')!=='none')q.push(['audit','รอตรวจสอบ',c.audit+' รายการ','2','pending']);
-  if(perm('3')!=='none')q.push(['letter','รอทำหนังสือ',c.letter+' รายการ','3','pending']);
-  if(perm('4')!=='none')q.push(['late','เกินกำหนดใบเสร็จ',c.late+' รายการ','4','late']);
   $('#quickTitle').hidden=!q.length;
   $('#quick').innerHTML=q.map(function(x){return '<button type="button" class="qcard" data-act="go" data-t="'+x[3]+'" data-f="'+x[4]+'"><i class="ic '+(x[0]==='add'?'':x[0])+'">'+ico(IC[x[0]])+'</i><span><b>'+x[1]+'</b><small>'+esc(x[2])+'</small></span><span class="chev">'+ico(IC.chev,18)+'</span></button>'}).join('');
 }
 function drawTabs(){
-  $('#tabs').innerHTML=TABS.filter(function(t){return perm(t[0])!=='none'}).map(function(t){return '<button type="button" role="tab" class="tab" data-tab="'+t[0]+'" aria-selected="'+(state.tab===t[0])+'"><span class="n">'+(t[0]==='D'?ico('<path d="M5 20V11M12 20V5M19 20v-7"/>',16):t[0])+'</span><span class="tt">'+t[1]+'<small>'+t[2]+'</small></span></button>'}).join('');
+  $('#tabs').innerHTML=TABS.filter(function(t){return (t[0]==='D'||t[0]==='1')&&perm(t[0])!=='none'}).map(function(t){return '<button type="button" role="tab" class="tab" data-tab="'+t[0]+'" aria-selected="'+(state.tab===t[0]||(t[0]==='1'&&/^[234]$/.test(state.tab)))+'"><span class="n">'+(t[0]==='D'?ico('<path d="M5 20V11M12 20V5M19 20v-7"/>',16):t[0])+'</span><span class="tt">'+t[1]+'<small>'+t[2]+'</small></span></button>'}).join('');
 }
 
 /* ---------- toolbar ---------- */
@@ -800,11 +860,14 @@ var CHIPS={
 function drawToolbar(){
   var t=state.tab;
   var chips='<div class="chips" role="group" aria-label="กรองรายการ">'+(t==='4'&&state.dir4==='recv'?CHIPS4R:CHIPS[t]).map(function(c){return '<label class="chip"><input type="radio" name="flt" value="'+c[0]+'"'+(state.f[t]===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('')+'</div>';
-  var right=t==='1'?'<button type="button" class="btn sm" data-act="csv">ส่งออก CSV</button>':'';
+  var right='<span style="display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center">'+expBtns(t==='4'?'4':t,t==='4'?state.dir4:'')+(t==='1'?'<button type="button" class="btn sm" data-act="csv">CSV</button>':'')+'</span>';
   var seg='';if(t==='4')seg='<div class="chips" role="radiogroup" aria-label="ใบเสร็จ">'+[['pay','รอรับใบเสร็จจากหน่วยงาน (เขาเรียกเก็บเรา)'],['recv','ต้องส่งใบเสร็จให้หน่วยงาน (เขาแจ้งโอนให้เรา)']].map(function(c){return '<label class="chip"><input type="radio" name="d4" value="'+c[0]+'"'+(state.dir4===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('')+'</div>';
-  $('#toolbar').innerHTML='<div class="left" style="display:flex;flex-wrap:wrap;gap:12px">'+seg+chips+'</div>'+right;
+  var srch='<label class="lsearch"><input type="text" id="lq" placeholder="ค้นหา หน่วยงาน / เลขรับ / เลขหนังสือ" autocomplete="off" aria-label="ค้นหารายการ" value="'+esc(state.q)+'"></label>';
+  var back=t!=='1'?'<button type="button" class="btn sm" data-tab="1">← กลับรายการรับหนังสือ</button>':'';
+  $('#toolbar').innerHTML='<div class="left" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">'+back+srch+seg+chips+'</div>'+right;
   var g=document.getElementById('gq');if(g&&g.value!==state.q)g.value=state.q;
 }
+
 
 /* ---------- forms ---------- */
 function drawForm(){
@@ -815,14 +878,10 @@ function drawForm(){
     var msg={2:'เลือก “ตรวจสอบ” ที่รายการในตารางด้านล่าง เพื่อบันทึกผลและทำบันทึกข้อความ',3:'เลือก “ทำหนังสือ” ที่รายการในตารางด้านล่าง รายการจะแสดงในขั้นตอนนี้หลังตรวจสอบแล้ว',4:(state.dir4==='recv'?'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่ส่งใบเสร็จให้หน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือส่งใบเสร็จแล้ว':'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่โอนเงินและวันที่รับใบเสร็จจากหน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือแจ้งโอนแล้ว')}[t];
     box.innerHTML='<div class="hint">'+msg+'</div>';return;
   }
-  box.innerHTML=t==='2'?form2(r)+wfCard(r)+'<div style="height:18px"></div>'+paperCard('paper2','ตัวอย่างบันทึกข้อความ'):(t==='3'?form3(r)+'<div style="height:18px"></div><div class="pair one">'+(flowOf(r)==='recv'?paperCard('paper3b','ตัวอย่างหนังสือส่งใบเสร็จ'):paperCard('paper3a','ตัวอย่างหนังสือแจ้งโอน'))+'</div>':form4(r));
-  if(t==='4')updateDue();else if(t==='2')drawPaper2();else if(t==='3'){syncKind();drawPapers3()}
+  box.innerHTML=t==='2'?form2(r)+wfCard(r):(t==='3'?form3(r)+'<div style="height:18px"></div><div class="pair one">'+(flowOf(r)==='recv'?paperCard('paper3b','ตัวอย่างหนังสือส่งใบเสร็จ'):paperCard('paper3a','ตัวอย่างหนังสือแจ้งโอน'))+'</div>':form4(r));
+  if(t==='4')updateDue();else if(t==='3'){syncKind();drawPapers3()}
 }
-function detailChips(){
-  state.detailOpts=uniqRecent(state.records,function(x){return x.detail},10);
-  if(!state.detailOpts.length)return '';
-  return '<div class="pickrow"><span class="sub" style="display:inline">เลือกจากที่เคยพิมพ์:</span>'+state.detailOpts.map(function(t,i){return '<button type="button" class="pickchip" data-act="pickdetail" data-i="'+i+'" title="'+esc(t)+'">'+esc(t.length>40?t.slice(0,40)+'…':t)+'</button>'}).join('')+'</div>';
-}
+function detailList(){var o=uniqRecent(state.records,function(x){return x.detail},200);return '<datalist id="detailList">'+o.map(function(t){return '<option value="'+esc(t)+'">'}).join('')+'</datalist>'}
 function form1(){
   var r=state.editId?state.records.filter(function(x){return x.id===state.editId})[0]:null;
   r=r||{type:'เรียกเก็บ'};
@@ -834,9 +893,9 @@ function form1(){
    +fld('r_docNo','เลขหนังสือ',inp('r_docNo',r.docNo||'','autocomplete="off"'))
    +fld('r_docDate','วันที่หนังสือ',inp('r_docDate',r.docDate||'','type="date"'))
    +'<div class="fld wide"><span class="lbl" id="lblType">ประเภท</span>'+chips+'<p class="sub" style="margin:6px 0 0"><b>เรียกเก็บ</b> = หน่วยงานเรียกเก็บเงินจากเรา (เราโอน แล้วรอรับใบเสร็จ) · <b>แจ้งโอน</b> = หน่วยงานโอนเงินให้เรา (เราต้องส่งใบเสร็จให้)</p></div>'
-   +fld('r_amount','เป็นเงิน (บาท)',inp('r_amount',r.amount!=null&&r.amount!==undefined?r.amount:'','inputmode="decimal" placeholder="0.00" autocomplete="off"'))
+   +fld('r_amount','เป็นเงิน (บาท)',inp('r_amount',r.amount!=null&&r.amount!==undefined&&r.amount!==''?fmtMoney(r.amount):'','inputmode="decimal" data-money placeholder="0.00" autocomplete="off"'))
    +fld('r_period','ช่วงเวลาเรียกเก็บ',inp('r_period',r.period||'','placeholder="เช่น ตุลาคม 2569 หรือ 1-31 ตุลาคม 2569" autocomplete="off"'))
-   +fld('r_detail','รายละเอียด',area('r_detail',r.detail||'',2)+detailChips(),'wide')
+   +fld('r_detail','รายละเอียด',inp('r_detail',r.detail||'','list="detailList" autocomplete="off" placeholder="พิมพ์ แล้วระบบจะแสดงข้อความที่เคยพิมพ์"')+detailList(),'wide')
    +lnkFld('r_link','ลิงก์หนังสือที่ได้รับ (เรียกเก็บ / แจ้งโอน)',r.link)
    +'</div><p class="err" id="e1" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+dis()+'>'+(state.editId?'บันทึกการแก้ไข':'บันทึกรายการ')+'</button><button class="btn" type="button" data-act="clear1">'+(state.editId?'ยกเลิกการแก้ไข':'ล้างฟอร์ม')+'</button></div></form>';
 }
@@ -846,22 +905,22 @@ function auditorList(s){
   return '<datalist id="auditorList">'+names.map(function(n){return '<option value="'+esc(n)+'">'}).join('')+'</datalist>';
 }
 function amtNote(r,v){var b=Number(r.amount)||0,d=Math.round((b-v)*100)/100;return 'ยอดเรียกเก็บ '+fmtMoney(b)+' บาท'+(Math.abs(d)<0.005?' · ตรงกับยอดที่ตรวจสอบ':' · ส่วนต่าง '+fmtMoney(d)+' บาท')}
+var MEMO_PFX='สก0033.301.03.6/';
 function form2(r){
   var a=r.audit||{},s=state.settings;
   var sel='<select id="a_result"><option value="ok"'+(a.result!=='fix'?' selected':'')+'>ถูกต้อง ครบถ้วน</option><option value="fix"'+(a.result==='fix'?' selected':'')+'>พบข้อสังเกต / ต้องแก้ไข</option></select>';
-  return '<form id="f2" class="card" novalidate>'+head(r,'บันทึกผลการตรวจสอบ และทำบันทึกข้อความ')+'<div class="grid">'
+  return '<form id="f2" class="card" novalidate>'+head(r,'บันทึกผลการตรวจสอบ')+'<div class="grid">'
    +fld('a_date','วันที่ตรวจสอบ',inp('a_date',a.date||TODAY,'type="date"'))
    +fld('a_auditor','ผู้ตรวจสอบ',inp('a_auditor',a.auditor||s.auditor||'','list="auditorList" autocomplete="off"')+auditorList(s))
    +fld('a_result','ผลการตรวจสอบ',sel)
-   +(flowOf(r)==='pay'?fld('a_amount','ยอดที่ตรวจสอบ/พิจารณาจ่าย (บาท)',inp('a_amount',(a.amount!==undefined&&a.amount!==null&&a.amount!=='')?a.amount:(r.amount!=null?r.amount:''),'inputmode="decimal" placeholder="0.00" autocomplete="off"')+'<p class="sub" id="a_amtnote" style="margin:6px 0 0">'+amtNote(r,audAmt(r))+'</p>'):'')
+   +(flowOf(r)==='pay'?fld('a_amount','ยอดที่ตรวจสอบ/พิจารณาจ่าย (บาท)',inp('a_amount',fmtMoney((a.amount!==undefined&&a.amount!==null&&a.amount!=='')?a.amount:(r.amount!=null?r.amount:0)),'inputmode="decimal" data-money placeholder="0.00" autocomplete="off"')+'<p class="sub" id="a_amtnote" style="margin:6px 0 0">'+amtNote(r,audAmt(r))+'</p>'):'')
    +fld('a_note','ข้อสังเกต / หมายเหตุ',area('a_note',a.note||'',2),'wide')
    +auditBtn()
-   +fld('a_count','จำนวน (ราย) ถ้ามี',inp('a_count',a.count||'','inputmode="numeric" autocomplete="off"'))
-   +fld('m_no','บันทึกข้อความที่',inp('m_no',a.memoNo||s.memoPrefix||'','autocomplete="off"'))
+   +fld('m_no','บันทึกข้อความที่',inp('m_no',a.memoNo||MEMO_PFX,'autocomplete="off"'))
    +fld('m_date','ลงวันที่',inp('m_date',a.memoDate||TODAY,'type="date"'))
    +'<div class="fld"><span class="lbl">เรียน</span><div style="min-height:46px;display:flex;align-items:center;padding:0 4px;font-weight:600">ผู้อำนวยการโรงพยาบาลตาพระยา</div></div>'
-   +fld('m_subject','เรื่อง',inp('m_subject',a.memoSubject||('ตรวจสอบการ'+(r.type==='แจ้งโอน'?'แจ้งโอน':'เรียกเก็บ')+(r.detail||'')+' '+r.agency),'autocomplete="off"'),'wide')
-   +'</div><p class="err" id="e2" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+dis()+'>บันทึกผลตรวจสอบ</button><button class="btn" type="button" data-act="memo">'+(canEdit('2')?'บันทึกและ':'')+'ดาวน์โหลดบันทึกข้อความ (.docx)</button></div></form>';
+   +fld('m_subject','เรื่อง',inp('m_subject',a.memoSubject||('ตรวจสอบ'+(r.detail||'')+' '+r.agency),'autocomplete="off"'),'wide')
+   +'</div><p class="err" id="e2" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+(audOk()?'':' disabled')+'>บันทึกผลตรวจสอบ</button></div></form>';
 }
 
 /* ---------- ส่งต่อเอกสารภายใน (ธุรการ / การเงิน / บัญชี) ---------- */
@@ -869,6 +928,12 @@ var WF_MAIL='tpy10867@gmail.com';
 var WF_LBL={clerk:'ธุรการ ตรวจเบื้องต้น',fin:'งานการเงิน',acc:'งานบัญชี',acc1:'งานบัญชี ตรวจเอกสาร',acc2:'งานบัญชี บันทึกรับจ่าย',done:'เสร็จสิ้น'};
 function wfSeq(r){return flowOf(r)==='recv'?['clerk','fin','acc','done']:['clerk','acc1','fin','acc2','done']}
 function memoDone(r){var a=r.audit||{},m=String(a.memoNo||'').trim(),pf=String((state.settings||{}).memoPrefix||'').trim();return !!(a.date&&m&&m!==pf)}
+var JOB_LBL={fin:'งานการเงิน',acc:'งานบัญชี',clerk:'งานธุรการ',ins:'งานประกันสุขภาพ'};
+function wfJob(step){return step==='clerk'?'clerk':(step==='fin'?'fin':(step==='ins'?'ins':'acc'))}
+function canJob(step){if(isSuper())return true;var j=state.me&&state.me.job;return !j||j===wfJob(step)}
+function audOk(){return canEdit('2')&&(isSuper()||!state.me.job||state.me.job==='ins')}
+var JOB_DEF={ins:{p1:'edit',p2:'edit',p3:'edit',p4:'edit'},clerk:{p1:'view',p2:'edit',p3:'view',p4:'view'},fin:{p1:'view',p2:'edit',p3:'view',p4:'view'},acc:{p1:'view',p2:'edit',p3:'view',p4:'view'}};
+function jobPermsOf(j){return ((state.settings||{}).jobPerms||{})[j]||JOB_DEF[j]||{p1:'none',p2:'none',p3:'none',p4:'none'}}
 function wfStep(r){return (r.wf&&r.wf.step)||'clerk'}
 function wfShort(r){
   var a=r.audit||{};if(!a.date)return '';var st=wfStep(r);
@@ -881,39 +946,44 @@ function wfFmtAt(t){var m=/^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})$/.exec(t||'');
 function wfCard(r){
   var w=r.wf||{},st=wfStep(r),a=r.audit||{},recv=flowOf(r)==='recv',seq=wfSeq(r),d=dis(),f=w.fin||{};
   var ready=!!a.date;
+  var vs=(state.wfView&&state.wfView[r.id])||st;if(vs!=='ins'&&seq.indexOf(vs)<0)vs=st;
+  var active=vs===st,jobOk=canJob(vs);
   var idx=st==='ins'?seq.indexOf(w.backTo||'clerk'):seq.indexOf(st);
   var steps='<ol class="wfsteps">'+seq.map(function(k,i){
     var cls=st==='ins'&&i===idx?'ret':(i<idx||st==='done'?'done':(i===idx?'now':''));
-    return '<li class="'+cls+'"><b>'+(i<idx||st==='done'?'✓':i+1)+'</b>'+WF_LBL[k]+'</li>'}).join('')+'</ol>';
+    return '<li class="'+cls+(vs===k?' view':'')+'"><button type="button" data-act="wfview" data-id="'+r.id+'" data-v="'+k+'" aria-pressed="'+(vs===k)+'"><b>'+(i<idx||st==='done'?'✓':i+1)+'</b>'+WF_LBL[k]+'</button></li>'}).join('')+'</ol>';
   var h='<section class="card wfcard" id="wfCard"><h3>ส่งต่อเอกสารภายใน</h3><p class="sub">'+(recv?'หนังสือแจ้งโอนเงิน: ธุรการ → การเงิน (ออกใบเสร็จ) → บัญชี':'หนังสือเรียกเก็บ: ธุรการ → บัญชี (ค้างจ่าย) → การเงิน (จ่าย) → บัญชี (รับจ่าย)')+'</p>'+steps;
   if(!ready)h+='<div class="hint">บันทึกผลการตรวจสอบ (ด้านบน) ก่อน แล้วจึงส่งต่อเอกสารได้</div>';
   var box='',nt='<div class="fld wide"><label for="wf_note">ข้อความ / เหตุผล (จำเป็นเมื่อส่งคืน)</label><textarea id="wf_note" rows="2" autocomplete="off"></textarea></div>';
-  var B=function(act,txt,cls){return '<button class="btn '+(cls||'')+'" type="button" data-act="wf" data-w="'+act+'"'+(ready?d:' disabled')+'>'+txt+'</button>'};
-  if(st==='clerk'){
+  var B=function(act,txt,cls){return '<button class="btn '+(cls||'')+'" type="button" data-act="wf" data-w="'+act+'"'+((ready&&active&&jobOk)?d:' disabled')+'>'+txt+'</button>'};
+  if(vs==='clerk'){
     box='<h4>ธุรการกลุ่มงานบริหารทั่วไป ตรวจสอบเบื้องต้น</h4><p class="sub">ตรวจว่าหนังสือตรวจสอบจากกลุ่มงานประกันสุขภาพฯ มีข้อความครบถ้วน</p>'+nt+'<div class="wfact">'+B('clerkok','✓ ตรวจสอบเบื้องต้น ครบถ้วน','primary')+B('ret','ส่งคืนแก้ไข (แจ้งอีเมล)','warn')+'</div>';
-  }else if(st==='ins'){
+  }else if(vs==='ins'){
     box='<h4>ส่งคืนกลุ่มงานประกันสุขภาพฯ เพื่อแก้ไข</h4><p class="sub">ส่งคืนโดย '+esc(w.retBy||'-')+' · '+esc(wfFmtAt(w.retAt))+' · เหตุผล: '+esc(w.retNote||'-')+'</p><div class="wfact">'+B('resubmit','แก้ไขแล้ว ส่งใหม่ ('+WF_LBL[w.backTo||'clerk']+')','primary')+'</div>';
-  }else if(st==='fin'&&recv){
+  }else if(vs==='fin'&&recv){
     box='<h4>งานการเงิน ออกใบเสร็จรับเงิน</h4><p class="sub">ตรวจสอบเอกสาร แล้วลงเลขที่ใบเสร็จและวันที่ออกใบเสร็จ'+(w.fixNote&&w.fixBy?' · <b>บัญชีส่งคืน:</b> '+esc(w.fixNote):'')+'</p><div class="grid">'
      +fld('wf_book','เล่มที่',inp('wf_book',f.book||'','autocomplete="off"'))
      +fld('wf_no','เลขที่',inp('wf_no',f.no||'','autocomplete="off"'))
-     +fld('wf_rdate','วันที่ออกใบเสร็จ (คลิกเลือกจากปฏิทิน หรือพิมพ์)','<input type="date" id="wf_rdate" value="'+esc(f.date||'')+'">'+'<span class="wfsmall" id="wf_rdate_h">'+(f.date?fmtShort(f.date):'')+'</span>')
+     +fld('wf_rdate','วันที่ออกใบเสร็จ',dateInp('wf_rdate',f.date||''))
      +'</div>'+nt+'<div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('tonext','ส่งให้งานบัญชี','primary')+B('ret','ส่งคืนกลุ่มงานประกันสุขภาพฯ (แจ้งอีเมล)','warn')+'</div>';
-  }else if(st==='fin'){
+  }else if(vs==='fin'){
     box='<h4>งานการเงิน ขออนุมัติเบิกจ่าย</h4><p class="sub">เมื่อจ่ายเงินแล้ว ลงวันที่จ่ายและเลขที่เช็ค'+(w.fixNote&&w.fixBy?' · <b>บัญชีส่งคืน:</b> '+esc(w.fixNote):'')+'</p><div class="grid">'
-     +fld('wf_pdate','วันที่จ่าย (คลิกเลือกจากปฏิทิน หรือพิมพ์)','<input type="date" id="wf_pdate" value="'+esc(f.payDate||'')+'">'+'<span class="wfsmall" id="wf_pdate_h">'+(f.payDate?fmtShort(f.payDate):'')+'</span>')
+     +fld('wf_pdate','วันที่จ่าย',dateInp('wf_pdate',f.payDate||''))
      +fld('wf_chq','เลขที่เช็ค',inp('wf_chq',f.cheque||'','autocomplete="off"'))
      +'</div><div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('tonext','ส่งให้งานบัญชี บันทึกบัญชีรับจ่าย','primary')+'</div>';
-  }else if(st==='acc'){
+  }else if(vs==='acc'){
     box='<h4>งานบัญชี ตรวจสอบเอกสารและใบเสร็จรับเงิน</h4><p class="sub">ใบเสร็จเล่มที่ '+esc(f.book||'-')+' เลขที่ '+esc(f.no||'-')+' ลงวันที่ '+(f.date?fmtShort(f.date):'-')+'</p>'+nt+'<div class="wfact">'+B('recorded','✓ ถูกต้อง บันทึกบัญชีรับจ่าย','primary')+B('ret','ส่งคืนงานการเงิน (แจ้งอีเมล)','warn')+'</div>';
-  }else if(st==='acc1'){
+  }else if(vs==='acc1'){
     box='<h4>งานบัญชี ตรวจสอบเอกสารเรียกเก็บ</h4><p class="sub">'+(w.accruedAt?'บันทึกบัญชีค้างจ่ายแล้วเมื่อ '+esc(wfFmtAt(w.accruedAt))+' · ส่งให้งานการเงินได้':'ตรวจสอบเอกสาร ถ้าถูกต้องให้กดบันทึกบัญชีค้างจ่าย แล้วส่งให้งานการเงิน')+'</p>'+nt+'<div class="wfact">'+B('accrued',w.accruedAt?'✓ บันทึกบัญชีค้างจ่ายแล้ว':'✓ ถูกต้อง บันทึกบัญชีค้างจ่าย',w.accruedAt?'':'primary')+B('tonext','ส่งให้งานการเงิน ขออนุมัติเบิกจ่าย',w.accruedAt?'primary':'')+B('ret','ส่งคืนกลุ่มงานประกันสุขภาพฯ (แจ้งอีเมล)','warn')+'</div>';
-  }else if(st==='acc2'){
+  }else if(vs==='acc2'){
     box='<h4>งานบัญชี บันทึกบัญชีรับจ่าย</h4><p class="sub">จ่ายเมื่อ '+(f.payDate?fmtShort(f.payDate):'-')+' · เช็คเลขที่ '+esc(f.cheque||'-')+'</p>'+nt+'<div class="wfact">'+B('recorded','✓ ถูกต้อง บันทึกบัญชีรับจ่าย','primary')+B('ret','ส่งคืนงานการเงิน (แจ้งอีเมล)','warn')+'</div>';
   }else{
     box='<h4>เสร็จสิ้น</h4><p class="sub">บันทึกบัญชีรับจ่ายแล้วเมื่อ '+esc(wfFmtAt(w.recordedAt))+(f.no?' · ใบเสร็จเล่มที่ '+esc(f.book||'-')+' เลขที่ '+esc(f.no):'')+(f.cheque?' · เช็คเลขที่ '+esc(f.cheque)+' จ่ายเมื่อ '+(f.payDate?fmtShort(f.payDate):'-'):'')+'</p>';
   }
-  h+='<div class="wfbox">'+box+'<p class="err" id="e_wf" role="alert"></p></div>';
+  var vidx=vs==='ins'?idx:seq.indexOf(vs),note2='';
+  if(!active){box=box.replace(/<(input|textarea|select|button)(?![^>]*\bdisabled)/g,'<$1 disabled');note2='<p class="wfview">ดูอย่างเดียว · '+(st==='ins'?'เอกสารถูกส่งคืนให้แก้ไข':(vidx>idx?'ยังไม่ถึงขั้นนี้ ต้องยืนยันขั้นก่อนหน้าก่อนจึงบันทึกได้':'ขั้นนี้ดำเนินการแล้ว'))+' · กดที่ขั้นปัจจุบันเพื่อกลับไปทำงาน</p>'}
+  else if(!jobOk)note2='<p class="wfview">ขั้นนี้สำหรับ '+JOB_LBL[wfJob(vs)]+' · บัญชีของคุณไม่มีบทบาทนี้ จึงดูได้อย่างเดียว</p>';
+  h+='<div class="wfbox">'+note2+box+'<p class="err" id="e_wf" role="alert"></p></div>';
   var m=state.wfMail;
   if(m&&m.rid===r.id)h+=m.sent?'<div class="wfmail ok">✓ ส่งอีเมลแจ้งเตือนไปที่ '+WF_MAIL+' แล้ว</div>':'<div class="wfmail">ยังไม่ได้ส่งอีเมลอัตโนมัติ (ต้องใช้เวอร์ชัน GitHub/Google Sheets) · <a href="mailto:'+WF_MAIL+'?subject='+encodeURIComponent(m.subject)+'&body='+encodeURIComponent(m.body)+'" target="_blank" rel="noopener">กดเพื่อเปิดอีเมลส่งเอง</a></div>';
   var L=(w.log||[]);
@@ -953,6 +1023,7 @@ async function wfDo(act){
   var ok=false;
   await guard(async function(){await recRef(r.id).update({wf:w,updatedAt:Date.now(),updatedBy:uname()});ok=true});
   if(!ok)return;
+  if(state.wfView)state.wfView[r.id]=null;
   state.wfMail=null;logAct('ส่งต่อเอกสาร: '+(w.log&&w.log.length?w.log[w.log.length-1].act:act),rl(r)+(note?' — '+note:''));
   if(mail){var g=window.claude&&window.claude.gs,sent=false;if(g&&g.notify){try{await g.notify(mail.subject,mail.body);sent=true}catch(e){}}state.wfMail={rid:r.id,subject:mail.subject,body:mail.body,sent:sent}}
   toast('บันทึกการส่งต่อแล้ว');drawForm();drawList();
@@ -1034,6 +1105,12 @@ function table(cols,rows,foot){
   return '<table><thead><tr>'+cols.map(function(c){return '<th'+(c[1]?' class="'+c[1]+'"':'')+'>'+c[0]+'</th>'}).join('')+'</tr></thead><tbody>'+rows+'</tbody>'+(foot||'')+'</table>';
 }
 function two(a,b){return esc(a||'-')+'<span class="sub2">'+b+'</span>'}
+function stepBtns(r){
+  var a=audited(r),L=lettered(r),t=r.track||{},tr=flowOf(r)==='recv'?!!t.sentDate:!!t.receivedDate;
+  var b=function(tab,txt,en,next){return perm(tab)==='none'?'':'<button class="btn sm'+(next?' primary':'')+'" type="button" data-act="rowgo" data-t="'+tab+'" data-id="'+r.id+'"'+(en?'':' disabled title="ต้องทำขั้นก่อนหน้าให้เสร็จก่อน"')+'>'+txt+'</button>'};
+  return b('2','ตรวจสอบ',true,!a)+b('3','ทำหนังสือ',a,a&&!L)+b('4','ใบเสร็จ',L,L&&!tr);
+}
+state.pageSize=20;
 function drawList(){
   if(state.tab==='D')return;
   var t=state.tab,rows=viewRows(),box=$('#listBody');
@@ -1041,11 +1118,12 @@ function drawList(){
     var m=!state.loaded&&state.hasDb?'กำลังโหลดรายการ…':(state.q?'ไม่พบรายการที่ค้นหา':(state.records.length?'ไม่มีรายการในตัวกรองนี้':'ยังไม่มีรายการ กรอกแบบฟอร์มด้านบนเพื่อบันทึกหนังสือฉบับแรก'));
     box.innerHTML='<div class="empty">'+m+'</div>';return;
   }
-  var h='',sum=rows.reduce(function(s,r){return s+(Number(r.amount)||0)},0);
-  var foot='<tfoot><tr><td colspan="__C__">รวม '+rows.length+' รายการ</td><td class="r num">'+fmtMoney(sum)+'</td><td colspan="__D__"></td></tr></tfoot>';
+  var allRows=rows,h='',sum=rows.reduce(function(s,r){return s+(Number(r.amount)||0)},0);
+  rows=state.pageSize==='all'?rows:rows.slice(0,state.pageSize);
+  var foot='<tfoot><tr><td colspan="__C__">รวม '+allRows.length+' รายการ</td><td class="r num">'+fmtMoney(sum)+'</td><td colspan="__D__"></td></tr></tfoot>';
   if(t==='1'){
     h=table([['เลขรับ'],['หน่วยงาน'],['เลขหนังสือ'],['วันที่หนังสือ'],['ประเภท'],['รายละเอียด'],['เป็นเงิน (บาท)','r'],['สถานะ'],['']],rows.map(function(r){
-      return '<tr class="'+(state.editId===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+esc(r.docNo)+'</td><td>'+fmtShort(r.docDate)+'</td><td><span class="tag">'+esc(r.type)+'</span></td><td>'+esc(r.detail)+'</td><td class="r num">'+fmtMoney(r.amount)+'</td><td><span class="pill '+status(r).k+'">'+status(r).label+'</span></td><td><div class="rowact"><button class="btn sm" type="button" data-act="edit" data-id="'+r.id+'"'+dis()+'>แก้ไข</button><button class="btn sm danger" type="button" data-act="del" data-id="'+r.id+'"'+(canDel()?'':' disabled')+'>ลบ</button></div></td></tr>';
+      return '<tr class="'+(state.editId===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+esc(r.docNo)+'</td><td>'+fmtShort(r.docDate)+'</td><td><span class="tag">'+esc(r.type)+'</span></td><td>'+esc(r.detail)+'</td><td class="r num">'+fmtMoney(r.amount)+'</td><td><span class="pill '+status(r).k+'">'+status(r).label+'</span></td><td><div class="rowact">'+stepBtns(r)+'<button class="btn sm" type="button" data-act="edit" data-id="'+r.id+'"'+dis()+'>แก้ไข</button><button class="btn sm danger" type="button" data-act="del" data-id="'+r.id+'"'+(canDel()?'':' disabled')+'>ลบ</button></div></td></tr>';
     }).join(''),foot.replace('__C__','6').replace('__D__','2'));
   }else if(t==='2'){
     h=table([['เลขรับ'],['หน่วยงาน'],['หนังสือ'],['ประเภท'],['เป็นเงิน (บาท)','r'],['บันทึกข้อความ'],['ผลตรวจสอบ'],['']],rows.map(function(r){
@@ -1068,7 +1146,10 @@ function drawList(){
       return '<tr class="'+(state.sel===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+two(l.transferNo,'ลงวันที่ '+fmtShort(l.transferDate))+'</td><td class="r num">'+fmtMoney(r.amount)+'</td><td>'+(tr.transferDate?fmtShort(tr.transferDate):'<span class="sub2">ใช้วันที่หนังสือ</span>')+'</td><td>'+(s.k==='done'?'-':fmtShort(s.due))+'</td><td><span class="pill '+s.k+'">'+s.label+'</span></td><td>'+(tr.receivedDate?two(tr.receivedNo,fmtShort(tr.receivedDate)):'-')+'</td><td><button class="btn sm'+(tr.receivedDate?'':' primary')+'" type="button" data-act="pick" data-id="'+r.id+'">'+(tr.receivedDate?'เปิด':'บันทึก')+'</button></td></tr>';
     }).join(''),foot.replace('__C__','3').replace('__D__','5'));
   }
-  box.innerHTML=h;
+  var pg='';
+  if(allRows.length>20){pg='<div class="pager"><span>แสดง '+rows.length+' จาก '+allRows.length+' รายการ</span><label>แสดงรายการละ <select id="pgsize">'+[20,50,100,'all'].map(function(n){return '<option value="'+n+'"'+(String(state.pageSize)===String(n)?' selected':'')+'>'+(n==='all'?'ทั้งหมด':n)+'</option>'}).join('')+'</select></label></div>'}
+  else if(allRows.length)pg='<div class="pager"><span>แสดง '+allRows.length+' รายการ</span></div>';
+  box.innerHTML=h+pg;
 }
 function refresh(){if(!state.me||state.tab==='0')return;drawNotices();drawStats();drawList();if(state.tab==='D'&&typeof drawDash==='function')drawDash()}
 
@@ -1352,7 +1433,7 @@ function drawPapers3(){
   });
 }
 var prevTimer;
-function schedulePreview(){clearTimeout(prevTimer);prevTimer=setTimeout(function(){if(state.tab==='2')drawPaper2();else if(state.tab==='3')drawPapers3()},120)}
+function schedulePreview(){clearTimeout(prevTimer);prevTimer=setTimeout(function(){if(state.tab==='3')drawPapers3()},120)}
 
 /* ---------- actions ---------- */
 function normNo(x){return String(x||'').replace(/\s+/g,'').toLowerCase()}
@@ -1370,7 +1451,7 @@ function logAct(act,detail){
 function fmtTs(ms){var d=new Date(ms);if(isNaN(d))return '-';var z=function(n){return ('0'+n).slice(-2)};return d.getDate()+' '+TH_MS[d.getMonth()]+' '+(d.getFullYear()+543)+' '+z(d.getHours())+':'+z(d.getMinutes())+':'+z(d.getSeconds())}
 var logRows=[];
 async function loadLogs(){
-  var box=$('#logBody');if(!box)return;box.innerHTML='<tr><td colspan="4">กำลังโหลด…</td></tr>';
+  var box=$('#logBody');if(!box)return;$('#logExp').innerHTML=expBtns('logs');box.innerHTML='<tr><td colspan="4">กำลังโหลด…</td></tr>';
   try{
     var sn=await db.collection('logs').get(),a=[];sn.forEach(function(d){a.push(d.data())});
     a.sort(function(x,y){return (y.at||0)-(x.at||0)});logRows=a;
@@ -1383,6 +1464,139 @@ function drawLogs(){
   var u=$('#logUser').value,a=logRows.filter(function(x){return !u||x.user===u}),box=$('#logBody');
   $('#logCount').textContent='แสดง '+Math.min(a.length,300)+' จาก '+a.length+' รายการ (ล่าสุดก่อน)';
   box.innerHTML=a.length?a.slice(0,300).map(function(x){return '<tr><td>'+esc(fmtTs(x.at))+'</td><td>'+esc(x.name||x.user)+'<span class="wfsmall">'+esc(x.user)+'</span></td><td>'+esc(x.act)+'</td><td>'+esc(x.detail||'')+'</td></tr>'}).join(''):'<tr><td colspan="4">ยังไม่มีประวัติ</td></tr>';
+}
+
+/* ---------- ส่งออก: รายงาน / Excel / PDF ---------- */
+function wfLabel(r){var st=wfStep(r),m={clerk:'รอธุรการตรวจ',fin:'รองานการเงิน',acc:'รองานบัญชี',acc1:'รองานบัญชี',acc2:'รองานบัญชี',ins:'ส่งคืนแก้ไข',done:'บันทึกบัญชีแล้ว'};return (r.audit&&r.audit.date)?m[st]:'-'}
+function expBtns(sec,dir){
+  var b=function(f,t){return '<button type="button" class="btn sm" data-act="exp" data-f="'+f+'" data-s="'+sec+'"'+(dir?' data-d="'+dir+'"':'')+'>'+t+'</button>'};
+  return '<span class="expgrp"><span class="lbl2">ส่งออก</span>'+b('report','รายงาน')+b('xlsx','Excel')+b('pdf','PDF')+'</span>';
+}
+var SEC_NAME={D:'แดชบอร์ด','1':'รับหนังสือ','2':'ตรวจสอบ','3':'ทำหนังสือ','4p':'ติดตามใบเสร็จ (เขาเรียกเก็บเรา)','4r':'ติดตามใบเสร็จ (เขาแจ้งโอน)',logs:'ประวัติการใช้งาน'};
+function secRows(sec,dir,keep){
+  var t=sec==='4p'||sec==='4r'?'4':sec;
+  if(keep)return viewRows();
+  var sv=[state.tab,state.f[t],state.q,state.dir4];
+  state.tab=t;state.f[t]='all';state.q='';if(t==='4')state.dir4=sec==='4r'?'recv':'pay';
+  var rows=viewRows();state.tab=sv[0];state.f[t]=sv[1];state.q=sv[2];state.dir4=sv[3];return rows;
+}
+function tblFor(sec,rows){
+  var M=function(x){return Number(x||0)};
+  if(sec==='1')return {head:['เลขรับ','หน่วยงาน','เลขหนังสือ','วันที่หนังสือ','ประเภท','รายละเอียด','ช่วงเวลา','ยอดเงิน (บาท)','สถานะ'],money:[7],
+    rows:rows.map(function(r){return [r.receiveNo,r.agency,r.docNo,fmtShort(r.docDate),r.type,r.detail||'',r.period||'',M(r.amount),status(r).label]})};
+  if(sec==='2')return {head:['เลขรับ','หน่วยงาน','เลขหนังสือ','ประเภท','ยอดเรียกเก็บ/แจ้งโอน (บาท)','วันที่ตรวจสอบ','ผู้ตรวจสอบ','ผลตรวจสอบ','ยอดที่ตรวจสอบ (บาท)','บันทึกข้อความที่','ข้อสังเกต','ส่งต่อเอกสาร'],money:[4,8],
+    rows:rows.map(function(r){var a=r.audit||{};return [r.receiveNo,r.agency,r.docNo,r.type,M(r.amount),a.date?fmtShort(a.date):'-',a.auditor||'',a.date?(a.result==='fix'?'มีข้อสังเกต':'ถูกต้อง'):'รอตรวจสอบ',(a.amount!==undefined&&a.amount!==null&&a.amount!=='')?M(a.amount):'',a.memoNo||'',a.note||'',wfLabel(r)]})};
+  if(sec==='3')return {head:['เลขรับ','หน่วยงาน','ประเภท','ยอดเงิน (บาท)','หนังสือแจ้งโอนที่','ลงวันที่','หนังสือส่งใบเสร็จที่','ลงวันที่'],money:[3],
+    rows:rows.map(function(r){var l=r.letter||{};return [r.receiveNo,r.agency,r.type,M(r.amount),l.transferNo||'',l.transferDate?fmtShort(l.transferDate):'',l.receiptLetterNo||'',l.receiptLetterDate?fmtShort(l.receiptLetterDate):'']})};
+  if(sec==='4p')return {head:['เลขรับ','หน่วยงาน','หนังสือแจ้งโอนที่','ยอดเงิน (บาท)','วันที่โอน','ครบกำหนด','สถานะ','ใบเสร็จเลขที่','วันที่รับใบเสร็จ'],money:[3],
+    rows:rows.map(function(r){var l=r.letter||{},t=r.track||{},st=status(r);return [r.receiveNo,r.agency,l.transferNo||'',M(r.amount),fmtShort(t.transferDate||l.transferDate),st.k==='done'?'-':fmtShort(st.due),st.label,t.receivedNo||'',t.receivedDate?fmtShort(t.receivedDate):'']})};
+  if(sec==='4r')return {head:['เลขรับ','หน่วยงาน','หนังสือส่งใบเสร็จที่','ลงวันที่','ใบเสร็จเลขที่','ยอดเงิน (บาท)','สถานะ','วันที่ส่งใบเสร็จ'],money:[5],
+    rows:rows.map(function(r){var l=r.letter||{},t=r.track||{};return [r.receiveNo,r.agency,l.receiptLetterNo||'',l.receiptLetterDate?fmtShort(l.receiptLetterDate):'',l.receiptNo||'',M(r.amount),status(r).label,t.sentDate?fmtShort(t.sentDate):'']})};
+  return null;
+}
+function dashReport(){
+  var d=state.dash,rows=dashRows(),P={n:0,tot:0,paid:0},R={n:0,tot:0,sent:0},PK={},RK={},A={},late=[],send=[];
+  PAY_ST.forEach(function(x){PK[x[0]]={n:0,sum:0}});RECV_ST.forEach(function(x){RK[x[0]]={n:0,sum:0}});
+  rows.forEach(function(r){
+    var a=Number(r.amount)||0,st=status(r),k=st.k,ag=r.agency||'-',recv=flowOf(r)==='recv',g=A[ag]||(A[ag]={pn:0,pt:0,rn:0,rt:0});
+    if(recv){R.n++;R.tot+=a;g.rn++;g.rt+=a;RK[k].n++;RK[k].sum+=a;if(k==='done')R.sent+=a;if(k==='send')send.push([r.receiveNo,ag,r.letter&&r.letter.receiptLetterNo||'',a,fmtShort(st.since)])}
+    else{P.n++;P.tot+=a;g.pn++;g.pt+=a;PK[k].n++;PK[k].sum+=a;if(lettered(r))P.paid+=a;if(k==='late'||k==='soon')late.push([r.receiveNo,ag,a,fmtShort(st.due),st.label])}
+  });
+  var per={all:'ทั้งหมด',q:'90 วันล่าสุด',m:'เดือนนี้'}[d.per]||'ทั้งหมด';
+  var T=[
+    {name:'ภาพรวม',head:['รายการ','ค่า'],money:[1],rows:[['ช่วงเวลา',per],['หน่วยบริการ',d.ag||'ทุกหน่วยบริการ'],['เขาเรียกเก็บเรา: จำนวนรายการ',P.n+' ราย'],['เขาเรียกเก็บเรา: ยอดรวม (บาท)',P.tot],['เขาเรียกเก็บเรา: โอนแล้ว (บาท)',P.paid],['เขาแจ้งโอนให้เรา: จำนวนรายการ',R.n+' ราย'],['เขาแจ้งโอนให้เรา: ยอดรวม (บาท)',R.tot],['เขาแจ้งโอนให้เรา: ส่งใบเสร็จแล้ว (บาท)',R.sent]]},
+    {name:'สถานะ: เขาเรียกเก็บเรา (เราโอน แล้วรอรับใบเสร็จ)',head:['สถานะ','จำนวน (ราย)','ยอดเงิน (บาท)'],money:[2],rows:PAY_ST.map(function(x){return [x[1],PK[x[0]].n,PK[x[0]].sum]})},
+    {name:'สถานะ: เขาแจ้งโอนให้เรา (เราส่งใบเสร็จ)',head:['สถานะ','จำนวน (ราย)','ยอดเงิน (บาท)'],money:[2],rows:RECV_ST.map(function(x){return [x[1],RK[x[0]].n,RK[x[0]].sum]})},
+    {name:'สรุปตามหน่วยงาน',head:['หน่วยงาน','เรียกเก็บ (ราย)','เรียกเก็บ (บาท)','แจ้งโอน (ราย)','แจ้งโอน (บาท)'],money:[2,4],rows:Object.keys(A).sort().map(function(n){var g=A[n];return [n,g.pn,g.pt,g.rn,g.rt]})},
+    {name:'ใบเสร็จใกล้ครบกำหนด / เกินกำหนด',head:['เลขรับ','หน่วยงาน','ยอดเงิน (บาท)','ครบกำหนด','สถานะ'],money:[2],rows:late},
+    {name:'รอส่งใบเสร็จให้หน่วยงาน',head:['เลขรับ','หน่วยงาน','หนังสือส่งใบเสร็จที่','ยอดเงิน (บาท)','ลงวันที่'],money:[3],rows:send}
+  ];
+  return {title:'รายงานสรุปแดชบอร์ด',tables:T,sub:'ช่วงเวลา: '+per+' · หน่วยบริการ: '+(d.ag||'ทุกหน่วยบริการ')};
+}
+function buildReport(sec,dir,keep){
+  var s2=sec==='4'?(dir==='recv'?'4r':'4p'):sec,hn=(state.settings||{}).hospital||'โรงพยาบาลตาพระยา';
+  var rep;
+  if(s2==='D')rep=dashReport();
+  else if(s2==='logs'){var u=($('#logUser')||{}).value,a=logRows.filter(function(x){return !u||x.user===u});rep={title:'ประวัติการใช้งาน',sub:u?'ผู้ใช้: '+u:'ผู้ใช้: ทุกคน',tables:[{name:'',head:['วันเวลา','ผู้ใช้','ชื่อ','การกระทำ','รายละเอียด'],money:[],rows:a.map(function(x){return [fmtTs(x.at),x.user,x.name||'',x.act,x.detail||'']})}]}}
+  else{var rows=secRows(s2,dir,keep),t=tblFor(s2,rows);t.name='';
+    var tot=0;rows.forEach(function(r){tot+=Number(r.amount)||0});
+    rep={title:SEC_NAME[s2],sub:'จำนวน '+rows.length+' รายการ · รวม '+fmtMoney(tot)+' บาท'+(keep&&state.q?' · ค้นหา: '+state.q:''),tables:[t]}}
+  rep.hn=hn;rep.sec=s2;
+  rep.stamp='พิมพ์เมื่อ '+fmtShort(TODAY)+' · โดย '+((state.me&&(state.me.displayName||state.me.username))||'-');
+  return rep;
+}
+function repCell(t,i,v){return (t.money||[]).indexOf(i)>-1&&typeof v==='number'?fmtMoney(v):esc(v==null?'':v)}
+function reportHtml(rep){
+  var h='<h1>'+esc(rep.hn)+'</h1><p class="rsub"><b>'+esc(rep.title)+'</b> · '+esc(rep.sub)+'</p>';
+  rep.tables.forEach(function(t){
+    if(t.name)h+='<h2>'+esc(t.name)+'</h2>';
+    if(!t.rows.length){h+='<p class="rsub">ไม่มีรายการ</p>';return}
+    h+='<table><thead><tr>'+t.head.map(function(c,i){return '<th'+((t.money||[]).indexOf(i)>-1?' class="r"':'')+'>'+esc(c)+'</th>'}).join('')+'</tr></thead><tbody>'
+      +t.rows.map(function(r){return '<tr>'+r.map(function(v,i){return '<td'+((t.money||[]).indexOf(i)>-1?' class="r"':'')+'>'+repCell(t,i,v)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table>';
+  });
+  return h+'<p class="rfoot">'+esc(rep.stamp)+'</p>';
+}
+function openReport(sec,dir,keep,thenPrint){
+  var rep=buildReport(sec,dir,keep);state.rpt={sec:sec,dir:dir,keep:keep,rep:rep};
+  var box=document.getElementById('rptBox');
+  if(!box){box=document.createElement('div');box.id='rptBox';document.body.appendChild(box)}
+  box.innerHTML='<div class="rptbar"><button class="btn" type="button" data-act="rptclose">← ปิดรายงาน</button><span class="grow"></span><button class="btn primary" type="button" data-act="rptprint">พิมพ์ / บันทึกเป็น PDF</button><button class="btn" type="button" data-act="rptxlsx">ดาวน์โหลด Excel</button><button class="btn" type="button" data-act="rpthtml">บันทึกรายงาน (.html)</button></div><div class="rptpage">'+reportHtml(rep)+'</div>';
+  box.classList.add('on');box.scrollTop=0;
+  if(thenPrint)setTimeout(doPrint,350);
+}
+function doPrint(){try{window.print()}catch(e){toast('เปิดหน้าต่างพิมพ์ไม่ได้ ให้กด “บันทึกรายงาน (.html)” แล้วเปิดไฟล์เพื่อพิมพ์เป็น PDF')}}
+function closeReport(){var b=document.getElementById('rptBox');if(b)b.classList.remove('on')}
+/* --- Excel (.xlsx) --- */
+function colL(n){var s='';n++;while(n>0){var m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26)}return s}
+function xe(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'')}
+function sheetXml(blocks){
+  var rows=[],ri=0,wid=[];
+  var put=function(arr,styleFn){ri++;var cs=arr.map(function(v,i){
+      var ref=colL(i)+ri,st=styleFn(v,i),len=String(v==null?'':v).length;wid[i]=Math.max(wid[i]||8,Math.min(48,len*1.3+2));
+      if(typeof v==='number')return '<c r="'+ref+'" s="'+st+'"><v>'+v+'</v></c>';
+      return '<c r="'+ref+'" t="inlineStr" s="'+st+'"><is><t xml:space="preserve">'+xe(v)+'</t></is></c>'}).join('');
+    rows.push('<row r="'+ri+'">'+cs+'</row>')};
+  blocks.forEach(function(b){
+    if(b.title){put([b.title],function(){return 3})}
+    put(b.head,function(){return 1});
+    b.rows.forEach(function(r){put(r,function(v,i){return typeof v==='number'?((b.money||[]).indexOf(i)>-1?2:4):0})});
+    ri++;
+  });
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols>'+wid.map(function(w,i){return '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w.toFixed(1)+'" customWidth="1"/>'}).join('')+'</cols><sheetData>'+rows.join('')+'</sheetData></worksheet>';
+}
+async function xlsxBlob(sheets){
+  var z=new window.JSZip(),n=sheets.length,i;
+  var H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  var ct=H+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>';
+  for(i=1;i<=n;i++)ct+='<Override PartName="/xl/worksheets/sheet'+i+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
+  z.file('[Content_Types].xml',ct+'</Types>');
+  z.file('_rels/.rels',H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
+  var used={};
+  z.file('xl/workbook.xml',H+'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+sheets.map(function(sh,k){
+    var nm=String(sh.name).replace(/[\[\]:*?\/\\]/g,' ').slice(0,28)||'Sheet';while(used[nm])nm=nm.slice(0,25)+'_'+(k+1);used[nm]=1;
+    return '<sheet name="'+xe(nm)+'" sheetId="'+(k+1)+'" r:id="rId'+(k+1)+'"/>'}).join('')+'</sheets></workbook>');
+  z.file('xl/_rels/workbook.xml.rels',H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+sheets.map(function(sh,k){return '<Relationship Id="rId'+(k+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(k+1)+'.xml"/>'}).join('')+'<Relationship Id="rId'+(n+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+  z.file('xl/styles.xml',H+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="TH Sarabun New"/></font><font><b/><sz val="11"/><name val="TH Sarabun New"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE2EFEA"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs></styleSheet>');
+  sheets.forEach(function(sh,k){z.file('xl/worksheets/sheet'+(k+1)+'.xml',sheetXml(sh.blocks))});
+  return z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function repToBlocks(rep){return rep.tables.map(function(t,i){
+  var rows=t.rows.map(function(r){return r.map(function(v,j){return (t.money||[]).indexOf(j)>-1&&typeof v==='string'?(parseFloat(v.replace(/,/g,''))||v):v})});
+  return {title:t.name||(i===0?rep.title+' — '+rep.sub:''),head:t.head,rows:rows,money:t.money}})}
+async function exportXlsx(sec,dir,keep){
+  if(!window.JSZip){toast('โหลดตัวสร้างไฟล์ไม่สำเร็จ ลองเปิดหน้านี้ใหม่');return}
+  var sheets=[],name;
+  if(sec==='D'){
+    // แดชบอร์ด: ส่งออกทุกส่วนเป็นหลายชีต
+    var dr=dashReport();sheets.push({name:'แดชบอร์ด',blocks:repToBlocks(dr)});
+    [['1','รับหนังสือ'],['2','ตรวจสอบ'],['3','ทำหนังสือ'],['4p','ติดตาม-เขาเรียกเก็บเรา'],['4r','ติดตาม-เขาแจ้งโอน']].forEach(function(x){
+      var rp=buildReport(x[0]==='4p'?'4':x[0],x[0]==='4r'?'recv':'pay',false);sheets.push({name:x[1],blocks:repToBlocks(rp)})});
+    if(isSuper()&&logRows.length){var lr=buildReport('logs');sheets.push({name:'ประวัติการใช้งาน',blocks:repToBlocks(lr)})}
+    name='รายงานทะเบียนคุม_ทุกส่วน_'+TODAY+'.xlsx';
+  }else{
+    var rp2=buildReport(sec,dir,keep);sheets.push({name:rp2.title,blocks:repToBlocks(rp2)});name=safeName('รายงาน_'+rp2.title)+'_'+TODAY+'.xlsx';
+  }
+  var blob=await xlsxBlob(sheets);await saveFile(name,blob);
 }
 function recRef(id){return db.collection('records').doc(id)}
 
@@ -1406,7 +1620,7 @@ async function submit1(){
     state.editId=null;drawForm();drawList();
   });
 }
-function read2(){var am=document.getElementById('a_amount');return {amount:am?val('a_amount'):undefined,link:val('a_link'),date:val('a_date'),auditor:val('a_auditor'),result:val('a_result')||'ok',note:val('a_note'),count:val('a_count'),memoNo:val('m_no'),memoDate:val('m_date'),memoSubject:val('m_subject')}}
+function read2(){var am=document.getElementById('a_amount');return {amount:am?val('a_amount'):undefined,link:val('a_link'),date:val('a_date'),auditor:val('a_auditor'),result:val('a_result')||'ok',note:val('a_note'),memoNo:val('m_no'),memoDate:val('m_date'),memoSubject:val('m_subject')}}
 async function save2(download){
   var r=cur();if(!r)return;var a=read2();
   if(!a.date)return setErr('e2','เลือกวันที่ตรวจสอบ');
@@ -1414,8 +1628,8 @@ async function save2(download){
   if(a.amount===undefined)delete a.amount;
   else{var av=parseFloat(String(a.amount).replace(/,/g,''));if(isNaN(av)||av<0)return setErr('e2','กรอกยอดที่ตรวจสอบเป็นตัวเลข');a.amount=Math.round(av*100)/100}
   setErr('e2','');
-  if(canEdit(state.tab))await guard(async function(){await recRef(r.id).update({audit:a,updatedAt:Date.now(),updatedBy:uname()});logAct('บันทึกผลตรวจสอบ',rl(r)+' · '+(a.result==='fix'?'มีข้อสังเกต':'ถูกต้อง'));r.audit=a;var wc=$('#wfCard');if(wc)wc.outerHTML=wfCard(r);toast('บันทึกผลตรวจสอบแล้ว')});
-  if(download)await memoDocx(r,a);
+  if(!audOk())return setErr('e2','บทบาทของคุณไม่ได้ทำขั้นตอนนี้ (บันทึกผลตรวจสอบเป็นของงานประกันสุขภาพ)');
+  if(canEdit(state.tab))await guard(async function(){await recRef(r.id).update({audit:a,updatedAt:Date.now(),updatedBy:uname()});logAct('บันทึกผลตรวจสอบ',rl(r)+' · '+(a.result==='fix'?'มีข้อสังเกต':'ถูกต้อง'));r.audit=a;if(state.wfView)state.wfView[r.id]=null;var wc=$('#wfCard');if(wc)wc.outerHTML=wfCard(r);toast('บันทึกผลตรวจสอบแล้ว')});
 }
 async function saveLetter(which,download){
   var r=cur();if(!r)return;var l;
@@ -1500,6 +1714,15 @@ document.addEventListener('click',function(ev){
   else if(act==='udel')delUser(id,el);
   else if(act==='wf')wfDo(el.dataset.w);
   else if(act==='logreload')loadLogs();
+  else if(act==='savejobperms')saveJobPerms();
+  else if(act==='wfview'){state.wfView=state.wfView||{};var cr2=cur(),wv=el.dataset.v;if(cr2&&wfStep(cr2)==='ins'&&wv===((cr2.wf||{}).backTo||'clerk'))wv='ins';state.wfView[id]=wv;var wc2=$('#wfCard');if(cr2&&wc2)wc2.outerHTML=wfCard(cr2)}
+  else if(act==='rowgo'){var rg=state.records.filter(function(x){return x.id===id})[0];if(!rg)return;var tg=el.dataset.t;if(tg==='4')state.dir4=flowOf(rg);setTab(tg);state.f[tg]='all';state.sel=id;drawToolbar();drawForm();drawList();var fb2=$('#formBox');if(fb2&&fb2.scrollIntoView)fb2.scrollIntoView({block:'start'})}
+  else if(act==='calopen'){var nt=document.querySelector('[data-nat="'+el.dataset.for+'"]');if(nt){try{nt.showPicker()}catch(e){nt.focus();nt.click()}}}
+  else if(act==='exp'){var xf=el.dataset.f,xs=el.dataset.s,xd=el.dataset.d||'';if(xf==='report')openReport(xs,xd,true,false);else if(xf==='pdf')openReport(xs,xd,true,true);else exportXlsx(xs,xd,true)}
+  else if(act==='rptclose')closeReport();
+  else if(act==='rptprint')doPrint();
+  else if(act==='rptxlsx'){var rr=state.rpt;if(rr)exportXlsx(rr.sec,rr.dir,rr.keep)}
+  else if(act==='rpthtml'){var rp=state.rpt;if(rp){var css='body{font-family:Sarabun,Tahoma,sans-serif;margin:20px;color:#111}h1{font-size:1.3rem;margin:0}h2{font-size:1rem;margin:18px 0 6px}.rsub{color:#444}table{width:100%;border-collapse:collapse;font-size:.85rem}th,td{border:1px solid #999;padding:4px 7px;text-align:left;vertical-align:top}th{background:#e8e8e8}.r{text-align:right}.rfoot{color:#555;font-size:.8rem}@page{size:A4 landscape;margin:12mm}';saveFile(safeName('รายงาน_'+rp.rep.title)+'_'+TODAY+'.html','<!doctype html><html lang="th"><head><meta charset="utf-8"><title>'+esc(rp.rep.title)+'</title><style>'+css+'</style></head><body>'+reportHtml(rp.rep)+'</body></html>')}}
   else if(act==='guide'){var gb=$('#guideBox');gb.hidden=!gb.hidden;if(!gb.hidden&&gb.scrollIntoView)gb.scrollIntoView({block:'start',behavior:'smooth'})}
   else if(act==='memo')save2(true);
   else if(act==='letterA')saveLetter('A',true);
@@ -1514,6 +1737,9 @@ document.addEventListener('dragover',function(ev){var r=ev.target.closest&&ev.ta
 document.addEventListener('drop',function(ev){var r=ev.target.closest&&ev.target.closest('.dwrow');if(!r||!state.dwDrag)return;ev.preventDefault();var L=dwLayout(),from=L.order.indexOf(state.dwDrag),to=L.order.indexOf(r.dataset.w);state.dwDrag=null;if(from<0||to<0||from===to){drawDash();return}dwMove(L.order[from],to);drawDash()});
 document.addEventListener('dragend',function(){state.dwDrag=null;document.querySelectorAll('.dwrow.over,.dwrow.dragging').forEach(function(x){x.classList.remove('over');x.classList.remove('dragging')})});
 document.addEventListener('input',function(ev){
+  if(ev.target.dataset&&ev.target.dataset.dtxt){dateTxtInput(ev.target,ev);return}
+  if(ev.target.dataset&&ev.target.dataset.money!==undefined){var mv=ev.target.value.replace(/[^\d.,]/g,'');if(mv!==ev.target.value)ev.target.value=mv}
+  if(ev.target.id==='lq'){state.q=ev.target.value;var gq0=document.getElementById('gq');if(gq0)gq0.value=state.q;drawList();return}
   if(ev.target.id==='q'||ev.target.id==='gq'){var qv=ev.target.value;if(state.tab==='D'){if(!qv)return;var ft=TABS.filter(function(t){return t[0]!=='D'&&perm(t[0])!=='none'})[0];if(!ft)return;setTab(ft[0])}state.q=qv;drawList()}
   else if(ev.target.id==='c_custom'){applyHue(hexToHue(ev.target.value),true)}
   else if(ev.target.id==='t_transfer')updateDue();
@@ -1522,15 +1748,18 @@ document.addEventListener('input',function(ev){
     if(ev.target.id==='a_amount'){var cr=cur(),nt=document.getElementById('a_amtnote'),nv=parseFloat(String(ev.target.value).replace(/,/g,''));if(cr&&nt&&!isNaN(nv))nt.textContent=amtNote(cr,nv)}
     schedulePreview()}
 });
+document.addEventListener('focusout',function(ev){var e=ev.target;if(e&&e.dataset&&e.dataset.money!==undefined){var n=parseFloat(String(e.value).replace(/,/g,''));if(!isNaN(n)&&n>=0){var f=fmtMoney(n);if(e.value!==f){e.value=f;e.dispatchEvent(new Event('input',{bubbles:true}))}}}});
 document.addEventListener('change',function(ev){
-  if(ev.target.dataset&&ev.target.dataset.dfor){syncDate(ev.target);return}
-  if(/^wf_(rdate|pdate)$/.test(ev.target.id||'')){wfHint(ev.target);return}
+  if(ev.target.dataset&&ev.target.dataset.nat){setDateIso(ev.target.dataset.nat,ev.target.value,false);return}
+  if(ev.target.dataset&&ev.target.dataset.dtxt){dateTxtBlur(ev.target);return}
   if(ev.target.id==='logUser'){drawLogs();return}
+  if(ev.target.id==='pgsize'){state.pageSize=ev.target.value==='all'?'all':Number(ev.target.value);drawList();return}
   if(ev.target.name==='dper'){state.dash.per=ev.target.value;drawDash()}
   else if(ev.target.name==='d4'){state.dir4=ev.target.value;state.f[4]='all';state.sel=null;drawToolbar();drawForm();drawList()}
   else if(ev.target.id==='d_ag'){state.dash.ag=ev.target.value;drawDash()}
   else if(ev.target.name==='flt'){state.f[state.tab]=ev.target.value;drawList()}
   else if(ev.target.id==='u_role')togglePerm();
+  else if(ev.target.id==='u_job'){var jp0=jobPermsOf(ev.target.value);if(ev.target.value){[1,2,3,4].forEach(function(i){var e=document.getElementById('u_p'+i);if(e)e.value=jp0['p'+i]||'none'})}}
   else if(/^(a_|m_|la_|lb_)/.test(ev.target.id||'')){if(/_kind_/.test(ev.target.id))syncKind();schedulePreview()}
   else if(ev.target.id==='t_transfer')updateDue();
 });
@@ -1612,9 +1841,9 @@ async function doBootstrap(){
     state.hasUsers=true;await startSession(u,d);logAct('เข้าสู่ระบบ','สร้างผู้ใช้คนแรก');
   }catch(e){setErr('eb',(e&&(e.code==='invalid_argument'||e.code==='permission_denied'))?'รหัสลับ (API_KEY) ไม่ถูกต้อง หรือมีผู้ใช้อยู่ในระบบแล้ว':'สร้างไม่สำเร็จ ลองอีกครั้ง')}
 }
-function sigOf(d){return JSON.stringify([d.role,d.perms||{},!!d.del,d.displayName||''])}
+function sigOf(d){return JSON.stringify([d.role,d.perms||{},!!d.del,d.displayName||'',d.job||''])}
 async function startSession(u,d){
-  state.me={username:u,displayName:d.displayName||u,role:d.role==='super'?'super':'user',perms:d.perms||{},del:!!d.del,hash:d.hash};
+  state.me={username:u,displayName:d.displayName||u,role:d.role==='super'?'super':'user',perms:d.perms||{},del:!!d.del,job:d.job||'',hash:d.hash};
   state.mesig=sigOf(d);
   window.claude.setAuth(u,d.hash);
   try{sessionStorage.setItem('reg-sess',JSON.stringify({u:u,h:d.hash}))}catch(e){}
@@ -1675,6 +1904,21 @@ function ensureUsersSub(){
 }
 
 /* ---------- user admin ---------- */
+function drawJobPerms(){
+  var b=$('#jobPermBox');if(!b)return;
+  var rows=Object.keys(JOB_LBL).map(function(k){var p=jobPermsOf(k);return '<tr><td><b>'+JOB_LBL[k]+'</b></td>'+[1,2,3,4].map(function(i){return '<td>'+permSel('jp_'+k+'_'+i,p['p'+i])+'</td>'}).join('')+'</tr>'}).join('');
+  b.innerHTML='<div class="sect">สิทธิ์ตามบทบาท (งาน)</div><p class="sub">กำหนดว่าแต่ละงานมีสิทธิ์ในขั้นตอนใดบ้าง เมื่อบันทึก ระบบจะปรับสิทธิ์ของผู้ใช้ทุกคนที่เลือกบทบาทนั้นให้ตรงกัน</p><div class="tablebox"><table><thead><tr><th>บทบาท</th><th>1 รับหนังสือ</th><th>2 ตรวจสอบ / ส่งต่อเอกสาร</th><th>3 ทำหนังสือ</th><th>4 ติดตามใบเสร็จ</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="actions"><button class="btn" type="button" data-act="savejobperms"'+(state.isEditor?'':' disabled')+'>บันทึกสิทธิ์ตามบทบาท</button></div>';
+}
+async function saveJobPerms(){
+  var jp={};Object.keys(JOB_LBL).forEach(function(k){jp[k]={p1:val('jp_'+k+'_1')||'none',p2:val('jp_'+k+'_2')||'none',p3:val('jp_'+k+'_3')||'none',p4:val('jp_'+k+'_4')||'none'}});
+  await guard(async function(){
+    await db.doc('settings/main').set(Object.assign({},state.settings,{jobPerms:jp}));
+    var us=state.users.filter(function(u){return u.role!=='super'&&u.job&&jp[u.job]});
+    for(var i=0;i<us.length;i++)await db.doc('users/'+us[i].username).update({perms:jp[us[i].job],updatedAt:Date.now()});
+    logAct('แก้ไขสิทธิ์ตามบทบาท','ปรับสิทธิ์ผู้ใช้ '+us.length+' คน');
+    toast('บันทึกสิทธิ์ตามบทบาทแล้ว (ปรับผู้ใช้ '+us.length+' คน)');
+  },'admin');
+}
 function togglePerm(){var pb=document.getElementById('permBox'),r=document.getElementById('u_role');if(pb&&r)pb.hidden=(r.value==='super')}
 function drawUsersList(){
   var box=$('#usersList');if(!box)return;
@@ -1682,13 +1926,14 @@ function drawUsersList(){
   if(!state.users.length){box.innerHTML='<div class="empty">ยังไม่มีผู้ใช้</div>';return}
   box.innerHTML=table([['ชื่อผู้ใช้'],['ชื่อที่แสดง'],['บทบาท'],['สถานะ'],['สิทธิ์ (ขั้นตอน 1-4)'],['']],state.users.map(function(u){
     var self=u.username===uname();
-    return '<tr class="'+(state.editUser===u.username?'picked':'')+'"><td>'+esc(u.username)+(self?' <span class="tag">คุณ</span>':'')+'</td><td>'+esc(u.displayName)+'</td><td>'+(u.role==='super'?'ซูเปอร์แอดมิน':'ผู้ใช้งาน')+'</td><td><span class="pill '+(u.active===false?'late':'done')+'">'+(u.active===false?'ระงับ':'ใช้งาน')+'</span></td><td>'+esc(permText(u))+'</td><td><div class="rowact"><button class="btn sm" type="button" data-act="uedit" data-id="'+esc(u.username)+'">แก้ไข</button><button class="btn sm danger" type="button" data-act="udel" data-id="'+esc(u.username)+'"'+((self||!state.isEditor)?' disabled':'')+'>ลบ</button></div></td></tr>';
+    return '<tr class="'+(state.editUser===u.username?'picked':'')+'"><td>'+esc(u.username)+(self?' <span class="tag">คุณ</span>':'')+'</td><td>'+esc(u.displayName)+'</td><td>'+(u.role==='super'?'ซูเปอร์แอดมิน':'ผู้ใช้งาน'+(u.job?' · '+JOB_LBL[u.job]:''))+'</td><td><span class="pill '+(u.active===false?'late':'done')+'">'+(u.active===false?'ระงับ':'ใช้งาน')+'</span></td><td>'+esc(permText(u))+'</td><td><div class="rowact"><button class="btn sm" type="button" data-act="uedit" data-id="'+esc(u.username)+'">แก้ไข</button><button class="btn sm danger" type="button" data-act="udel" data-id="'+esc(u.username)+'"'+((self||!state.isEditor)?' disabled':'')+'>ลบ</button></div></td></tr>';
   }).join(''));
 }
 function permSel(id,v){
   return '<select id="'+id+'"><option value="none"'+(v==='none'||!v?' selected':'')+'>ไม่มีสิทธิ์</option><option value="view"'+(v==='view'?' selected':'')+'>ดูอย่างเดียว</option><option value="edit"'+(v==='edit'?' selected':'')+'>ดูและแก้ไข</option></select>';
 }
 function drawUserForm(){
+  drawJobPerms();
   var box=$('#userFormBox');if(!box)return;
   var u=state.editUser?state.users.filter(function(x){return x.username===state.editUser})[0]:null;u=u||{};
   var editing=!!state.editUser&&!!u.username,perms=u.perms||{},self=editing&&u.username===uname();
@@ -1696,7 +1941,8 @@ function drawUserForm(){
   box.innerHTML='<form id="fu" novalidate><div class="sect">'+(editing?'แก้ไขผู้ใช้ '+esc(u.username):'เพิ่มผู้ใช้ใหม่')+'</div><div class="grid">'
     +fld('u_name','ชื่อผู้ใช้ (a-z 0-9 _ - .)','<input type="text" id="u_name" value="'+esc(u.username||'')+'"'+(editing?' disabled':'')+' autocomplete="off" autocapitalize="none">')
     +fld('u_display','ชื่อที่แสดง','<input type="text" id="u_display" value="'+esc(u.displayName||'')+'" autocomplete="off">')
-    +fld('u_role','บทบาท','<select id="u_role"'+(self?' disabled':'')+'><option value="user"'+(u.role!=='super'?' selected':'')+'>ผู้ใช้งาน (กำหนดสิทธิ์รายขั้นตอน)</option><option value="super"'+(u.role==='super'?' selected':'')+'>ซูเปอร์แอดมิน (ทำได้ทุกอย่าง)</option></select>')
+    +fld('u_role','ประเภทผู้ใช้','<select id="u_role"'+(self?' disabled':'')+'><option value="user"'+(u.role!=='super'?' selected':'')+'>ผู้ใช้งาน (กำหนดสิทธิ์รายขั้นตอน)</option><option value="super"'+(u.role==='super'?' selected':'')+'>ซูเปอร์แอดมิน (ทำได้ทุกอย่าง)</option></select>')
+    +fld('u_job','บทบาท (งาน)','<select id="u_job"><option value="">ไม่ระบุ (ทำได้ทุกขั้นตอนส่งต่อ)</option>'+Object.keys(JOB_LBL).map(function(k){return '<option value="'+k+'"'+(u.job===k?' selected':'')+'>'+JOB_LBL[k]+'</option>'}).join('')+'</select><p class="sub" style="margin:6px 0 0">เลือกบทบาทแล้วสิทธิ์รายขั้นตอนด้านล่างจะเติมตามที่ตั้งไว้ในตาราง “สิทธิ์ตามบทบาท”</p>')
     +fld('u_status','สถานะ','<select id="u_status"'+(self?' disabled':'')+'><option value="on"'+(u.active!==false?' selected':'')+'>ใช้งาน</option><option value="off"'+(u.active===false?' selected':'')+'>ระงับ</option></select>')
     +fld('u_pw',editing?'รหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)':'รหัสผ่าน (อย่างน้อย 6 ตัว)','<input type="text" id="u_pw" autocomplete="off" autocapitalize="none">')
     +'<div class="fld" style="justify-content:flex-end"><button class="btn" type="button" data-act="genpw">สุ่มรหัสผ่าน</button></div>'
@@ -1723,7 +1969,7 @@ async function saveUser(){
   var isSup=role==='super';
   var perms=isSup?{p1:'edit',p2:'edit',p3:'edit',p4:'edit'}:{p1:val('u_p1')||'none',p2:val('u_p2')||'none',p3:val('u_p3')||'none',p4:val('u_p4')||'none'};
   var del=isSup?true:!!(document.getElementById('u_del')||{}).checked;
-  var d={displayName:val('u_display')||u,role:role,active:status==='on',perms:perms,del:del,updatedAt:Date.now()};
+  var d={displayName:val('u_display')||u,role:role,active:status==='on',perms:perms,del:del,job:isSup?'':val('u_job'),updatedAt:Date.now()};
   var prevHash=state.me.hash,self=editing&&u===uname();
   if(pw){d.salt=rndHex(16);d.iter=ITER;d.hash=await hashPw(pw,d.salt,ITER);if(self){state.me.hash=d.hash;window.claude.setAuth(state.me.username,d.hash)}}
   var ok=await guard(async function(){
@@ -1864,7 +2110,7 @@ function drawDash(){
   var agNames={};state.records.forEach(function(r){if(r.agency)agNames[r.agency]=1});
   var opts='<option value="">ทุกหน่วยบริการ</option>'+Object.keys(agNames).sort().map(function(n){return '<option value="'+esc(n)+'"'+(d.ag===n?' selected':'')+'>'+esc(n)+'</option>'}).join('');
   var per=[['all','ทั้งหมด'],['q','90 วันล่าสุด'],['m','เดือนนี้']].map(function(c){return '<label class="chip"><input type="radio" name="dper" value="'+c[0]+'"'+(d.per===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('');
-  var h='<div class="dfilter"><div class="chips" role="group" aria-label="ช่วงเวลา">'+per+'</div><select id="d_ag" aria-label="หน่วยบริการ">'+opts+'</select><button type="button" class="btn sm" data-act="dwopen" aria-expanded="'+(d.edit?'true':'false')+'">ปรับแต่งแดชบอร์ด</button></div>'+(d.edit?dwPanel():'');
+  var h='<div class="dfilter"><div class="chips" role="group" aria-label="ช่วงเวลา">'+per+'</div><select id="d_ag" aria-label="หน่วยบริการ">'+opts+'</select><button type="button" class="btn sm" data-act="dwopen" aria-expanded="'+(d.edit?'true':'false')+'">ปรับแต่งแดชบอร์ด</button>'+expBtns('D')+'</div>'+(d.edit?dwPanel():'');
   if(!rows.length){box.innerHTML=h+'<div class="empty" style="margin-top:14px">'+(state.loaded||!state.hasDb?'ไม่มีรายการในช่วงที่เลือก':'กำลังโหลดรายการ…')+'</div>';return}
   var pp=pct(P.paid,P.tot),rp=pct(R.sent,R.tot);
   var payOpen=PK.audit.n+PK.letter.n,payRc=PK.wait.n+PK.soon.n+PK.late.n,recvOpen=R.n-RK.done.n;

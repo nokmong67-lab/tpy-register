@@ -556,8 +556,9 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
   .rptpage{box-shadow:none!important;margin:0!important;max-width:none!important;padding:0!important}
 }
 .split2{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
-@media(min-width:1100px){.split2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.split2 .sp-left{position:sticky;top:12px}}
+@media(min-width:1100px){.split2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.split2 .sp-left,.split2 .sp-prev{position:sticky;top:12px}}
 .split2 .grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+#stats[hidden]{display:none!important}
 </style>
 
 <div id="shell">
@@ -655,6 +656,10 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
         <div class="fld wide"><label for="s_address">ที่อยู่โรงพยาบาล (หัวหนังสือ)</label><textarea id="s_address" rows="2"></textarea></div>
         <div class="fld wide"><label for="s_account">ข้อมูลบัญชีรับโอน (ใส่ในหนังสือแจ้งโอน)</label><textarea id="s_account" rows="2"></textarea></div>
       </div>
+      <h3 style="margin:18px 0 4px">เป้าหมายเวลาการทำงาน (นับวันทำการ)</h3>
+      <p class="recline">ใช้ในแดชบอร์ดส่วน “วัดประสิทธิภาพ” · เว้นว่างหรือ 0 ในขั้นที่ไม่กำหนดเวลา · ไม่นับเสาร์-อาทิตย์และวันหยุดที่กรอกด้านล่าง</p>
+      <div class="grid" id="slaGrid"></div>
+      <div class="grid"><div class="fld wide"><label for="s_holidays">วันหยุดนักขัตฤกษ์/วันหยุดพิเศษ (บรรทัดละ 1 วัน เช่น 13/10/69)</label><textarea id="s_holidays" rows="4" placeholder="13/10/69&#10;23/10/69"></textarea></div></div>
       <div class="actions"><button class="btn primary" type="submit">บันทึกการตั้งค่า</button></div>
     </form>
   </section>
@@ -844,10 +849,10 @@ function drawStats(){
   var c={audit:0,letter:0,wait:0,late:0,done:0};
   state.records.forEach(function(r){var k=status(r).k;if(k==='audit')c.audit++;else if(k==='letter')c.letter++;else if(k==='late')c.late++;else if(k==='done')c.done++;else c.wait++});
   var it=[['รายการทั้งหมด',state.records.length,'all'],['รอตรวจสอบ',c.audit,'audit'],['รอทำหนังสือ',c.letter,'letter'],['รอใบเสร็จ',c.wait,'wait'],['เกินกำหนด 30 วัน',c.late,'late'],['ได้รับใบเสร็จแล้ว',c.done,'done']];
-  $('#stats').innerHTML=it.map(function(x){return '<div class="stat"><i class="ic '+(x[2]==='all'?'':x[2])+'">'+ico(IC[x[2]])+'</i><div class="sv"><span>'+x[0]+'</span><b>'+x[1]+'</b></div></div>'}).join('');
+  $('#stats').hidden=true;$('#stats').innerHTML='';void it.map(function(x){return '<div class="stat"><i class="ic '+(x[2]==='all'?'':x[2])+'">'+ico(IC[x[2]])+'</i><div class="sv"><span>'+x[0]+'</span><b>'+x[1]+'</b></div></div>'}).join('');
   var q=[];
   if(canEdit('1'))q.push(['add','เพิ่มหนังสือใหม่','บันทึกหนังสือเรียกเก็บ / แจ้งโอน','1','']);
-  $('#quickTitle').hidden=!q.length;
+  q=[];$('#quickTitle').hidden=true;
   $('#quick').innerHTML=q.map(function(x){return '<button type="button" class="qcard" data-act="go" data-t="'+x[3]+'" data-f="'+x[4]+'"><i class="ic '+(x[0]==='add'?'':x[0])+'">'+ico(IC[x[0]])+'</i><span><b>'+x[1]+'</b><small>'+esc(x[2])+'</small></span><span class="chev">'+ico(IC.chev,18)+'</span></button>'}).join('');
 }
 function drawTabs(){
@@ -884,7 +889,7 @@ function drawForm(){
     var msg={5:'เลือก “ส่งต่อ” ที่รายการในตารางด้านล่าง เพื่อดำเนินการของงานธุรการ การเงิน และบัญชี รายการจะแสดงในส่วนนี้หลังตรวจสอบแล้ว',2:'เลือก “ตรวจสอบ” ที่รายการในตารางด้านล่าง เพื่อบันทึกผลและทำบันทึกข้อความ',3:'เลือก “ทำหนังสือ” ที่รายการในตารางด้านล่าง รายการจะแสดงในขั้นตอนนี้หลังตรวจสอบแล้ว',4:(state.dir4==='recv'?'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่ส่งใบเสร็จให้หน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือส่งใบเสร็จแล้ว':'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่โอนเงินและวันที่รับใบเสร็จจากหน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือแจ้งโอนแล้ว')}[t];
     box.innerHTML='<div class="hint">'+msg+'</div>';return;
   }
-  box.innerHTML=t==='2'?'<div class="split2"><div class="sp-left">'+paperCard('paper2','บันทึกข้อความ')+'</div><div class="sp-right">'+form2(r)+'</div></div>':(t==='5'?head5(r)+wfCard(r):(t==='3'?form3(r)+'<div style="height:18px"></div><div class="pair one">'+(flowOf(r)==='recv'?paperCard('paper3b','ตัวอย่างหนังสือส่งใบเสร็จ'):paperCard('paper3a','ตัวอย่างหนังสือแจ้งโอน'))+'</div>':form4(r)));
+  box.innerHTML=t==='2'?'<div class="split2"><div class="sp-left">'+paperCard('paper2','บันทึกข้อความ')+'</div><div class="sp-right">'+form2(r)+'</div></div>':(t==='5'?head5(r)+wfCard(r):(t==='3'?form3split(r):form4(r)));
   if(t==='4')updateDue();else if(t==='3'){syncKind();drawPapers3()}else if(t==='2')drawPaper2();
 }
 function detailList(){var o=uniqRecent(state.records,function(x){return x.detail},200);return '<datalist id="detailList">'+o.map(function(t){return '<option value="'+esc(t)+'">'}).join('')+'</datalist>'}
@@ -898,6 +903,7 @@ function form1(){
    +fld('r_agency','หน่วยงาน',inp('r_agency',r.agency||'','list="agencyList" autocomplete="off"')+'<datalist id="agencyList">'+agencies.map(function(a){return '<option value="'+esc(a)+'">'}).join('')+'</datalist>')
    +fld('r_docNo','เลขหนังสือ',inp('r_docNo',r.docNo||'','autocomplete="off"'))
    +fld('r_docDate','วันที่หนังสือ',inp('r_docDate',r.docDate||'','type="date"'))
+   +fld('r_recvDate','วันที่รับหนังสือ (เว้นว่าง = วันนี้)',inp('r_recvDate',state.editId?recvDate(r):TODAY,'type="date"'))
    +'<div class="fld wide"><span class="lbl" id="lblType">ประเภท</span>'+chips+'<p class="sub" style="margin:6px 0 0"><b>เรียกเก็บ</b> = หน่วยงานเรียกเก็บเงินจากเรา (เราโอน แล้วรอรับใบเสร็จ) · <b>แจ้งโอน</b> = หน่วยงานโอนเงินให้เรา (เราต้องส่งใบเสร็จให้)</p></div>'
    +fld('r_amount','เป็นเงิน (บาท)',inp('r_amount',r.amount!=null&&r.amount!==undefined&&r.amount!==''?fmtMoney(r.amount):'','inputmode="decimal" data-money placeholder="0.00" autocomplete="off"'))
    +fld('r_period','ช่วงเวลาเรียกเก็บ',inp('r_period',r.period||'','placeholder="เช่น ตุลาคม 2569 หรือ 1-31 ตุลาคม 2569" autocomplete="off"'))
@@ -975,9 +981,10 @@ function wfCard(r){
      +'</div>'+nt+'<div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('tonext','ส่งให้งานบัญชี','primary')+B('ret','ส่งคืนกลุ่มงานประกันสุขภาพฯ (แจ้งอีเมล)','warn')+'</div>';
   }else if(vs==='fin'){
     box='<h4>งานการเงิน ขออนุมัติเบิกจ่าย</h4><p class="sub">เมื่อจ่ายเงินแล้ว ลงวันที่จ่ายและเลขที่เช็ค'+(w.fixNote&&w.fixBy?' · <b>บัญชีส่งคืน:</b> '+esc(w.fixNote):'')+'</p><div class="grid">'
+     +fld('wf_reqdate','วันที่ทำขออนุมัติเบิกจ่าย',dateInp('wf_reqdate',f.reqDate||''))
      +fld('wf_pdate','วันที่จ่าย',dateInp('wf_pdate',f.payDate||''))
      +fld('wf_chq','เลขที่เช็ค',inp('wf_chq',f.cheque||'','autocomplete="off"'))
-     +'</div><div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('tonext','ส่งให้งานบัญชี บันทึกบัญชีรับจ่าย','primary')+'</div>';
+     +'</div><div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('finreq',f.reqDate?'✓ ทำขออนุมัติเบิกจ่ายแล้ว (แก้วันที่)':'บันทึก: ทำขออนุมัติเบิกจ่ายแล้ว')+B('tonext','ส่งให้งานบัญชี บันทึกบัญชีรับจ่าย','primary')+'</div>';
   }else if(vs==='acc'){
     box='<h4>งานบัญชี ตรวจสอบเอกสารและใบเสร็จรับเงิน</h4><p class="sub">ใบเสร็จเล่มที่ '+esc(f.book||'-')+' เลขที่ '+esc(f.no||'-')+' ลงวันที่ '+(f.date?fmtShort(f.date):'-')+'</p>'+nt+'<div class="wfact">'+B('recorded','✓ ถูกต้อง บันทึกบัญชีรับจ่าย','primary')+B('ret','ส่งคืนงานการเงิน (แจ้งอีเมล)','warn')+'</div>';
   }else if(vs==='acc1'){
@@ -1005,14 +1012,15 @@ async function wfDo(act){
   var lg=function(t,n){w.log.push({at:now,by:by,act:t,note:n||''})};
   var err=function(m){setErr('e_wf',m);return null};
   if(document.getElementById('wf_book')){f.book=val('wf_book');f.no=val('wf_no');f.date=val('wf_rdate')}
-  if(document.getElementById('wf_pdate')){f.payDate=val('wf_pdate');f.cheque=val('wf_chq')}
+  if(document.getElementById('wf_pdate')){f.payDate=val('wf_pdate');f.cheque=val('wf_chq');f.reqDate=val('wf_reqdate')}
   var mail=null;
   if(act==='clerkok'){w.step=recv?'fin':'acc1';lg('ธุรการตรวจสอบเบื้องต้น ครบถ้วน → ส่ง'+(recv?'งานการเงิน':'งานบัญชี'),note)}
   else if(act==='finsave'){lg('บันทึกข้อมูลงานการเงิน')}
+  else if(act==='finreq'){f.reqDate=f.reqDate||TODAY;lg('การเงินทำขออนุมัติเบิกจ่าย ลงวันที่ '+fmtShort(f.reqDate))}
   else if(act==='accrued'){w.accruedAt=now;lg('บันทึกบัญชีค้างจ่าย')}
   else if(act==='tonext'){
     if(st==='fin'&&recv){if(!f.book||!f.no||!f.date)return err('กรอกเล่มที่ เลขที่ และวันที่ออกใบเสร็จให้ครบ');w.step='acc';lg('การเงินออกใบเสร็จเล่มที่ '+f.book+' เลขที่ '+f.no+' → ส่งงานบัญชี')}
-    else if(st==='fin'){if(!f.payDate||!f.cheque)return err('กรอกวันที่จ่ายและเลขที่เช็คให้ครบ');w.step='acc2';lg('การเงินจ่ายเงิน เช็คเลขที่ '+f.cheque+' → ส่งงานบัญชี')}
+    else if(st==='fin'){if(!f.reqDate)return err('กดบันทึก “ทำขออนุมัติเบิกจ่ายแล้ว” ก่อน (ใช้วัดเวลาการทำงาน)');if(!f.payDate||!f.cheque)return err('กรอกวันที่จ่ายและเลขที่เช็คให้ครบ');w.step='acc2';lg('การเงินจ่ายเงิน เช็คเลขที่ '+f.cheque+' → ส่งงานบัญชี')}
     else{if(!w.accruedAt)return err('กดบันทึกบัญชีค้างจ่ายก่อน แล้วจึงส่งให้งานการเงิน');w.step='fin';lg('บัญชีส่งให้งานการเงิน ขออนุมัติเบิกจ่าย')}
     delete w.fixNote;delete w.fixBy;
   }
@@ -1034,6 +1042,11 @@ async function wfDo(act){
   state.wfMail=null;logAct('ส่งต่อเอกสาร: '+(w.log&&w.log.length?w.log[w.log.length-1].act:act),rl(r)+(note?' — '+note:''));
   if(mail){var g=window.claude&&window.claude.gs,sent=false;if(g&&g.notify){try{await g.notify(mail.subject,mail.body);sent=true}catch(e){}}state.wfMail={rid:r.id,subject:mail.subject,body:mail.body,sent:sent}}
   toast('บันทึกการส่งต่อแล้ว');drawForm();drawList();
+}
+function form3split(r){
+  var h=form3all(r),k=h.indexOf('<div class="pair">'),hd=h.slice(0,k),rest=h.slice(k+'<div class="pair">'.length),b=rest.indexOf('<form id="f3b"');
+  var recv=flowOf(r)==='recv',fm=recv?rest.slice(b,rest.lastIndexOf('</form>')+7):rest.slice(0,b);
+  return hd+'<div class="split2"><div class="sp-form">'+fm+'</div><div class="sp-prev">'+(recv?paperCard('paper3b','ตัวอย่างหนังสือส่งใบเสร็จ'):paperCard('paper3a','ตัวอย่างหนังสือแจ้งโอน'))+'</div></div>';
 }
 function form3(r){
   var h=form3all(r),a=h.indexOf('<form id="f3a"'),b=h.indexOf('<form id="f3b"'),e=h.lastIndexOf('</form>')+7;
@@ -1520,7 +1533,7 @@ function dashReport(){
     if(recv){R.n++;R.tot+=a;g.rn++;g.rt+=a;RK[k].n++;RK[k].sum+=a;if(k==='done')R.sent+=a;if(k==='send')send.push([r.receiveNo,ag,r.letter&&r.letter.receiptLetterNo||'',a,fmtShort(st.since)])}
     else{P.n++;P.tot+=a;g.pn++;g.pt+=a;PK[k].n++;PK[k].sum+=a;if(lettered(r))P.paid+=a;if(k==='late'||k==='soon')late.push([r.receiveNo,ag,a,fmtShort(st.due),st.label])}
   });
-  var per={all:'ทั้งหมด',q:'90 วันล่าสุด',m:'เดือนนี้'}[d.per]||'ทั้งหมด';
+  var per=perLabel(dashPer());
   var T=[
     {name:'ภาพรวม',head:['รายการ','ค่า'],money:[1],rows:[['ช่วงเวลา',per],['หน่วยบริการ',d.ag||'ทุกหน่วยบริการ'],['เขาเรียกเก็บเรา: จำนวนรายการ',P.n+' ราย'],['เขาเรียกเก็บเรา: ยอดรวม (บาท)',P.tot],['เขาเรียกเก็บเรา: โอนแล้ว (บาท)',P.paid],['เขาแจ้งโอนให้เรา: จำนวนรายการ',R.n+' ราย'],['เขาแจ้งโอนให้เรา: ยอดรวม (บาท)',R.tot],['เขาแจ้งโอนให้เรา: ส่งใบเสร็จแล้ว (บาท)',R.sent]]},
     {name:'สถานะ: เขาเรียกเก็บเรา (เราโอน แล้วรอรับใบเสร็จ)',head:['สถานะ','จำนวน (ราย)','ยอดเงิน (บาท)'],money:[2],rows:PAY_ST.map(function(x){return [x[1],PK[x[0]].n,PK[x[0]].sum]})},
@@ -1620,7 +1633,7 @@ function recRef(id){return db.collection('records').doc(id)}
 
 async function submit1(){
   if(!canEdit('1'))return toast('ไม่มีสิทธิ์เพิ่มหรือแก้ไขในขั้นตอนนี้');
-  var d={receiveNo:val('r_receiveNo'),agency:val('r_agency'),docNo:val('r_docNo'),docDate:val('r_docDate'),
+  var d={receiveNo:val('r_receiveNo'),agency:val('r_agency'),docNo:val('r_docNo'),docDate:val('r_docDate'),receivedDate:val('r_recvDate')||(state.editId?recvDate(state.records.filter(function(x){return x.id===state.editId})[0]||{}):TODAY),
     type:(document.querySelector('input[name="type"]:checked')||{}).value||'เรียกเก็บ',detail:val('r_detail'),period:val('r_period')};
   var amt=parseFloat(val('r_amount').replace(/,/g,''));
   if(!d.receiveNo)return setErr('e1','กรอกเลขรับของ รพ.');
@@ -1677,10 +1690,16 @@ async function save4(){
 }
 async function saveSettings(){
   var o={hospital:val('s_hospital'),unit:val('s_unit'),unitFull:val('s_unitFull'),memoPrefix:val('s_memoPrefix'),letterPrefix:val('s_letterPrefix'),phone:val('s_phone'),fax:val('s_fax'),email:val('s_email'),auditor:val('s_auditor'),auditorPos:val('s_auditorPos'),signer:val('s_signer'),signerPos:val('s_signerPos'),address:val('s_address'),account:val('s_account')};
+  o.sla={};SEG.forEach(function(g){var v=val('s_sla_'+g.k);o.sla[g.k]=v===''?null:Math.max(0,Math.round(Number(v)||0))});
+  o.holidays=val('s_holidays').split(/[\n,;]+/).map(parseDMY).filter(Boolean);
+  o=Object.assign({},state.settings,o);
   await guard(async function(){await db.doc('settings/main').set(o);logAct('แก้ไขการตั้งค่าหน่วยงาน','');toast('บันทึกการตั้งค่าแล้ว')},'admin');
 }
 function fillSettings(){
   var s=state.settings;['hospital','unit','unitFull','memoPrefix','letterPrefix','phone','fax','email','auditor','auditorPos','signer','signerPos','address','account'].forEach(function(k){var e=document.getElementById('s_'+k);if(e&&document.activeElement!==e)e.value=s[k]||''});
+  var g=document.getElementById('slaGrid');if(g&&!g.firstChild)g.innerHTML=SEG.map(function(x){return '<div class="fld"><label for="s_sla_'+x.k+'">'+esc(x.lbl)+' <span style="font-weight:400">('+esc(x.flowLbl)+')</span></label><input type="text" inputmode="numeric" id="s_sla_'+x.k+'" placeholder="ไม่กำหนด"></div>'}).join('');
+  SEG.forEach(function(x){var e=document.getElementById('s_sla_'+x.k);if(e&&document.activeElement!==e){var v=slaOf(x.k);e.value=v==null?'':v}});
+  var h=document.getElementById('s_holidays');if(h&&document.activeElement!==h)h.value=holidays().map(fmtDMY).join('\n');
 }
 function exportCsv(){
   var q=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'};
@@ -2053,12 +2072,95 @@ function drawApp(){
   drawStats();drawToolbar();drawForm();drawList();
 }
 
+/* ---------- เป้าหมายเวลา / วันทำการ ---------- */
+var SEG=[
+ {k:'s1',lbl:'รับหนังสือ → งานประกันรับเรื่องตรวจสอบ',role:'งานประกันสุขภาพ',t:2,flow:'both',flowLbl:'ทุกประเภท'},
+ {k:'s2',lbl:'งานประกันตรวจสอบ → ส่งงานธุรการ',role:'งานประกันสุขภาพ',t:10,flow:'both',flowLbl:'ทุกประเภท'},
+ {k:'s3',lbl:'งานธุรการตรวจและส่งต่อ',role:'งานธุรการ',t:2,flow:'both',flowLbl:'ทุกประเภท'},
+ {k:'r4',lbl:'งานการเงินออกใบเสร็จ → ส่งงานบัญชี',role:'งานการเงิน',t:2,flow:'recv',flowLbl:'แจ้งโอน'},
+ {k:'r5',lbl:'งานบัญชีตั้งหนี้รับจ่าย (เสร็จสิ้น)',role:'งานบัญชี',t:5,flow:'recv',flowLbl:'แจ้งโอน'},
+ {k:'p4',lbl:'งานบัญชีตั้งหนี้ค้างจ่าย → ส่งงานการเงิน',role:'งานบัญชี',t:2,flow:'pay',flowLbl:'เรียกเก็บ'},
+ {k:'p5',lbl:'งานการเงินทำขออนุมัติเบิกจ่าย',role:'งานการเงิน',t:7,flow:'pay',flowLbl:'เรียกเก็บ'},
+ {k:'p6',lbl:'งานการเงินส่งเอกสารเรียกเก็บให้บัญชี',role:'งานการเงิน',t:5,flow:'pay',flowLbl:'เรียกเก็บ'},
+ {k:'p7',lbl:'งานบัญชีตั้งหนี้จ่าย (เสร็จสิ้น)',role:'งานบัญชี',t:null,flow:'pay',flowLbl:'เรียกเก็บ'}];
+function slaOf(k){var o=(state.settings||{}).sla;if(o&&k in o)return o[k]===null||o[k]===''||o[k]===undefined||Number(o[k])===0?null:Number(o[k]);var g=SEG.filter(function(x){return x.k===k})[0];return g?g.t:null}
+function holidays(){var h=(state.settings||{}).holidays;return Array.isArray(h)?h:[]}
+function bd(a,b){
+  if(!a||!b||b<=a)return 0;
+  var hol={};holidays().forEach(function(x){hol[x]=1});
+  var n=0,d=parseISO(a),e=parseISO(b);if(!d||!e)return 0;
+  for(d.setDate(d.getDate()+1);d<=e;d.setDate(d.getDate()+1)){var w=d.getDay();if(w===0||w===6||hol[iso(d)])continue;n++}
+  return n;
+}
+function recvDate(r){return (r&&r.receivedDate)||(r&&r.createdAt?iso(new Date(r.createdAt)):(r&&r.docDate)||'')}
+function wfEvents(r){
+  var ev={},w=r.wf||{},f=w.fin||{};
+  (w.log||[]).forEach(function(x){var d=String(x.at||'').slice(0,10),a=String(x.act||''),k=null;
+    if(a.indexOf('ธุรการตรวจสอบเบื้องต้น')===0)k='clerk';
+    else if(a.indexOf('การเงินออกใบเสร็จ')===0)k='finR';
+    else if(a.indexOf('การเงินจ่ายเงิน')===0)k='finP';
+    else if(a.indexOf('บัญชีส่งให้งานการเงิน')===0)k='acc1';
+    else if(a.indexOf('การเงินทำขออนุมัติ')===0)k='req';
+    else if(a.indexOf('บันทึกบัญชีรับจ่าย')===0)k='rec';
+    if(k&&d)ev[k]=d});
+  if(f.reqDate)ev.req=f.reqDate;
+  return ev;
+}
+function segsOf(r){
+  var recv=flowOf(r)==='recv',a=r.audit||{},w=r.wf||{},st=wfStep(r),ev=wfEvents(r),out=[];
+  var back=st==='ins'?(w.backTo||'clerk'):st;
+  var rd=recvDate(r),ent=r.createdAt?iso(new Date(r.createdAt)):rd;if(ent<rd)ent=rd;
+  var cl=function(k,from,to,open){
+    if(!from)return;
+    if(open)out.push({k:k,from:from,to:TODAY,open:true,days:bd(from,TODAY)});
+    else if(to)out.push({k:k,from:from,to:to,open:false,days:bd(from,to)});
+  };
+  cl('s1',rd,ent,false);
+  cl('s2',ent,a.date,!a.date);
+  if(!a.date)return out;
+  cl('s3',a.date,ev.clerk,back==='clerk'&&st!=='done');
+  if(recv){
+    cl('r4',ev.clerk,ev.finR,back==='fin');
+    cl('r5',ev.finR,ev.rec,back==='acc');
+  }else{
+    cl('p4',ev.clerk,ev.acc1,back==='acc1');
+    cl('p5',ev.acc1,ev.req,back==='fin'&&!ev.req);
+    cl('p6',ev.req,ev.finP,back==='fin'&&!!ev.req);
+    cl('p7',ev.finP,ev.rec,back==='acc2');
+  }
+  return out;
+}
+var STG_R=[['audit','รอประกันตรวจสอบ'],['clerk','รอธุรการตรวจ/ส่งต่อ'],['fin','รอการเงินออกใบเสร็จ'],['acc','รอบัญชีตั้งหนี้รับจ่าย'],['ins','ส่งคืนแก้ไข'],['done','เสร็จสิ้น']];
+var STG_P=[['audit','รอประกันตรวจสอบ'],['clerk','รอธุรการตรวจ/ส่งต่อ'],['acc1','รอบัญชีตั้งหนี้ค้างจ่าย'],['finA','รอการเงินทำขออนุมัติเบิกจ่าย'],['finB','รอการเงินส่งเอกสารให้บัญชี'],['acc2','รอบัญชีตั้งหนี้จ่าย'],['ins','ส่งคืนแก้ไข'],['done','เสร็จสิ้น']];
+var STG_C={audit:'var(--sky-ink)',clerk:'var(--sun-ink)',fin:'var(--orange-ink)',finA:'var(--orange-ink)',finB:'var(--orange-ink)',acc:'var(--mint-ink)',acc1:'var(--mint-ink)',acc2:'var(--mint-ink)',ins:'var(--pink-ink)',done:'var(--lav-ink)'};
+function stageOf(r){var a=r.audit||{},st=wfStep(r);if(!a.date)return 'audit';if(st==='fin'&&flowOf(r)==='pay')return wfEvents(r).req?'finB':'finA';return st}
+function fyOf(ym){var y=+ym.slice(0,4),m=+ym.slice(5,7);return (m>=10?y+1:y)+543}
+function perMatch(r,per){
+  if(!per||per==='all')return true;var ym=recvDate(r).slice(0,7);if(!ym)return false;
+  if(per.indexOf('ym:')===0)return ym===per.slice(3);
+  if(per.indexOf('fy:')===0)return String(fyOf(ym))===per.slice(3);
+  return true;
+}
+function dashPer(){
+  var d=state.dash;if(d.per)return d.per;
+  var cm='ym:'+TODAY.slice(0,7);
+  return state.records.some(function(r){return perMatch(r,cm)})?cm:'all';
+}
+function perLabel(per){
+  if(!per||per==='all')return 'ทั้งหมด';
+  if(per.indexOf('fy:')===0)return 'ปีงบประมาณ '+per.slice(3);
+  var y=+per.slice(3,7),m=+per.slice(8,10);return TH_M[m-1]+' '+(y+543);
+}
+function monthList(){
+  var o={};o[TODAY.slice(0,7)]=1;state.records.forEach(function(r){var ym=recvDate(r).slice(0,7);if(ym)o[ym]=1});
+  return Object.keys(o).sort().reverse();
+}
 /* ---------- dashboard ---------- */
-state.dash={per:'all',ag:'',edit:false};
-var DW=[['kpi','ภาพรวมยอด','1 1 100%',0],['todo','วันนี้ต้องทำ','1 1 100%',0],['pay','สายเขาเรียกเก็บเรา · เราโอน','1 1 100%',1],['recv','สายเขาแจ้งโอนให้เรา · เราส่งใบเสร็จ','1 1 100%',1],['chart','ยอดรายเดือน','2 1 460px',0],['prog','ความคืบหน้า','1 1 300px',0],['watchpay','รอรับใบเสร็จจากหน่วยงาน (เกินกำหนด/ใกล้ครบ)','1 1 420px',0],['watchrecv','ใบเสร็จที่เรายังไม่ได้ส่ง','1 1 420px',0],['due','ครบกำหนดรับใบเสร็จที่กำลังมา','1 1 420px',0],['agency','สรุปรายหน่วยบริการ','1 1 100%',0]];
-var DW_DEF=['kpi','todo','pay','recv','chart','prog','watchpay','watchrecv','agency'];
-var DW_PRE={exec:['แบบภาพรวมผู้บริหาร',['kpi','pay','recv','chart','prog','agency']],today:['แบบวันนี้ต้องทำ',['todo','kpi','watchpay','watchrecv','due','agency']],all:['แสดงทุกอย่าง',DW.map(function(x){return x[0]})]};
-function dwKey(){return 'reg-dashw:'+((state.me&&state.me.username)||'guest')}
+state.dash={per:null,ag:'',edit:false};
+var DW=[['cnt','สรุปจำนวนฉบับ (แยกตามขั้นตอน)','1 1 100%',1],['money','สรุปยอดเงิน (แยกตามขั้นตอน)','1 1 100%',1],['perf','วัดประสิทธิภาพ (เวลาแต่ละขั้นตอน)','1 1 100%',0],['over','งานที่เกินเวลาเป้าหมาย','1 1 100%',0],['kpi','ภาพรวมยอด','1 1 100%',0],['todo','วันนี้ต้องทำ','1 1 100%',0],['pay','สายเขาเรียกเก็บเรา · เราโอน','1 1 100%',1],['recv','สายเขาแจ้งโอนให้เรา · เราส่งใบเสร็จ','1 1 100%',1],['chart','ยอดรายเดือน','2 1 460px',0],['prog','ความคืบหน้า','1 1 300px',0],['watchpay','รอรับใบเสร็จจากหน่วยงาน (เกินกำหนด/ใกล้ครบ)','1 1 420px',0],['watchrecv','ใบเสร็จที่เรายังไม่ได้ส่ง','1 1 420px',0],['due','ครบกำหนดรับใบเสร็จที่กำลังมา','1 1 420px',0],['agency','สรุปรายหน่วยบริการ','1 1 100%',0]];
+var DW_DEF=['cnt','money','perf','over','chart','todo','watchpay','watchrecv','agency'];
+var DW_PRE={exec:['แบบภาพรวมผู้บริหาร',['cnt','money','perf','chart','agency']],today:['แบบวันนี้ต้องทำ',['todo','over','cnt','watchpay','watchrecv','due']],all:['แสดงทุกอย่าง',DW.map(function(x){return x[0]})]};
+function dwKey(){return 'reg-dashw2:'+((state.me&&state.me.username)||'guest')}
 function dwLayout(){
   if(state.dwl&&state.dwl.key===dwKey())return state.dwl;
   var o=null;try{o=JSON.parse(localStorage.getItem(dwKey())||'null')}catch(e){}
@@ -2095,12 +2197,10 @@ function fmtC(n){n=Number(n)||0;return n>=1e6?(n/1e6).toFixed(1).replace(/\.0$/,
 function shortAg(a){return String(a||'-').replace(/^โรงพยาบาลส่งเสริมสุขภาพตำบล/,'รพ.สต.').replace(/^โรงพยาบาล/,'รพ.')}
 function pct(a,b){return b>0?Math.round(a*1000/b)/10:0}
 function dashRows(){
-  var d=state.dash;
+  var d=state.dash,per=dashPer();
   return state.records.filter(function(r){
     if(d.ag&&r.agency!==d.ag)return false;
-    if(d.per==='m')return String(r.docDate||'').slice(0,7)===TODAY.slice(0,7);
-    if(d.per==='q'){if(!r.docDate)return false;var n=diffDays(r.docDate,TODAY);return n>=0&&n<=90}
-    return true;
+    return perMatch(r,per);
   });
 }
 function dstBtn(x,o,dir){return '<button type="button" class="dsb" style="border-top-color:'+STC[x[0]]+'" data-act="go" data-t="'+x[2]+'" data-f="'+x[3]+'"'+(dir?' data-d="'+dir+'"':'')+'><span class="l">'+x[1]+'</span><b>'+o.n+'</b><small>'+fmtMoney(o.sum)+' บาท</small></button>'}
@@ -2127,8 +2227,10 @@ function drawDash(){
   });
   var agNames={};state.records.forEach(function(r){if(r.agency)agNames[r.agency]=1});
   var opts='<option value="">ทุกหน่วยบริการ</option>'+Object.keys(agNames).sort().map(function(n){return '<option value="'+esc(n)+'"'+(d.ag===n?' selected':'')+'>'+esc(n)+'</option>'}).join('');
-  var per=[['all','ทั้งหมด'],['q','90 วันล่าสุด'],['m','เดือนนี้']].map(function(c){return '<label class="chip"><input type="radio" name="dper" value="'+c[0]+'"'+(d.per===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('');
-  var h='<div class="dfilter"><div class="chips" role="group" aria-label="ช่วงเวลา">'+per+'</div><select id="d_ag" aria-label="หน่วยบริการ">'+opts+'</select><button type="button" class="btn sm" data-act="dwopen" aria-expanded="'+(d.edit?'true':'false')+'">ปรับแต่งแดชบอร์ด</button>'+expBtns('D')+'</div>'+(d.edit?dwPanel():'');
+  var curPer=dashPer(),ml=monthList(),fys={};ml.forEach(function(m){fys[fyOf(m)]=1});
+  var perOpt='<option value="all"'+(curPer==='all'?' selected':'')+'>ทั้งหมด</option><optgroup label="ปีงบประมาณ (ต.ค. – ก.ย.)">'+Object.keys(fys).sort().reverse().map(function(y){return '<option value="fy:'+y+'"'+(curPer==='fy:'+y?' selected':'')+'>ปีงบประมาณ '+y+'</option>'}).join('')+'</optgroup><optgroup label="รายเดือน">'+ml.map(function(m){return '<option value="ym:'+m+'"'+(curPer==='ym:'+m?' selected':'')+'>'+perLabel('ym:'+m)+'</option>'}).join('')+'</optgroup>';
+  var isM=curPer.indexOf('ym:')===0,mi=ml.indexOf(curPer.slice(3));
+  var h='<div class="dfilter"><div class="actions" style="align-items:center"><button type="button" class="btn sm" data-act="dperstep" data-v="1" aria-label="เดือนก่อนหน้า"'+(isM&&mi<ml.length-1?'':' disabled')+'>◀</button><select id="d_per" aria-label="เลือกเดือนหรือช่วงเวลา">'+perOpt+'</select><button type="button" class="btn sm" data-act="dperstep" data-v="-1" aria-label="เดือนถัดไป"'+(isM&&mi>0?'':' disabled')+'>▶</button></div><select id="d_ag" aria-label="หน่วยบริการ">'+opts+'</select><button type="button" class="btn sm" data-act="dwopen" aria-expanded="'+(d.edit?'true':'false')+'">ปรับแต่งแดชบอร์ด</button>'+expBtns('D')+'</div><p class="sub" style="margin:8px 0 0">ช่วงที่แสดง: <b>'+esc(perLabel(curPer))+'</b> · นับตาม “วันที่รับหนังสือ” · '+rows.length+' ฉบับ</p>'+(d.edit?dwPanel():'');
   if(!rows.length){box.innerHTML=h+'<div class="empty" style="margin-top:14px">'+(state.loaded||!state.hasDb?'ไม่มีรายการในช่วงที่เลือก':'กำลังโหลดรายการ…')+'</div>';return}
   var pp=pct(P.paid,P.tot),rp=pct(R.sent,R.tot);
   var payOpen=PK.audit.n+PK.letter.n,payRc=PK.wait.n+PK.soon.n+PK.late.n,recvOpen=R.n-RK.done.n;
@@ -2150,11 +2252,12 @@ function drawDash(){
    +'</div>'
    +'<div class="dst">'+RECV_ST.map(function(x){return dstBtn(x,RK[x[0]],'recv')}).join('')+'</div>';
   /* กราฟ + ความคืบหน้า */
+  M={};state.records.forEach(function(r){if(d.ag&&r.agency!==d.ag)return;var ym=recvDate(r).slice(0,7);if(!ym)return;var m=M[ym]||(M[ym]={p:0,r:0});if(flowOf(r)==='recv')m.r+=Number(r.amount)||0;else m.p+=Number(r.amount)||0});
   var ks=Object.keys(M).sort().slice(-6),mx=0;ks.forEach(function(k){mx=Math.max(mx,M[k].p,M[k].r)});
   var bars=ks.map(function(k){var m=M[k],y=Number(k.slice(0,4)),mo=Number(k.slice(5,7));
     var h1=mx?Math.round(200*m.p/mx):0,h2=mx?Math.round(200*m.r/mx):0;
     return '<div class="dm" title="เขาเรียกเก็บเรา '+fmtMoney(m.p)+' · เขาแจ้งโอนให้เรา '+fmtMoney(m.r)+'"><div class="bb"><i style="height:'+Math.max(h1,m.p>0?2:0)+'px;background:var(--accent)"></i><i style="height:'+Math.max(h2,m.r>0?2:0)+'px;background:hsl(40 85% 52%)"></i></div><span>'+TH_MS[mo-1]+' '+((y+543)%100)+'</span></div>'}).join('');
-  W.chart='<div class="dcard"><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:baseline"><h2>ยอดรายเดือน (ตามวันที่หนังสือ)</h2><div class="dleg"><span><i style="background:var(--accent)"></i>เขาเรียกเก็บเรา</span><span><i style="background:hsl(40 85% 52%)"></i>เขาแจ้งโอนให้เรา</span></div></div>'
+  W.chart='<div class="dcard"><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:baseline"><h2>ยอดรายเดือน (ตามวันที่รับหนังสือ · 6 เดือนล่าสุด)</h2><div class="dleg"><span><i style="background:var(--accent)"></i>เขาเรียกเก็บเรา</span><span><i style="background:hsl(40 85% 52%)"></i>เขาแจ้งโอนให้เรา</span></div></div>'
    +'<div class="dchart" role="img" aria-label="กราฟแท่งยอดเรียกเก็บและยอดแจ้งโอนรายเดือน">'+bars+'</div><div class="dyax"><span>0</span><span>สูงสุด '+fmtC(mx)+' บาท</span></div></div>';
   W.prog='<div class="dcard"><h2>ความคืบหน้า</h2><div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:space-around;margin-top:8px">'+ddon(pp,'เราโอนแล้ว')+ddon(rp,'เราส่งใบเสร็จแล้ว')+'</div></div>';
   /* ต้องติดตาม */
@@ -2197,6 +2300,49 @@ function drawDash(){
   var dues=DU.slice(0,6).map(function(w){var st=w.st;
     return '<div class="dwr"><span class="pill '+st.k+'">เหลือ '+st.left+' วัน</span><div class="m"><b>'+esc(w.r.agency||'-')+'</b><small>'+esc(w.r.receiveNo||'')+' · ครบ '+fmtShort(st.due)+'</small></div><b class="num">'+fmtMoney(w.r.amount)+'</b></div>'}).join('');
   W.due='<div class="dcard"><h2>ครบกำหนดรับใบเสร็จที่กำลังมา</h2><span class="sub">ยังไม่เกินกำหนด · เรียงตามวันครบกำหนด</span>'+(dues||'<div class="empty">ไม่มีรายการรอใบเสร็จ</div>')+(DU.length>6?'<div class="sub" style="margin-top:8px">และอีก '+(DU.length-6)+' รายการ</div>':'')+'</div>';
+  /* ===== สรุปจำนวนฉบับ / ยอดเงิน แยกตามขั้นตอน ===== */
+  var SG={recv:{},pay:{}},TOT={recv:{n:0,s:0},pay:{n:0,s:0}};
+  rows.forEach(function(r){var fl=flowOf(r),k=stageOf(r),a=Number(r.amount)||0,o=SG[fl][k]||(SG[fl][k]={n:0,s:0});o.n++;o.s+=a;TOT[fl].n++;TOT[fl].s+=a});
+  var allN=TOT.recv.n+TOT.pay.n,allS=TOT.recv.s+TOT.pay.s,doneN2=((SG.recv.done||{}).n||0)+((SG.pay.done||{}).n||0),doneS2=((SG.recv.done||{}).s||0)+((SG.pay.done||{}).s||0);
+  var cmp='';
+  if(curPer.indexOf('ym:')===0){var pm=ml[ml.indexOf(curPer.slice(3))+1];if(pm){var pn=state.records.filter(function(r){return (!d.ag||r.agency===d.ag)&&perMatch(r,'ym:'+pm)}).length,df=allN-pn;cmp=' · เดือนก่อน '+pn+' ฉบับ ('+(df>0?'+':'')+df+')'}}
+  var tile=function(fl,x,money){var o=SG[fl][x[0]]||{n:0,s:0},tgt=x[0]==='audit'?'2':'5';
+    return '<button type="button" class="dsb" style="border-top-color:'+STG_C[x[0]]+'" data-act="go" data-t="'+tgt+'"'+(x[0]==='audit'?' data-f="pending"':'')+'><span class="l">'+x[1]+'</span><b>'+(money?fmtMoney(o.s):o.n)+'</b><small>'+(money?o.n+' ฉบับ':'ฉบับ')+'</small></button>'};
+  var sect=function(money){
+    var kp=money
+     ?'<div class="dk"><div class="dkc"><div class="l">ยอดเงินรวมที่รับหนังสือ</div><div class="v">'+fmtMoney(allS)+'</div><div class="s">บาท · '+allN+' ฉบับ</div></div>'
+      +'<div class="dkc"><div class="l">เรียกเก็บ (เราโอน)</div><div class="v">'+fmtMoney(TOT.pay.s)+'</div><div class="s">บาท · '+TOT.pay.n+' ฉบับ</div></div>'
+      +'<div class="dkc" style="border-top-color:hsl(40 85% 52%)"><div class="l">แจ้งโอน (เขาโอนให้เรา)</div><div class="v">'+fmtMoney(TOT.recv.s)+'</div><div class="s">บาท · '+TOT.recv.n+' ฉบับ</div></div>'
+      +'<div class="dkc ok"><div class="l">เสร็จสิ้นแล้ว</div><div class="v">'+fmtMoney(doneS2)+'</div><div class="dprog"><div class="tr"><i style="width:'+pct(doneS2,allS)+'%"></i></div><b>'+pct(doneS2,allS)+'%</b></div></div></div>'
+     :'<div class="dk"><div class="dkc"><div class="l">รับหนังสือทั้งหมด</div><div class="v">'+allN+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="s">'+esc(perLabel(curPer))+esc(cmp)+'</div></div>'
+      +'<div class="dkc"><div class="l">เรียกเก็บ</div><div class="v">'+TOT.pay.n+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="s">เขาเรียกเก็บเรา · เราโอน</div></div>'
+      +'<div class="dkc" style="border-top-color:hsl(40 85% 52%)"><div class="l">แจ้งโอน</div><div class="v">'+TOT.recv.n+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="s">เขาโอนให้เรา · เราส่งใบเสร็จ</div></div>'
+      +'<div class="dkc ok"><div class="l">เสร็จสิ้นแล้ว</div><div class="v">'+doneN2+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="dprog"><div class="tr"><i style="width:'+pct(doneN2,allN)+'%"></i></div><b>'+pct(doneN2,allN)+'%</b></div></div></div>';
+    return kp
+     +'<div class="dsec"><span class="dtag">เรียกเก็บ</span><span class="sub">'+(money?'ยอดเงินที่ค้างอยู่ในแต่ละขั้นตอน':'จำนวนฉบับที่ค้างอยู่ในแต่ละขั้นตอน')+'</span></div><div class="dst">'+STG_P.map(function(x){return tile('pay',x,money)}).join('')+'</div>'
+     +'<div class="dsec"><span class="dtag b">แจ้งโอน</span><span class="sub">'+(money?'ยอดเงินที่ค้างอยู่ในแต่ละขั้นตอน':'จำนวนฉบับที่ค้างอยู่ในแต่ละขั้นตอน')+'</span></div><div class="dst">'+STG_R.map(function(x){return tile('recv',x,money)}).join('')+'</div>'
+     +'<p class="sub" style="margin:4px 0 0">'+(money?'ยอดเงินตามจำนวนเงินในหนังสือที่รับ':'นับตามขั้นตอนที่เอกสารอยู่ตอนนี้')+' · กดที่ช่องเพื่อไปดูรายการ</p>';
+  };
+  W.cnt=sect(false);W.money=sect(true);
+  /* ===== วัดประสิทธิภาพ ===== */
+  var PS={},OV=[];SEG.forEach(function(g){PS[g.k]={n:0,sum:0,max:0,ok:0,open:0,over:0}});
+  rows.forEach(function(r){segsOf(r).forEach(function(x){
+    var o=PS[x.k],t=slaOf(x.k);
+    if(x.open){o.open++;if(t!=null&&x.days>t){o.over++;OV.push({r:r,x:x,t:t})}}
+    else{o.n++;o.sum+=x.days;if(x.days>o.max)o.max=x.days;if(t==null||x.days<=t)o.ok++}
+  })});
+  var ptr=SEG.map(function(g){var o=PS[g.k],t=slaOf(g.k),pc=o.n&&t!=null?Math.round(o.ok*100/o.n):null;
+    var pill=pc==null?'<span class="sub">-</span>':'<span class="pill '+(pc>=90?'wait':(pc>=70?'soon':'late'))+'">'+pc+'%</span>';
+    return '<tr><td>'+esc(g.lbl)+'</td><td>'+esc(g.flowLbl)+'</td><td>'+esc(g.role)+'</td><td class="r">'+(t==null?'ไม่กำหนด':'≤ '+t+' วัน')+'</td><td class="r">'+o.n+'</td><td class="r">'+(o.n?(o.sum/o.n).toFixed(1):'-')+'</td><td class="r">'+(o.n?o.max:'-')+'</td><td class="r">'+pill+'</td><td class="r">'+(o.open||'-')+'</td><td class="r">'+(o.over?'<span class="pill late">'+o.over+'</span>':'-')+'</td></tr>'}).join('');
+  var mS=0,mN=0;SEG.forEach(function(g){var t=slaOf(g.k);if(t!=null){mS+=PS[g.k].ok;mN+=PS[g.k].n}});
+  W.perf='<div class="dcard"><div style="display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:space-between;align-items:baseline"><h2>วัดประสิทธิภาพ</h2><span class="sub">'+(mN?'ทันเวลาโดยรวม <b>'+Math.round(mS*100/mN)+'%</b> ('+mS+' จาก '+mN+' ครั้งที่วัดได้)':'ยังไม่มีขั้นตอนที่วัดเวลาได้ในช่วงนี้')+'</span></div>'
+   +'<p class="sub" style="margin:0 0 8px">นับเป็น <b>วันทำการ</b> (ไม่รวมเสาร์-อาทิตย์และวันหยุดที่ตั้งไว้) · ขั้นตอนที่ยังค้างอยู่นับถึงวันนี้ · เขียว ≥ 90% · ส้ม 70–89% · แดง &lt; 70% · ผู้ดูแลแก้เป้าหมายได้ที่ “ตั้งค่าหน่วยงาน”</p>'
+   +'<div class="dtbl"><table><thead><tr><th>ขั้นตอน</th><th>ประเภท</th><th>ผู้รับผิดชอบ</th><th class="r">เป้าหมาย</th><th class="r">วัดแล้ว (ครั้ง)</th><th class="r">เฉลี่ย (วัน)</th><th class="r">ช้าสุด (วัน)</th><th class="r">ทันเวลา</th><th class="r">ค้างอยู่</th><th class="r">เกินเวลา</th></tr></thead><tbody>'+ptr+'</tbody></table></div></div>';
+  OV.sort(function(a,b){return (b.x.days-b.t)-(a.x.days-a.t)});
+  var segLbl={};SEG.forEach(function(g){segLbl[g.k]=g});
+  var ovh=OV.slice(0,10).map(function(w){var g=segLbl[w.x.k],tgt=(w.x.k==='s1'||w.x.k==='s2')?'2':'5';
+    return '<div class="dwr"><span class="pill late">เกิน '+(w.x.days-w.t)+' วัน</span><div class="m"><b>'+esc(w.r.agency||'-')+'</b><small>'+esc(w.r.receiveNo||'')+' · '+esc(g.lbl)+' · '+esc(g.role)+' · ใช้ไป '+w.x.days+' จาก '+w.t+' วัน (ตั้งแต่ '+fmtShort(w.x.from)+')</small></div><b class="num">'+fmtMoney(w.r.amount)+'</b><button type="button" class="btn sm" data-act="go" data-t="'+tgt+'">ไปที่รายการ</button></div>'}).join('');
+  W.over='<div class="dcard"><div style="display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:space-between;align-items:baseline"><h2>งานที่เกินเวลาเป้าหมาย</h2><span class="sub">ขั้นตอนที่ยังค้างและเกินกำหนด · เรียงตามเกินมากสุด</span></div>'+(ovh||'<div class="empty">ไม่มีงานค้างที่เกินเวลาเป้าหมาย</div>')+(OV.length>10?'<div class="sub" style="margin-top:8px">และอีก '+(OV.length-10)+' รายการ</div>':'')+'</div>';
   /* ประกอบตามที่ผู้ใช้เลือก */
   var L=dwLayout(),meta={};DW.forEach(function(x){meta[x[0]]=x});
   var shown=L.order.filter(function(id){return !L.hide[id]&&W[id]});

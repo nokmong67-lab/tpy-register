@@ -827,7 +827,7 @@ function drawNotices(){
   else if(!state.canWrite)h+='<div class="notice">บัญชีนี้ดูข้อมูลได้อย่างเดียว ไม่สามารถบันทึกหรือแก้ไข</div>';
   if(state.me&&!state.me.guest&&state.tab!=='0'&&state.tab!=='D'&&perm(state.tab)==='view')h+='<div class="notice">สิทธิ์ของคุณในขั้นตอนนี้คือดูอย่างเดียว</div>';
   if(state.err)h+='<div class="notice">อ่านข้อมูลไม่สำเร็จ ('+esc(state.err)+') ลองเปิดหน้านี้ใหม่</div>';
-  var ex=state.records.filter(function(r){return r.isExample});
+  var ex=state.records.concat(state.sups||[]).filter(function(r){return r.isExample});
   if(ex.length)h+='<div class="notice"><span>มีข้อมูลตัวอย่าง '+ex.length+' รายการ ใช้ดูวิธีทำงานของแต่ละขั้นตอน</span><button type="button" class="btn sm danger" data-act="delex"'+(isSuper()&&state.canWrite?'':' disabled')+'>ลบข้อมูลตัวอย่างทั้งหมด</button></div>';
   $('#notices').innerHTML=h;
 }
@@ -1738,7 +1738,7 @@ document.addEventListener('click',function(ev){
     if(delArm===id){delArm=null;guard(async function(){logAct('ลบรายการ',rl(state.records.filter(function(x){return x.id===id})[0]));await recRef(id).delete();toast('ลบรายการแล้ว')})}
     else{delArm=id;el.textContent='ยืนยันลบ?';setTimeout(function(){if(delArm===id){delArm=null;if(el.isConnected)el.textContent='ลบ'}},3500)}
   }
-  else if(act==='delex'){guard(async function(){var ex=state.records.filter(function(r){return r.isExample});for(var i=0;i<ex.length;i++)await recRef(ex[i].id).delete();toast('ลบข้อมูลตัวอย่างแล้ว')})}
+  else if(act==='delex'){guard(async function(){var ex=state.records.concat(state.sups||[]).filter(function(r){return r.isExample});for(var i=0;i<ex.length;i++)await recRef(ex[i].id).delete();toast('ลบข้อมูลตัวอย่างแล้ว')})}
   else if(act==='csv')exportCsv();
   else if(act==='dagency'){state.dash.ag=state.dash.ag===el.dataset.v?'':el.dataset.v;drawDash()}
   else if(act==='go'){if(el.dataset.d)state.dir4=el.dataset.d;else if(el.dataset.t==='4')state.dir4='pay';setTab(el.dataset.t);if(el.dataset.f){state.f[el.dataset.t]=el.dataset.f;drawToolbar();drawList()}}
@@ -1751,6 +1751,7 @@ document.addEventListener('click',function(ev){
   else if(act==='wf')wfDo(el.dataset.w);
   else if(act==='spick'){state.supSel=id;state.supEdit=null;drawSup();var sw=document.getElementById('supWf');if(sw&&sw.scrollIntoView)sw.scrollIntoView({block:'nearest'})}
   else if(act==='sedit'){if(!canEdit('S'))return;state.supEdit=id;drawSup();var sf=document.getElementById('supForm');if(sf&&sf.scrollIntoView)sf.scrollIntoView({block:'nearest'})}
+  else if(act==='sexample')supExamples();
   else if(act==='sclr'){state.supEdit=null;drawSup()}
   else if(act==='sdel'){supDel(id)}
   else if(act==='sview'){state.supView=state.supView||{};state.supView[state.supSel]=el.dataset.v;drawSupWf()}
@@ -2361,8 +2362,8 @@ function drawDash(){
 
 /* ---------- ขอสนับสนุนเงิน (หน่วยงานอื่นขอเงินบำรุงจาก รพ.) ---------- */
 var SUP_STEPS=['sdir','sacc1','sfin','sacc2','sdone'];
-var SUP_LBL={sdir:'รับหนังสือ เกษียน เสนอ ผอ.',sacc1:'บัญชีตั้งหนี้ค้างจ่าย',sfin:'การเงินทำเบิกจ่าย',sacc2:'บัญชีบันทึกจ่าย',sdone:'เสร็จสิ้น'};
-var SUP_JOB={sdir:'clerk',sacc1:'acc',sfin:'fin',sacc2:'acc'};
+var SUP_LBL={sdir:'รับหนังสือ เกษียน เสนอ ผอ.',sacc1:'ตรวจสอบ',sfin:'การเงินทำเบิกจ่าย',sacc2:'บัญชีบันทึกจ่าย',sdone:'เสร็จสิ้น'};
+var SUP_JOB={sdir:'clerk',sacc1:'clerk',sfin:'fin',sacc2:'acc'};
 state.sups=[];state.supSel=null;state.supEdit=null;state.supF='pending';state.supView={};
 function supStep(r){return (r.wf&&r.wf.step)||'sdir'}
 function supCan(k){return canEdit('S')&&(isSuper()||!state.me.job||state.me.job===SUP_JOB[k])}
@@ -2378,7 +2379,7 @@ function drawSup(){
   var box=$('#formBox');if(!box)return;
   var h='<div class="card" style="margin-bottom:16px"><div class="fhead"><h2>ขอสนับสนุนเงิน</h2><p class="recline">หน่วยงานอื่นทำหนังสือขอรับการสนับสนุนเงินบำรุงจาก รพ. · บันทึกหนังสือ แล้วติดตามขั้นตอนของ รพ. ตั้งแต่เสนอ ผอ. จนบันทึกบัญชีจ่าย</p></div>'
    +(canEdit('S')?supForm():'<div class="hint">คุณดูรายการได้อย่างเดียว ไม่มีสิทธิ์เพิ่มหรือแก้ไข</div>')+'</div>'
-   +'<div id="supWf"></div>'
+   +(isSuper()&&canEdit('S')&&!state.sups.length?'<div class="notice"><span>ยังไม่มีรายการ ต้องการดูตัวอย่างการทำงานหรือไม่</span><button type="button" class="btn sm primary" data-act="sexample">สร้างตัวอย่าง 2 ฉบับ</button></div>':'')+'<div id="supWf"></div>'
    +'<div class="card" style="margin-bottom:16px"><div class="toolbar"><div class="chips" role="group" aria-label="กรองรายการ">'+[['pending','กำลังดำเนินการ'],['done','เสร็จสิ้น'],['all','ทั้งหมด']].map(function(c){return '<label class="chip"><input type="radio" name="sflt" value="'+c[0]+'"'+(state.supF===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('')+'</div></div><div id="supList" class="tablebox"></div></div>';
   box.innerHTML=h;drawSupWf();drawSupList();
 }
@@ -2446,15 +2447,19 @@ function drawSupWf(){
      +fld('sw_dirdate','วันที่เสนอ ผอ.',dateInp('sw_dirdate',w.dirDate||''))
      +fld('sw_dirord','วันที่ ผอ. สั่งการ',dateInp('sw_dirord',w.dirOrdDate||''))
      +fld('sw_dirnote','ข้อความเกษียน / คำสั่ง ผอ.',inp('sw_dirnote',w.dirNote||'','autocomplete="off"'),'wide')
-     +'</div><div class="wfact">'+B('dirsave','บันทึกข้อมูล')+B('dirnext','ส่งให้กลุ่มงานบัญชี ตั้งหนี้ค้างจ่าย','primary')+'</div>';
+     +'</div><div class="wfact">'+B('dirsave','บันทึกข้อมูล')+B('dirnext','ส่งตรวจสอบ','primary')+'</div>';
   }else if(vs==='sacc1'){
-    bx='<h4>งานบัญชี ตั้งหนี้ค้างจ่าย</h4><p class="sub">'+(w.accruedAt?'บันทึกบัญชีค้างจ่ายแล้วเมื่อ '+esc(wfFmtAt(w.accruedAt))+' · ส่งให้งานการเงินได้':'ตรวจสอบเอกสาร แล้วกด “บันทึกบัญชีค้างจ่าย” ก่อนส่งให้งานการเงิน')+'</p>'+nt+'<div class="wfact">'+B('accrued',w.accruedAt?'✓ บันทึกบัญชีค้างจ่ายแล้ว':'บันทึกบัญชีค้างจ่าย')+B('accnext','ส่งให้งานการเงิน','primary')+B('ret','ส่งคืนงานธุรการ','warn')+'</div>';
+    bx='<h4>ตรวจสอบ</h4><p class="sub">งานบริหาร/งานที่รับผิดชอบตรวจสอบหนังสือขอสนับสนุน แล้วพิมพ์ชื่อผู้ตรวจสอบหรืองานที่ตรวจสอบ'+(w.fixNote&&w.fixBy?' · <b>การเงินส่งคืน:</b> '+esc(w.fixNote):'')+'</p><div class="grid">'
+     +fld('sw_chkby','ผู้ตรวจสอบ / งานที่ตรวจสอบ',inp('sw_chkby',w.chkBy||'','list="supChkList" autocomplete="off" placeholder="พิมพ์ชื่อบุคคลหรือชื่องาน"')+'<datalist id="supChkList">'+uniqRecent(state.sups,function(x){return (x.wf||{}).chkBy},15).map(function(n){return '<option value="'+esc(n)+'">'}).join('')+'</datalist>')
+     +fld('sw_chkdate','วันที่ตรวจสอบ',dateInp('sw_chkdate',w.chkDate||''))
+     +fld('sw_chknote','ผลการตรวจสอบ / ข้อสังเกต',inp('sw_chknote',w.chkNote||'','autocomplete="off"'),'wide')
+     +'</div>'+nt+'<div class="wfact">'+B('chksave','บันทึกข้อมูล')+B('accnext','ส่งต่อเพื่อดำเนินการ','primary')+B('ret','ส่งคืนงานธุรการ','warn')+'</div>';
   }else if(vs==='sfin'){
     bx='<h4>งานการเงิน ทำเบิกจ่าย</h4><p class="sub">ทำขออนุมัติเบิกจ่าย แล้วลงวันที่จ่ายและเลขที่เช็ค/เลขอ้างอิงการจ่าย'+(w.fixNote&&w.fixBy?' · <b>บัญชีส่งคืน:</b> '+esc(w.fixNote):'')+'</p><div class="grid">'
      +fld('sw_req','วันที่ทำขออนุมัติเบิกจ่าย',dateInp('sw_req',f.reqDate||''))
      +fld('sw_pay','วันที่จ่าย',dateInp('sw_pay',f.payDate||''))
      +fld('sw_chq','เลขที่เช็ค / เลขอ้างอิง',inp('sw_chq',f.cheque||'','autocomplete="off"'))
-     +'</div>'+nt+'<div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('finnext','ส่งให้งานบัญชี บันทึกจ่าย','primary')+B('ret','ส่งคืนงานบัญชี','warn')+'</div>';
+     +'</div>'+nt+'<div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('finnext','ส่งให้งานบัญชี บันทึกจ่าย','primary')+B('ret','ส่งคืนผู้ตรวจสอบ','warn')+'</div>';
   }else if(vs==='sacc2'){
     bx='<h4>งานบัญชี บันทึกจ่าย</h4><p class="sub">ขออนุมัติเมื่อ '+(f.reqDate?fmtShort(f.reqDate):'-')+' · จ่ายเมื่อ '+(f.payDate?fmtShort(f.payDate):'-')+' · เช็ค/อ้างอิง '+esc(f.cheque||'-')+'</p>'+nt+'<div class="wfact">'+B('recorded','✓ ถูกต้อง บันทึกบัญชีจ่าย (เสร็จสิ้น)','primary')+B('ret','ส่งคืนงานการเงิน','warn')+'</div>';
   }else{
@@ -2475,11 +2480,12 @@ async function supDo(act){
   var lg=function(t,n){w.log.push({at:now,by:by,act:t,note:n||''})};
   var err=function(m){setErr('e_sw',m);return null};
   if(document.getElementById('sw_dirdate')){w.dirDate=val('sw_dirdate');w.dirOrdDate=val('sw_dirord');w.dirNote=val('sw_dirnote')}
+  if(document.getElementById('sw_chkby')){w.chkBy=val('sw_chkby');w.chkDate=val('sw_chkdate');w.chkNote=val('sw_chknote')}
   if(document.getElementById('sw_pay')){f.reqDate=val('sw_req');f.payDate=val('sw_pay');f.cheque=val('sw_chq')}
   if(act==='dirsave')lg('บันทึกข้อมูลการเสนอ ผอ.');
-  else if(act==='dirnext'){if(!w.dirDate)return err('ลงวันที่เสนอ ผอ.');w.step='sacc1';lg('รับหนังสือ เกษียน เสนอ ผอ. ลงวันที่ '+fmtShort(w.dirDate)+' → ส่งกลุ่มงานบัญชี ตั้งหนี้ค้างจ่าย',w.dirNote)}
-  else if(act==='accrued'){w.accruedAt=now;lg('บันทึกบัญชีค้างจ่าย')}
-  else if(act==='accnext'){if(!w.accruedAt)return err('กดบันทึกบัญชีค้างจ่ายก่อน แล้วจึงส่งให้งานการเงิน');w.step='sfin';delete w.fixNote;delete w.fixBy;lg('บัญชีส่งให้งานการเงิน ทำเบิกจ่าย',note)}
+  else if(act==='dirnext'){if(!w.dirDate)return err('ลงวันที่เสนอ ผอ.');w.step='sacc1';lg('รับหนังสือ เกษียน เสนอ ผอ. ลงวันที่ '+fmtShort(w.dirDate)+' → ส่งตรวจสอบ',w.dirNote)}
+  else if(act==='chksave')lg('บันทึกข้อมูลการตรวจสอบ');
+  else if(act==='accnext'){if(!w.chkBy)return err('พิมพ์ชื่อผู้ตรวจสอบ หรืองานที่ตรวจสอบ');if(!w.chkDate)return err('ลงวันที่ตรวจสอบ');w.step='sfin';delete w.fixNote;delete w.fixBy;lg('ตรวจสอบโดย '+w.chkBy+' ลงวันที่ '+fmtShort(w.chkDate)+' → ส่งงานการเงิน ทำเบิกจ่าย',note||w.chkNote)}
   else if(act==='finsave')lg('บันทึกข้อมูลงานการเงิน');
   else if(act==='finnext'){if(!f.reqDate)return err('ลงวันที่ทำขออนุมัติเบิกจ่าย');if(!f.payDate)return err('ลงวันที่จ่าย');w.step='sacc2';delete w.fixNote;delete w.fixBy;lg('การเงินทำเบิกจ่าย ลงวันที่ '+fmtShort(f.reqDate)+' จ่ายเมื่อ '+fmtShort(f.payDate)+' → ส่งงานบัญชี บันทึกจ่าย',note)}
   else if(act==='recorded'){w.step='sdone';w.recordedAt=now;lg('บันทึกบัญชีจ่าย เสร็จสิ้น',note)}
@@ -2493,6 +2499,24 @@ async function supDo(act){
     await recRef(r.id).update({wf:w,updatedAt:Date.now(),updatedBy:uname()});
     logAct('ขอสนับสนุนเงิน: '+SUP_LBL[st],(r.agency||'')+' '+fmtMoney(r.amount)+' บาท ('+act+')');
     r.wf=w;if(state.supView)delete state.supView[r.id];drawSupWf();drawSupList();toast('บันทึกแล้ว');
+  });
+}
+
+async function supExamples(){
+  if(!isSuper()||!canEdit('S'))return;
+  var t=Date.now(),by=wfBy();
+  var L=function(at,act,note){return {at:at,by:by,act:act,note:note||''}};
+  var a={type:'ขอสนับสนุน',isExample:true,receiveNo:'3750/2569',agency:'สำนักงานสาธารณสุขจังหวัดสระแก้ว',docNo:'สก 0033.001.1/7333',docDate:'2026-11-02',receivedDate:'2026-11-02',amount:100000,
+    detail:'ขอรับการสนับสนุนเงินบำรุง เพื่อช่วยเหลือและบรรเทาความเดือดร้อนของประชาชนด้านสาธารณสุข กรณีอุทกภัย (จ่ายขาด)',link:'',createdAt:t,createdBy:uname(),
+    wf:{step:'sacc1',dirDate:'2026-11-02',dirOrdDate:'2026-11-02',dirNote:'เห็นควรมอบกลุ่มงานบริหารทั่วไป เพื่อโปรดดำเนินการ',log:[L('2026-11-02 13:30','รับหนังสือ เกษียน เสนอ ผอ. ลงวันที่ 2 พ.ย. 2569 → ส่งตรวจสอบ','เห็นควรมอบกลุ่มงานบริหารทั่วไป เพื่อโปรดดำเนินการ')]}};
+  var b={type:'ขอสนับสนุน',isExample:true,receiveNo:'3601/2569',agency:'สำนักงานสาธารณสุขอำเภอตาพระยา',docNo:'สก 0033.401/412',docDate:'2026-10-14',receivedDate:'2026-10-15',amount:30000,
+    detail:'ขอรับการสนับสนุนเงินบำรุง เพื่อใช้ในการรณรงค์ป้องกันโรคไข้เลือดออก (จ่ายขาด)',link:'',createdAt:t-1000,createdBy:uname(),
+    wf:{step:'sdone',dirDate:'2026-10-15',dirOrdDate:'2026-10-16',dirNote:'อนุมัติ',chkBy:'กลุ่มงานบริหารทั่วไป',chkDate:'2026-10-17',chkNote:'เอกสารครบถ้วน',recordedAt:'2026-10-27 14:05',fin:{reqDate:'2026-10-20',payDate:'2026-10-24',cheque:'0123456'},log:[
+      L('2026-10-16 10:00','รับหนังสือ เกษียน เสนอ ผอ. ลงวันที่ 15 ต.ค. 2569 → ส่งตรวจสอบ','อนุมัติ'),L('2026-10-17 09:20','ตรวจสอบโดย กลุ่มงานบริหารทั่วไป ลงวันที่ 17 ต.ค. 2569 → ส่งงานการเงิน ทำเบิกจ่าย','เอกสารครบถ้วน'),
+      L('2026-10-24 11:00','การเงินทำเบิกจ่าย ลงวันที่ 20 ต.ค. 2569 จ่ายเมื่อ 24 ต.ค. 2569 → ส่งงานบัญชี บันทึกจ่าย'),L('2026-10-27 14:05','บันทึกบัญชีจ่าย เสร็จสิ้น')]}};
+  await guard(async function(){
+    for(var x of [a,b]){var ref=db.collection('records').doc();await ref.set(x);if(!state.sups.some(function(y){return y.id===ref.id}))state.sups.push(Object.assign({id:ref.id},x))}
+    logAct('สร้างข้อมูลตัวอย่างขอสนับสนุนเงิน','2 รายการ');state.supF='all';drawSup();drawNotices();toast('สร้างตัวอย่าง 2 ฉบับแล้ว');
   });
 }
 document.addEventListener('change',function(ev){if(ev.target&&ev.target.name==='sflt'){state.supF=ev.target.value;drawSupList()}});

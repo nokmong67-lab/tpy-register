@@ -716,7 +716,7 @@ function bahtText(n){var f=(Math.round(Number(n||0)*100)/100).toFixed(2).split('
 /*ENDBAHT*/
 
 /* ---------- state ---------- */
-var TABS=[['D','แดชบอร์ด','สรุปยอดทั้งหมด'],['1','รับหนังสือ','บันทึกข้อมูล'],['2','ตรวจสอบ','บันทึกข้อความ'],['5','ส่งต่อเอกสาร','ธุรการ / การเงิน / บัญชี'],['3','ทำหนังสือ','แจ้งโอน / ส่งใบเสร็จ'],['4','ติดตามใบเสร็จ','ภายใน 30 วัน']];
+var TABS=[['D','แดชบอร์ด','สรุปยอดทั้งหมด'],['1','รับหนังสือ','บันทึกข้อมูล'],['2','ตรวจสอบ','บันทึกข้อความ'],['5','ส่งต่อเอกสาร','ธุรการ / การเงิน / บัญชี'],['3','ทำหนังสือ','แจ้งโอน / ส่งใบเสร็จ'],['4','ติดตามใบเสร็จ','ภายใน 30 วัน'],['S','ขอสนับสนุนเงิน','เสนอ ผอ. → เบิกจ่าย']];
 var state={records:[],settings:{},tab:'D',editId:null,sel:null,q:'',f:{1:'',2:'pending',3:'pending',4:'all',5:'pending'},hasDb:false,canWrite:true,err:'',loaded:false,me:null,users:[],hasUsers:null,isEditor:false,editUser:null,booting:true,mesig:''};
 state.dir4='pay';state.agencies={};
 var db=null,dl=null,usr=null;
@@ -792,7 +792,7 @@ function inp(id,v,attrs){if(attrs&&/type="date"/.test(attrs))return dateInp(id,v
 function area(id,v,rows){return '<textarea id="'+id+'" rows="'+(rows||3)+'">'+esc(v)+'</textarea>'}
 function val(id){var e=document.getElementById(id);return e?e.value.trim():''}
 function isSuper(){return !!(state.me&&state.me.role==='super')}
-function perm(t){if(!state.me)return 'none';if(t==='D'){if(isSuper())return 'view';var an=[1,2,3,4,5].some(function(i){var q=(state.me.perms||{})['p'+i];if(i===5&&q===undefined)q=(state.me.perms||{}).p2;return q==='edit'||q==='view'});return an?'view':'none'}if(isSuper())return 'edit';var pp=state.me.perms||{},p=pp['p'+t];if(t==='5'&&p===undefined)p=pp.p2;return (p==='edit'||p==='view')?p:'none'}
+function perm(t){if(!state.me)return 'none';if(t==='S'){if(isSuper())return 'edit';var qq=state.me.perms||{},q1=qq.p1,q5=qq.p5===undefined?qq.p2:qq.p5;return (q1==='edit'||q5==='edit')?'edit':((q1==='view'||q5==='view')?'view':'none')}if(t==='D'){if(isSuper())return 'view';var an=[1,2,3,4,5].some(function(i){var q=(state.me.perms||{})['p'+i];if(i===5&&q===undefined)q=(state.me.perms||{}).p2;return q==='edit'||q==='view'});return an?'view':'none'}if(isSuper())return 'edit';var pp=state.me.perms||{},p=pp['p'+t];if(t==='5'&&p===undefined)p=pp.p2;return (p==='edit'||p==='view')?p:'none'}
 function canEdit(t){return state.hasDb&&state.canWrite&&perm(t)==='edit'}
 function canDel(){return canEdit('1')&&(isSuper()||!!(state.me&&state.me.del))}
 function uname(){return state.me?state.me.username:''}
@@ -906,7 +906,6 @@ function form1(){
    +fld('r_recvDate','วันที่รับหนังสือ (เว้นว่าง = วันนี้)',inp('r_recvDate',state.editId?recvDate(r):TODAY,'type="date"'))
    +'<div class="fld wide"><span class="lbl" id="lblType">ประเภท</span>'+chips+'<p class="sub" style="margin:6px 0 0"><b>เรียกเก็บ</b> = หน่วยงานเรียกเก็บเงินจากเรา (เราโอน แล้วรอรับใบเสร็จ) · <b>แจ้งโอน</b> = หน่วยงานโอนเงินให้เรา (เราต้องส่งใบเสร็จให้)</p></div>'
    +fld('r_amount','เป็นเงิน (บาท)',inp('r_amount',r.amount!=null&&r.amount!==undefined&&r.amount!==''?fmtMoney(r.amount):'','inputmode="decimal" data-money placeholder="0.00" autocomplete="off"'))
-   +fld('r_period','ช่วงเวลาเรียกเก็บ',inp('r_period',r.period||'','placeholder="เช่น ตุลาคม 2569 หรือ 1-31 ตุลาคม 2569" autocomplete="off"'))
    +fld('r_detail','รายละเอียด',inp('r_detail',r.detail||'','list="detailList" autocomplete="off" placeholder="พิมพ์ แล้วระบบจะแสดงข้อความที่เคยพิมพ์"')+detailList(),'wide')
    +lnkFld('r_link','ลิงก์หนังสือที่ได้รับ (เรียกเก็บ / แจ้งโอน)',r.link)
    +'</div><p class="err" id="e1" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+dis()+'>'+(state.editId?'บันทึกการแก้ไข':'บันทึกรายการ')+'</button><button class="btn" type="button" data-act="clear1">'+(state.editId?'ยกเลิกการแก้ไข':'ล้างฟอร์ม')+'</button></div></form>';
@@ -1133,7 +1132,7 @@ function stepBtns(r){
 }
 state.pageSize=20;
 function drawList(){
-  if(state.tab==='D')return;
+  if(state.tab==='D')return;if(state.tab==='S'){drawSupList();return}
   var t=state.tab,rows=viewRows(),box=$('#listBody');
   if(!rows.length){
     var m=!state.loaded&&state.hasDb?'กำลังโหลดรายการ…':(state.q?'ไม่พบรายการที่ค้นหา':(state.records.length?'ไม่มีรายการในตัวกรองนี้':'ยังไม่มีรายการ กรอกแบบฟอร์มด้านบนเพื่อบันทึกหนังสือฉบับแรก'));
@@ -1177,7 +1176,7 @@ function drawList(){
   else if(allRows.length)pg='<div class="pager"><span>แสดง '+allRows.length+' รายการ</span></div>';
   box.innerHTML=h+pg;
 }
-function refresh(){if(!state.me||state.tab==='0')return;if(state.tab==='2'&&state.sel&&document.getElementById('paper2'))drawPaper2();drawNotices();drawStats();drawList();if(state.tab==='D'&&typeof drawDash==='function')drawDash()}
+function refresh(){if(!state.me||state.tab==='0')return;if(state.tab==='S'){drawNotices();drawSupList();return}if(state.tab==='2'&&state.sel&&document.getElementById('paper2'))drawPaper2();drawNotices();drawStats();drawList();if(state.tab==='D'&&typeof drawDash==='function')drawDash()}
 
 /* ---------- docx ---------- */
 var FONT='TH SarabunPSK';
@@ -1634,7 +1633,7 @@ function recRef(id){return db.collection('records').doc(id)}
 async function submit1(){
   if(!canEdit('1'))return toast('ไม่มีสิทธิ์เพิ่มหรือแก้ไขในขั้นตอนนี้');
   var d={receiveNo:val('r_receiveNo'),agency:val('r_agency'),docNo:val('r_docNo'),docDate:val('r_docDate'),receivedDate:val('r_recvDate')||(state.editId?recvDate(state.records.filter(function(x){return x.id===state.editId})[0]||{}):TODAY),
-    type:(document.querySelector('input[name="type"]:checked')||{}).value||'เรียกเก็บ',detail:val('r_detail'),period:val('r_period')};
+    type:(document.querySelector('input[name="type"]:checked')||{}).value||'เรียกเก็บ',detail:val('r_detail')};
   var amt=parseFloat(val('r_amount').replace(/,/g,''));
   if(!d.receiveNo)return setErr('e1','กรอกเลขรับของ รพ.');
   var dup=dupReceive(d.receiveNo,state.editId);
@@ -1711,7 +1710,7 @@ var delArm=null;
 function setTab(t){
   state.tab=t;state.sel=null;state.editId=null;state.q='';
   try{localStorage.setItem('reg-tab',t)}catch(e){}
-  if(t==='D'){drawApp();return}
+  if(t==='D'||t==='S'){drawApp();return}
   $('#listBody').parentNode.hidden=false;
   drawStats();drawTabs();drawToolbar();drawForm();drawList();
 }
@@ -1750,6 +1749,12 @@ document.addEventListener('click',function(ev){
   else if(act==='genpw'){var pe=document.getElementById('u_pw');if(pe)pe.value=genPw()}
   else if(act==='udel')delUser(id,el);
   else if(act==='wf')wfDo(el.dataset.w);
+  else if(act==='spick'){state.supSel=id;state.supEdit=null;drawSup();var sw=document.getElementById('supWf');if(sw&&sw.scrollIntoView)sw.scrollIntoView({block:'nearest'})}
+  else if(act==='sedit'){if(!canEdit('S'))return;state.supEdit=id;drawSup();var sf=document.getElementById('supForm');if(sf&&sf.scrollIntoView)sf.scrollIntoView({block:'nearest'})}
+  else if(act==='sclr'){state.supEdit=null;drawSup()}
+  else if(act==='sdel'){supDel(id)}
+  else if(act==='sview'){state.supView=state.supView||{};state.supView[state.supSel]=el.dataset.v;drawSupWf()}
+  else if(act==='swf')supDo(el.dataset.w);
   else if(act==='logreload')loadLogs();
   else if(act==='savejobperms')saveJobPerms();
   else if(act==='wfview'){state.wfView=state.wfView||{};var cr2=cur(),wv=el.dataset.v;if(cr2&&wfStep(cr2)==='ins'&&wv===((cr2.wf||{}).backTo||'clerk'))wv='ins';state.wfView[id]=wv;var wc2=$('#wfCard');if(cr2&&wc2)wc2.outerHTML=wfCard(cr2)}
@@ -1767,7 +1772,7 @@ document.addEventListener('click',function(ev){
 });
 document.addEventListener('submit',function(ev){
   ev.preventDefault();var id=ev.target.id;
-  if(id==='f1')submit1();else if(id==='f2')save2(false);else if(id==='f3a')saveLetter('A',false);else if(id==='f3b')saveLetter('B',false);else if(id==='f4')save4();else if(id==='fs')saveSettings();else if(id==='fl')doLogin();else if(id==='fb')doBootstrap();else if(id==='fu')saveUser();
+  if(id==='f1')submit1();else if(id==='fS')submitS();else if(id==='f2')save2(false);else if(id==='f3a')saveLetter('A',false);else if(id==='f3b')saveLetter('B',false);else if(id==='f4')save4();else if(id==='fs')saveSettings();else if(id==='fl')doLogin();else if(id==='fb')doBootstrap();else if(id==='fu')saveUser();
 });
 document.addEventListener('dragstart',function(ev){var r=ev.target.closest&&ev.target.closest('.dwrow');if(!r)return;state.dwDrag=r.dataset.w;try{ev.dataTransfer.effectAllowed='move';ev.dataTransfer.setData('text/plain',r.dataset.w)}catch(e){}r.classList.add('dragging')});
 document.addEventListener('dragover',function(ev){var r=ev.target.closest&&ev.target.closest('.dwrow');if(!r||!state.dwDrag)return;ev.preventDefault();document.querySelectorAll('.dwrow.over').forEach(function(x){x.classList.remove('over')});if(r.dataset.w!==state.dwDrag)r.classList.add('over')});
@@ -1888,7 +1893,7 @@ async function startSession(u,d){
 }
 function clearData(){
   unsubs.forEach(function(f){try{f()}catch(e){}});unsubs=[];usersSub=false;
-  state.records=[];state.agencies={};state.users=[];state.settings={};state.loaded=false;state.sel=null;state.editId=null;state.editUser=null;
+  state.records=[];state.sups=[];state.supSel=null;state.supEdit=null;state.agencies={};state.users=[];state.settings={};state.loaded=false;state.sel=null;state.editId=null;state.editUser=null;
 }
 function enterGuest(){
   clearData();window.claude.setAuth(null);
@@ -1914,9 +1919,10 @@ function startData(){
     var m={};snap.docs.forEach(function(d){var o=d.data();if(o&&o.name)m[o.name]=o.account||''});state.agencies=m;
   },function(){}));
   unsubs.push(db.collection('records').onSnapshot(function(snap){
-    state.records=snap.docs.map(function(d){var o=Object.assign({},d.data());o.id=d.id;return o});
+    var allr=snap.docs.map(function(d){var o=Object.assign({},d.data());o.id=d.id;return o});
+    state.sups=allr.filter(function(o){return o.type==='ขอสนับสนุน'});state.records=allr.filter(function(o){return o.type!=='ขอสนับสนุน'});
     state.loaded=true;state.err='';
-    if(state.sel&&!cur()){state.sel=null;drawForm()}
+    if(state.sel&&!cur()){state.sel=null;if(state.tab!=='S')drawForm()}
     if(state.editId&&!state.records.some(function(r){return r.id===state.editId})){state.editId=null;drawForm()}
     refresh();
   },function(e){state.err=(e&&e.code)||'error';state.loaded=true;refresh()}));
@@ -2068,6 +2074,7 @@ function drawApp(){
     return;
   }
   if(state.tab==='D'){$('#stats').innerHTML='';$('#quick').innerHTML='';$('#quickTitle').hidden=true;$('#toolbar').innerHTML='';$('#listBody').innerHTML='';$('#listBody').parentNode.hidden=true;drawDash();return}
+  if(state.tab==='S'){$('#stats').innerHTML='';$('#quick').innerHTML='';$('#quickTitle').hidden=true;$('#toolbar').innerHTML='';$('#listBody').innerHTML='';$('#listBody').parentNode.hidden=true;drawSup();return}
   $('#listBody').parentNode.hidden=false;
   drawStats();drawToolbar();drawForm();drawList();
 }
@@ -2350,6 +2357,145 @@ function drawDash(){
     :'<div class="empty" style="margin-top:14px">ยังไม่ได้เลือกให้แสดงอะไร กด “ปรับแต่งแดชบอร์ด” เพื่อเลือก</div>';
   box.innerHTML=h;
 }
+
+
+/* ---------- ขอสนับสนุนเงิน (หน่วยงานอื่นขอเงินบำรุงจาก รพ.) ---------- */
+var SUP_STEPS=['sdir','sacc1','sfin','sacc2','sdone'];
+var SUP_LBL={sdir:'รับหนังสือ เกษียน เสนอ ผอ.',sacc1:'บัญชีตั้งหนี้ค้างจ่าย',sfin:'การเงินทำเบิกจ่าย',sacc2:'บัญชีบันทึกจ่าย',sdone:'เสร็จสิ้น'};
+var SUP_JOB={sdir:'clerk',sacc1:'acc',sfin:'fin',sacc2:'acc'};
+state.sups=[];state.supSel=null;state.supEdit=null;state.supF='pending';state.supView={};
+function supStep(r){return (r.wf&&r.wf.step)||'sdir'}
+function supCan(k){return canEdit('S')&&(isSuper()||!state.me.job||state.me.job===SUP_JOB[k])}
+function supCur(){return state.sups.filter(function(r){return r.id===state.supSel})[0]}
+function supRows(){
+  var q=String(state.q||'').trim().toLowerCase(),f=state.supF;
+  return state.sups.filter(function(r){
+    if(f==='pending'&&supStep(r)==='sdone')return false;if(f==='done'&&supStep(r)!=='sdone')return false;
+    if(!q)return true;return [r.receiveNo,r.agency,r.docNo,r.detail].join(' ').toLowerCase().indexOf(q)>=0;
+  }).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)});
+}
+function drawSup(){
+  var box=$('#formBox');if(!box)return;
+  var h='<div class="card" style="margin-bottom:16px"><div class="fhead"><h2>ขอสนับสนุนเงิน</h2><p class="recline">หน่วยงานอื่นทำหนังสือขอรับการสนับสนุนเงินบำรุงจาก รพ. · บันทึกหนังสือ แล้วติดตามขั้นตอนของ รพ. ตั้งแต่เสนอ ผอ. จนบันทึกบัญชีจ่าย</p></div>'
+   +(canEdit('S')?supForm():'<div class="hint">คุณดูรายการได้อย่างเดียว ไม่มีสิทธิ์เพิ่มหรือแก้ไข</div>')+'</div>'
+   +'<div id="supWf"></div>'
+   +'<div class="card" style="margin-bottom:16px"><div class="toolbar"><div class="chips" role="group" aria-label="กรองรายการ">'+[['pending','กำลังดำเนินการ'],['done','เสร็จสิ้น'],['all','ทั้งหมด']].map(function(c){return '<label class="chip"><input type="radio" name="sflt" value="'+c[0]+'"'+(state.supF===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('')+'</div></div><div id="supList" class="tablebox"></div></div>';
+  box.innerHTML=h;drawSupWf();drawSupList();
+}
+function supForm(){
+  var r=state.supEdit?state.sups.filter(function(x){return x.id===state.supEdit})[0]:null;r=r||{};
+  var ag=Array.from(new Set(state.sups.concat(state.records).map(function(x){return x.agency}).filter(Boolean)));
+  return '<form id="fS" novalidate><div class="grid">'
+   +fld('s_agency','หน่วยงานที่ขอสนับสนุน',inp('s_agency',r.agency||'','list="supAgList" autocomplete="off"')+'<datalist id="supAgList">'+ag.map(function(a){return '<option value="'+esc(a)+'">'}).join('')+'</datalist>')
+   +fld('s_receiveNo','เลขรับของ รพ.',inp('s_receiveNo',r.receiveNo||'','autocomplete="off"'))
+   +fld('s_docNo','เลขที่หนังสือ',inp('s_docNo',r.docNo||'','autocomplete="off"'))
+   +fld('s_docDate','วันที่หนังสือ',dateInp('s_docDate',r.docDate||''))
+   +fld('s_recvDate','วันที่รับหนังสือ (เว้นว่าง = วันนี้)',dateInp('s_recvDate',state.supEdit?recvDate(r):TODAY))
+   +fld('s_amount','ยอดเงินที่ขอสนับสนุน (บาท)',inp('s_amount',r.amount!=null&&r.amount!==''?fmtMoney(r.amount):'','inputmode="decimal" data-money placeholder="0.00" autocomplete="off"'))
+   +fld('s_detail','รายละเอียดของหนังสือ',inp('s_detail',r.detail||'','autocomplete="off" placeholder="เช่น ขอรับการสนับสนุนเงินบำรุง เพื่อช่วยเหลือผู้ประสบอุทกภัย (จ่ายขาด)"'),'wide')
+   +lnkFld('s_link','ลิงก์หนังสือ',r.link)
+   +'</div><p class="err" id="eS" role="alert"></p><div class="actions"><button class="btn primary" type="submit">'+(state.supEdit?'บันทึกการแก้ไข':'บันทึกรายการ')+'</button>'+(state.supEdit?'<button class="btn" type="button" data-act="sclr">ยกเลิกการแก้ไข</button>':'')+'</div></form>';
+}
+async function submitS(){
+  if(!canEdit('S'))return toast('ไม่มีสิทธิ์เพิ่มหรือแก้ไข');
+  var old=state.supEdit?state.sups.filter(function(x){return x.id===state.supEdit})[0]:null;
+  var d={type:'ขอสนับสนุน',agency:val('s_agency'),receiveNo:val('s_receiveNo'),docNo:val('s_docNo'),docDate:val('s_docDate'),receivedDate:val('s_recvDate')||(old?recvDate(old):TODAY),detail:val('s_detail')};
+  var amt=parseFloat(val('s_amount').replace(/,/g,''));
+  if(!d.agency)return setErr('eS','กรอกหน่วยงานที่ขอสนับสนุน');
+  if(!d.docNo)return setErr('eS','กรอกเลขที่หนังสือ');
+  if(!d.docDate)return setErr('eS','เลือกวันที่หนังสือ');
+  if(isNaN(amt)||amt<0)return setErr('eS','กรอกยอดเงินเป็นตัวเลข');
+  var rn=String(d.receiveNo||'').replace(/\s+/g,'');
+  if(rn&&state.sups.some(function(x){return x.id!==state.supEdit&&String(x.receiveNo||'').replace(/\s+/g,'')===rn}))return setErr('eS','เลขรับ '+d.receiveNo+' ซ้ำกับรายการอื่น');
+  var lk=safeUrl(val('s_link'));if(lk===null)return setErr('eS',LINK_ERR);d.link=lk;
+  d.amount=Math.round(amt*100)/100;d.updatedAt=Date.now();d.updatedBy=uname();setErr('eS','');
+  await guard(async function(){
+    if(state.supEdit){await recRef(state.supEdit).update(d);logAct('แก้ไขรายการขอสนับสนุนเงิน',d.agency+' '+fmtMoney(d.amount)+' บาท');toast('บันทึกการแก้ไขแล้ว');state.supEdit=null}
+    else{d.createdAt=Date.now();d.createdBy=uname();d.wf={step:'sdir',log:[]};var ref=db.collection('records').doc();await ref.set(d);if(!state.sups.some(function(x){return x.id===ref.id}))state.sups.push(Object.assign({id:ref.id},d));state.supSel=ref.id;logAct('เพิ่มรายการขอสนับสนุนเงิน',d.agency+' '+fmtMoney(d.amount)+' บาท');toast('บันทึกรายการแล้ว')}
+    drawSup();
+  });
+}
+async function supDel(id){
+  if(!canDel())return;var r=state.sups.filter(function(x){return x.id===id})[0];if(!r)return;
+  if(!confirm('ลบรายการขอสนับสนุนของ '+(r.agency||'-')+' ?'))return;
+  await guard(async function(){await recRef(id).delete();logAct('ลบรายการขอสนับสนุนเงิน',(r.agency||'')+' '+fmtMoney(r.amount)+' บาท');if(state.supSel===id)state.supSel=null;drawSup()});
+}
+function drawSupList(){
+  var box=document.getElementById('supList');if(!box)return;
+  var rows=supRows();
+  if(!rows.length){box.innerHTML='<div class="empty">'+(!state.loaded&&state.hasDb?'กำลังโหลดรายการ…':(state.q?'ไม่พบรายการที่ค้นหา':'ยังไม่มีรายการในตัวกรองนี้'))+'</div>';return}
+  var sum=rows.reduce(function(a,r){return a+(Number(r.amount)||0)},0);
+  box.innerHTML='<table class="tbl"><thead><tr><th>หน่วยงาน</th><th>หนังสือ</th><th>รายละเอียด</th><th class="r">ยอดเงิน (บาท)</th><th>ขั้นตอนของ รพ.</th><th></th></tr></thead><tbody>'
+   +rows.map(function(r){var st=supStep(r),lk=safeUrl(r.link);
+     return '<tr class="'+(state.supSel===r.id?'picked':'')+'"><td><b>'+esc(r.agency)+'</b>'+(r.receiveNo?'<div class="sub">เลขรับ '+esc(r.receiveNo)+'</div>':'')+(lk?'<div><a class="lk" href="'+esc(lk)+'" target="_blank" rel="noopener noreferrer">'+ico(LINK_IC,12)+'หนังสือ</a></div>':'')+'</td><td>'+esc(r.docNo)+'<div class="sub">ลงวันที่ '+fmtShort(r.docDate)+'</div><div class="sub">รับ '+fmtShort(recvDate(r))+'</div></td><td>'+esc(r.detail)+'</td><td class="r num">'+fmtMoney(r.amount)+'</td><td><span class="pill '+(st==='sdone'?'done':'wait')+'">'+SUP_LBL[st]+'</span></td><td><div class="rowact"><button class="btn sm'+(st==='sdone'?'':' primary')+'" type="button" data-act="spick" data-id="'+r.id+'">'+(st==='sdone'?'เปิด':'ดำเนินการ')+'</button><button class="btn sm" type="button" data-act="sedit" data-id="'+r.id+'"'+(canEdit('S')?'':' disabled')+'>แก้ไข</button><button class="btn sm danger" type="button" data-act="sdel" data-id="'+r.id+'"'+(canDel()?'':' disabled')+'>ลบ</button></div></td></tr>'}).join('')
+   +'</tbody><tfoot><tr><td colspan="3">รวม '+rows.length+' รายการ</td><td class="r num">'+fmtMoney(sum)+'</td><td colspan="2"></td></tr></tfoot></table>';
+}
+function drawSupWf(){
+  var box=document.getElementById('supWf');if(!box)return;
+  var r=supCur();if(!r){box.innerHTML='';return}
+  var w=r.wf||{},st=supStep(r),f=w.fin||{},idx=SUP_STEPS.indexOf(st);
+  var vs=(state.supView||{})[r.id];if(SUP_STEPS.indexOf(vs)<0)vs=st;
+  var active=vs===st,can=supCan(vs);
+  var steps='<ol class="wfsteps">'+SUP_STEPS.map(function(k,i){var cls=(i<idx||st==='sdone')?'done':(i===idx?'now':'');
+    return '<li class="'+cls+(vs===k?' view':'')+'"><button type="button" data-act="sview" data-v="'+k+'" aria-pressed="'+(vs===k)+'"><b>'+(i<idx||st==='sdone'?'✓':i+1)+'</b>'+SUP_LBL[k]+'</button></li>'}).join('')+'</ol>';
+  var B=function(a,t,c){return '<button class="btn '+(c||'')+'" type="button" data-act="swf" data-w="'+a+'"'+((active&&can)?'':' disabled')+'>'+t+'</button>'};
+  var nt='<div class="fld wide"><label for="sw_note">ข้อความ / เหตุผล (จำเป็นเมื่อส่งคืน)</label><textarea id="sw_note" rows="2" autocomplete="off"></textarea></div>';
+  var bx='';
+  if(vs==='sdir'){
+    bx='<h4>รับหนังสือ เกษียน เสนอ ผู้อำนวยการ</h4><p class="sub">งานธุรการรับหนังสือ เกษียนหนังสือ และเสนอ ผอ. พิจารณา</p><div class="grid">'
+     +fld('sw_dirdate','วันที่เสนอ ผอ.',dateInp('sw_dirdate',w.dirDate||''))
+     +fld('sw_dirord','วันที่ ผอ. สั่งการ',dateInp('sw_dirord',w.dirOrdDate||''))
+     +fld('sw_dirnote','ข้อความเกษียน / คำสั่ง ผอ.',inp('sw_dirnote',w.dirNote||'','autocomplete="off"'),'wide')
+     +'</div><div class="wfact">'+B('dirsave','บันทึกข้อมูล')+B('dirnext','ส่งให้กลุ่มงานบัญชี ตั้งหนี้ค้างจ่าย','primary')+'</div>';
+  }else if(vs==='sacc1'){
+    bx='<h4>งานบัญชี ตั้งหนี้ค้างจ่าย</h4><p class="sub">'+(w.accruedAt?'บันทึกบัญชีค้างจ่ายแล้วเมื่อ '+esc(wfFmtAt(w.accruedAt))+' · ส่งให้งานการเงินได้':'ตรวจสอบเอกสาร แล้วกด “บันทึกบัญชีค้างจ่าย” ก่อนส่งให้งานการเงิน')+'</p>'+nt+'<div class="wfact">'+B('accrued',w.accruedAt?'✓ บันทึกบัญชีค้างจ่ายแล้ว':'บันทึกบัญชีค้างจ่าย')+B('accnext','ส่งให้งานการเงิน','primary')+B('ret','ส่งคืนงานธุรการ','warn')+'</div>';
+  }else if(vs==='sfin'){
+    bx='<h4>งานการเงิน ทำเบิกจ่าย</h4><p class="sub">ทำขออนุมัติเบิกจ่าย แล้วลงวันที่จ่ายและเลขที่เช็ค/เลขอ้างอิงการจ่าย'+(w.fixNote&&w.fixBy?' · <b>บัญชีส่งคืน:</b> '+esc(w.fixNote):'')+'</p><div class="grid">'
+     +fld('sw_req','วันที่ทำขออนุมัติเบิกจ่าย',dateInp('sw_req',f.reqDate||''))
+     +fld('sw_pay','วันที่จ่าย',dateInp('sw_pay',f.payDate||''))
+     +fld('sw_chq','เลขที่เช็ค / เลขอ้างอิง',inp('sw_chq',f.cheque||'','autocomplete="off"'))
+     +'</div>'+nt+'<div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('finnext','ส่งให้งานบัญชี บันทึกจ่าย','primary')+B('ret','ส่งคืนงานบัญชี','warn')+'</div>';
+  }else if(vs==='sacc2'){
+    bx='<h4>งานบัญชี บันทึกจ่าย</h4><p class="sub">ขออนุมัติเมื่อ '+(f.reqDate?fmtShort(f.reqDate):'-')+' · จ่ายเมื่อ '+(f.payDate?fmtShort(f.payDate):'-')+' · เช็ค/อ้างอิง '+esc(f.cheque||'-')+'</p>'+nt+'<div class="wfact">'+B('recorded','✓ ถูกต้อง บันทึกบัญชีจ่าย (เสร็จสิ้น)','primary')+B('ret','ส่งคืนงานการเงิน','warn')+'</div>';
+  }else{
+    bx='<h4>เสร็จสิ้น</h4><p class="sub">บันทึกบัญชีจ่ายแล้วเมื่อ '+esc(wfFmtAt(w.recordedAt))+(f.payDate?' · จ่ายเมื่อ '+fmtShort(f.payDate):'')+(f.cheque?' · เช็ค/อ้างอิง '+esc(f.cheque):'')+'</p>';
+  }
+  var n2='';
+  if(!active)n2='<p class="wfview">ดูอย่างเดียว · '+(SUP_STEPS.indexOf(vs)>idx?'ยังไม่ถึงขั้นนี้':'ขั้นนี้ผ่านไปแล้ว')+'</p>';
+  else if(!can&&vs!=='sdone')n2='<p class="wfview">ขั้นนี้สำหรับ '+JOB_LBL[SUP_JOB[vs]]+' · บัญชีของคุณไม่มีบทบาทนี้ จึงดูได้อย่างเดียว</p>';
+  if(!active)bx=bx.replace(/<(input|textarea|select|button)(?![^>]*\bdisabled)/g,'<$1 disabled');
+  var h='<section class="card wfcard"><h3>ขั้นตอนของ รพ. · '+esc(r.agency)+' · '+fmtMoney(r.amount)+' บาท</h3><p class="sub">'+esc(r.detail||'')+'</p>'+steps+'<div class="wfbox">'+n2+bx+'<p class="err" id="e_sw" role="alert"></p></div>';
+  var L=w.log||[];
+  if(L.length)h+='<ul class="wflog">'+L.slice().reverse().map(function(x){return '<li><time>'+esc(wfFmtAt(x.at))+'</time><span>'+esc(x.by)+' · '+esc(x.act)+(x.note?' — '+esc(x.note):'')+'</span></li>'}).join('')+'</ul>';
+  box.innerHTML=h+'</section>';
+}
+async function supDo(act){
+  var r=supCur();if(!r)return;var st=supStep(r);if(!supCan(st))return;
+  var w=JSON.parse(JSON.stringify(r.wf||{})),f=w.fin=w.fin||{};w.log=w.log||[];var now=wfNow(),by=wfBy(),note=val('sw_note');
+  var lg=function(t,n){w.log.push({at:now,by:by,act:t,note:n||''})};
+  var err=function(m){setErr('e_sw',m);return null};
+  if(document.getElementById('sw_dirdate')){w.dirDate=val('sw_dirdate');w.dirOrdDate=val('sw_dirord');w.dirNote=val('sw_dirnote')}
+  if(document.getElementById('sw_pay')){f.reqDate=val('sw_req');f.payDate=val('sw_pay');f.cheque=val('sw_chq')}
+  if(act==='dirsave')lg('บันทึกข้อมูลการเสนอ ผอ.');
+  else if(act==='dirnext'){if(!w.dirDate)return err('ลงวันที่เสนอ ผอ.');w.step='sacc1';lg('รับหนังสือ เกษียน เสนอ ผอ. ลงวันที่ '+fmtShort(w.dirDate)+' → ส่งกลุ่มงานบัญชี ตั้งหนี้ค้างจ่าย',w.dirNote)}
+  else if(act==='accrued'){w.accruedAt=now;lg('บันทึกบัญชีค้างจ่าย')}
+  else if(act==='accnext'){if(!w.accruedAt)return err('กดบันทึกบัญชีค้างจ่ายก่อน แล้วจึงส่งให้งานการเงิน');w.step='sfin';delete w.fixNote;delete w.fixBy;lg('บัญชีส่งให้งานการเงิน ทำเบิกจ่าย',note)}
+  else if(act==='finsave')lg('บันทึกข้อมูลงานการเงิน');
+  else if(act==='finnext'){if(!f.reqDate)return err('ลงวันที่ทำขออนุมัติเบิกจ่าย');if(!f.payDate)return err('ลงวันที่จ่าย');w.step='sacc2';delete w.fixNote;delete w.fixBy;lg('การเงินทำเบิกจ่าย ลงวันที่ '+fmtShort(f.reqDate)+' จ่ายเมื่อ '+fmtShort(f.payDate)+' → ส่งงานบัญชี บันทึกจ่าย',note)}
+  else if(act==='recorded'){w.step='sdone';w.recordedAt=now;lg('บันทึกบัญชีจ่าย เสร็จสิ้น',note)}
+  else if(act==='ret'){
+    if(!note)return err('ระบุเหตุผลที่ส่งคืนในช่อง “ข้อความ / เหตุผล”');
+    var to={sacc1:'sdir',sfin:'sacc1',sacc2:'sfin'}[st];if(!to)return;
+    w.step=to;w.fixNote=note;w.fixBy=by;lg('ส่งคืน '+SUP_LBL[to]+' (จาก '+SUP_LBL[st]+')',note);
+  }else return;
+  setErr('e_sw','');
+  await guard(async function(){
+    await recRef(r.id).update({wf:w,updatedAt:Date.now(),updatedBy:uname()});
+    logAct('ขอสนับสนุนเงิน: '+SUP_LBL[st],(r.agency||'')+' '+fmtMoney(r.amount)+' บาท ('+act+')');
+    r.wf=w;if(state.supView)delete state.supView[r.id];drawSupWf();drawSupList();toast('บันทึกแล้ว');
+  });
+}
+document.addEventListener('change',function(ev){if(ev.target&&ev.target.name==='sflt'){state.supF=ev.target.value;drawSupList()}});
 
 /* ---------- boot ---------- */
 function use(n){return (window.claude&&window.claude.use)?window.claude.use(n).catch(function(){return null}):Promise.resolve(null)}

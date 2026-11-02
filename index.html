@@ -567,7 +567,7 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
   <div class="sgroup">งานทะเบียนคุม</div>
   <nav id="tabs" class="tabs" role="tablist" aria-label="ขั้นตอนการทำงาน"></nav>
   <details class="about" id="aboutD" open><summary>ระบบนี้คืออะไร</summary>
-    <p>ทะเบียนคุมและติดตามการชำระเงินของ รพ.ตาพระยา ใช้บันทึกหนังสือ<b>เรียกเก็บ</b>และ<b>แจ้งโอน</b>จากหน่วยงานอื่น ตั้งแต่รับเรื่อง ตรวจสอบ ทำหนังสือ จนถึงรับ/ส่งใบเสร็จ</p>
+    <p>ทะเบียนคุมและติดตามการชำระเงินของ รพ.ตาพระยา ใช้บันทึกหนังสือ<b>เรียกเก็บ</b> <b>แจ้งโอน</b>และ<b>ขอสนับสนุนเงิน</b>จากหน่วยงานอื่น ตั้งแต่รับเรื่อง ตรวจสอบ ทำหนังสือ จนถึงรับ/ส่งใบเสร็จ</p>
     <ul><li>รู้ทันทีว่าเรื่องไหนค้างขั้นตอนใด</li><li>เตือนใบเสร็จที่ครบกำหนด 30 วัน</li><li>ออกบันทึกข้อความและหนังสือ (.docx) ได้ในระบบ</li><li>ส่งต่อเอกสาร ธุรการ→การเงิน→บัญชี พร้อมแจ้งเตือนอีเมล</li></ul>
     <button class="btn" type="button" data-act="guide">คู่มือการใช้งาน</button>
   </details>
@@ -600,26 +600,51 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
   </section>
 
   <section id="guideBox" class="card" hidden>
-    <h2>คู่มือการใช้งานโดยสังเขป</h2>
-    <p class="sub">ระบบนี้ใช้ติดตามหนังสือ “เรียกเก็บ” (หน่วยงานเรียกเก็บเงินเรา) และ “แจ้งโอน” (หน่วยงานโอนเงินให้เรา) ให้ครบทุกขั้นตอน</p>
+    <h2>คู่มือการใช้งาน</h2>
+    <p class="sub">ทะเบียนคุมและติดตามการชำระเงิน รพ.ตาพระยา · ใช้ติดตามหนังสือ 3 ประเภทให้ครบทุกขั้นตอน: <b>เรียกเก็บ</b> (หน่วยงานเรียกเก็บเงินเรา) · <b>แจ้งโอน</b> (หน่วยงานโอนเงินให้เรา) · <b>ขอสนับสนุนเงิน</b> (หน่วยงานขอเงินบำรุงจาก รพ.)</p>
     <div class="gcols">
     <div><h3>เมนูด้านซ้าย (แสดงตามสิทธิ์ของผู้ใช้)</h3><ol>
-      <li><b>แดชบอร์ด</b> สรุปยอดและสถานะทั้งหมด ปรับแต่งส่วนที่แสดงได้</li>
-      <li><b>รับหนังสือ</b> บันทึกเลขรับ หน่วยงาน เลขที่/วันที่หนังสือ ประเภท ยอดเงิน และแนบลิงก์เอกสาร</li>
-      <li><b>ตรวจสอบ</b> บันทึกผลตรวจสอบและบันทึกข้อความ (ตัวอย่างอยู่ซ้าย ช่องกรอกอยู่ขวา)</li>
+      <li><b>แดชบอร์ด</b> สรุปเป็นฉบับและเป็นเงิน เลือกดูรายเดือน/ปีงบประมาณ วัดเวลาแต่ละขั้นตอน</li>
+      <li><b>รับหนังสือ</b> บันทึกเลขรับ หน่วยงาน เลขที่/วันที่หนังสือ <b>วันที่รับหนังสือ</b> (เว้นว่าง = วันนี้) ประเภท ยอดเงิน และลิงก์เอกสาร</li>
+      <li><b>ตรวจสอบ</b> งานประกันสุขภาพบันทึกผลตรวจสอบและบันทึกข้อความ</li>
       <li><b>ส่งต่อเอกสาร</b> ธุรการ → การเงิน → บัญชี ตามประเภทหนังสือ</li>
-      <li><b>ทำหนังสือ</b> ออกหนังสือแจ้งโอน (กรณีเรียกเก็บ) หรือหนังสือส่งใบเสร็จ (กรณีแจ้งโอน)</li>
-      <li><b>ติดตามใบเสร็จ</b> เรียกเก็บ: รอใบเสร็จจากหน่วยงานภายใน 30 วัน · แจ้งโอน: บันทึกวันที่ส่งใบเสร็จ</li></ol></div>
-    <div><h3>ส่งต่อเอกสารภายใน (เมนู “ส่งต่อเอกสาร”)</h3><ul>
-      <li><b>ธุรการ</b> ตรวจเบื้องต้น ครบถ้วน → ส่งต่อ / ไม่ครบ → ส่งคืนแก้ไข</li>
-      <li><b>แจ้งโอน</b> การเงินออกใบเสร็จ (เล่มที่/เลขที่/วันที่) → บัญชีตรวจและ “บันทึกบัญชีรับจ่าย”</li>
-      <li><b>เรียกเก็บ</b> บัญชี “บันทึกบัญชีค้างจ่าย” → การเงินลงวันที่จ่าย/เลขที่เช็ค → บัญชี “บันทึกบัญชีรับจ่าย”</li>
-      <li>ปุ่ม “ส่งคืน” จะส่งอีเมลแจ้งเตือนไปที่ tpy10867@gmail.com</li></ul></div>
+      <li><b>ทำหนังสือ</b> หนังสือแจ้งโอน (เรียกเก็บ) หรือหนังสือส่งใบเสร็จ (แจ้งโอน) ดาวน์โหลด .docx ได้</li>
+      <li><b>ติดตามใบเสร็จ</b> เรียกเก็บ: รอใบเสร็จจากหน่วยงานภายใน 30 วัน · แจ้งโอน: บันทึกวันที่ส่งใบเสร็จ</li>
+      <li><b>ขอสนับสนุนเงิน</b> บันทึกและติดตามหนังสือขอเงินบำรุง (แยกจากเมนู 2–6)</li></ol></div>
+    <div><h3>เรียกเก็บ (เราโอนเงิน)</h3><ol>
+      <li>รับหนังสือ → ตรวจสอบ (ประกัน) → ธุรการตรวจเบื้องต้น</li>
+      <li>บัญชีบันทึกบัญชีค้างจ่าย → ส่งการเงิน</li>
+      <li>การเงินกด “ทำขออนุมัติเบิกจ่าย” แล้วลงวันที่จ่าย/เลขที่เช็ค → ส่งบัญชี</li>
+      <li>บัญชีบันทึกบัญชีรับจ่าย (เสร็จสิ้น)</li>
+      <li>ทำหนังสือแจ้งโอน แล้วรอรับใบเสร็จจากหน่วยงานภายใน 30 วัน</li></ol>
+      <h3>แจ้งโอน (เขาโอนให้เรา)</h3><ol>
+      <li>รับหนังสือ → ตรวจสอบ → ธุรการตรวจเบื้องต้น</li>
+      <li>การเงินออกใบเสร็จ ลงเล่มที่/เลขที่/วันที่ → ส่งบัญชี</li>
+      <li>บัญชีบันทึกบัญชีรับจ่าย (เสร็จสิ้น)</li>
+      <li>ทำหนังสือส่งใบเสร็จ แล้วบันทึกวันที่ส่ง</li></ol>
+      <p class="sub">ส่งคืนได้ทุกขั้น ต้องระบุเหตุผล ระบบส่งอีเมลแจ้งเตือนไปที่ tpy10867@gmail.com</p></div>
+    <div><h3>ขอสนับสนุนเงิน (เมนู 7)</h3><ol>
+      <li>รับหนังสือ เกษียน เสนอ ผอ. (ธุรการ) ลงวันที่เสนอและวันที่ ผอ. สั่งการ</li>
+      <li>ตรวจสอบ พิมพ์ชื่อผู้ตรวจสอบหรืองานที่ตรวจสอบเอง (ไม่มีการตั้งหนี้) แล้วกด “ส่งต่อเพื่อดำเนินการ”</li>
+      <li>การเงินทำเบิกจ่าย ลงวันที่ขออนุมัติ วันที่จ่าย เลขที่เช็ค</li>
+      <li>บัญชีบันทึกจ่าย เสร็จสิ้น</li></ol>
+      <h3>อ่านแดชบอร์ด</h3><ul>
+      <li>เลือกช่วง: ทั้งหมด / ปีงบประมาณ (ต.ค.–ก.ย.) / รายเดือน กด ◀ ▶ เลื่อนเดือน และเลือกหน่วยบริการได้</li>
+      <li>“สรุปจำนวนฉบับ” และ “สรุปยอดเงิน” แยกเรียกเก็บ/แจ้งโอน ตามขั้นตอนที่เอกสารอยู่ตอนนี้ ส่วน “ขอสนับสนุนเงิน” แยกต่างหาก</li>
+      <li>“วัดประสิทธิภาพ” นับ<b>วันทำการ</b> (ไม่รวมเสาร์-อาทิตย์และวันหยุดที่ผู้ดูแลกรอก): รับหนังสือ→ประกันตรวจสอบ ≤2 · ตรวจสอบ→ส่งธุรการ ≤10 · ธุรการส่งต่อ ≤2 · แจ้งโอน: การเงินออกใบเสร็จ ≤2, บัญชีตั้งหนี้รับจ่าย ≤5 · เรียกเก็บ: บัญชีค้างจ่าย ≤2, ขออนุมัติเบิกจ่าย ≤7, ส่งบัญชีตั้งหนี้จ่าย ≤5</li>
+      <li>สีผลทันเวลา: เขียว ≥90% · ส้ม 70–89% · แดง &lt;70% ผู้ดูแลแก้เป้าหมายได้ที่ “ตั้งค่าหน่วยงาน”</li>
+      <li>“ปรับแต่งแดชบอร์ด” เลือกส่วนที่แสดงและลากสลับลำดับ · ปุ่ม รายงาน/Excel/PDF ส่งออกได้</li></ul></div>
     <div><h3>เคล็ดลับ</h3><ul>
-      <li>ผู้เยี่ยมชมดูได้อย่างเดียว ผู้ที่มีรหัสผ่านจึงแก้ไขได้ (กด “เข้าสู่ระบบเพื่อแก้ไข”)</li>
-      <li>แดชบอร์ด: กด “ปรับแต่งแดชบอร์ด” เพื่อเลือกส่วนที่แสดงและลากสลับลำดับ</li>
+      <li>ผู้เยี่ยมชมดูได้อย่างเดียว ผู้มีรหัสผ่านจึงแก้ไขได้ (กด “เข้าสู่ระบบเพื่อแก้ไข”)</li>
+      <li>แต่ละงาน (การเงิน บัญชี ธุรการ ประกันสุขภาพ) ทำได้เฉพาะขั้นตอนของงานตัวเอง ขั้นอื่นดูอย่างเดียว</li>
+      <li>เลขรับซ้ำจะบันทึกไม่ได้ · วันที่ทุกช่องเป็น พ.ศ. เลือกจากปฏิทินหรือพิมพ์ เช่น 22/10/69</li>
+      <li>ช่องรายละเอียดและผู้ตรวจสอบจำคำที่เคยพิมพ์ให้เลือกซ้ำ · ระบบจำเลขบัญชีของแต่ละหน่วยงาน</li>
       <li>สีป้ายสถานะ: ฟ้า รอตรวจสอบ · เหลือง รอทำหนังสือ · เขียว รอใบเสร็จ · ส้ม ใกล้ครบกำหนด · ชมพู เกินกำหนด · ม่วง เสร็จสิ้น</li>
-      <li>วันที่ทั้งหมดเป็น พ.ศ. และระบบจำเลขบัญชีของแต่ละหน่วยงานให้</li></ul></div>
+      <li>ข้อมูลตัวอย่างลบได้ด้วยปุ่ม “ลบข้อมูลตัวอย่างทั้งหมด” (ซูเปอร์แอดมิน)</li></ul>
+      <h3>สำหรับซูเปอร์แอดมิน</h3><ul>
+      <li>“ผู้ใช้งานและสิทธิ์” สร้างผู้ใช้ กำหนดบทบาทงานและสิทธิ์รายเมนู</li>
+      <li>“ประวัติการใช้งาน” ดูว่าใครทำอะไรเมื่อไร</li>
+      <li>“ตั้งค่าหน่วยงาน” เลขบัญชี คำนำหน้าเลขหนังสือ เป้าหมายเวลา และวันหยุด</li></ul></div>
     </div>
   </section>
 
@@ -1752,6 +1777,7 @@ document.addEventListener('click',function(ev){
   else if(act==='spick'){state.supSel=id;state.supEdit=null;drawSup();var sw=document.getElementById('supWf');if(sw&&sw.scrollIntoView)sw.scrollIntoView({block:'nearest'})}
   else if(act==='sedit'){if(!canEdit('S'))return;state.supEdit=id;drawSup();var sf=document.getElementById('supForm');if(sf&&sf.scrollIntoView)sf.scrollIntoView({block:'nearest'})}
   else if(act==='sexample')supExamples();
+  else if(act==='sgo'){if(perm('S')==='none')return;state.supF=el.dataset.f||'pending';setTab('S')}
   else if(act==='sclr'){state.supEdit=null;drawSup()}
   else if(act==='sdel'){supDel(id)}
   else if(act==='sview'){state.supView=state.supView||{};state.supView[state.supSel]=el.dataset.v;drawSupWf()}
@@ -2165,9 +2191,9 @@ function monthList(){
 }
 /* ---------- dashboard ---------- */
 state.dash={per:null,ag:'',edit:false};
-var DW=[['cnt','สรุปจำนวนฉบับ (แยกตามขั้นตอน)','1 1 100%',1],['money','สรุปยอดเงิน (แยกตามขั้นตอน)','1 1 100%',1],['perf','วัดประสิทธิภาพ (เวลาแต่ละขั้นตอน)','1 1 100%',0],['over','งานที่เกินเวลาเป้าหมาย','1 1 100%',0],['kpi','ภาพรวมยอด','1 1 100%',0],['todo','วันนี้ต้องทำ','1 1 100%',0],['pay','สายเขาเรียกเก็บเรา · เราโอน','1 1 100%',1],['recv','สายเขาแจ้งโอนให้เรา · เราส่งใบเสร็จ','1 1 100%',1],['chart','ยอดรายเดือน','2 1 460px',0],['prog','ความคืบหน้า','1 1 300px',0],['watchpay','รอรับใบเสร็จจากหน่วยงาน (เกินกำหนด/ใกล้ครบ)','1 1 420px',0],['watchrecv','ใบเสร็จที่เรายังไม่ได้ส่ง','1 1 420px',0],['due','ครบกำหนดรับใบเสร็จที่กำลังมา','1 1 420px',0],['agency','สรุปรายหน่วยบริการ','1 1 100%',0]];
-var DW_DEF=['cnt','money','perf','over','chart','todo','watchpay','watchrecv','agency'];
-var DW_PRE={exec:['แบบภาพรวมผู้บริหาร',['cnt','money','perf','chart','agency']],today:['แบบวันนี้ต้องทำ',['todo','over','cnt','watchpay','watchrecv','due']],all:['แสดงทุกอย่าง',DW.map(function(x){return x[0]})]};
+var DW=[['cnt','สรุปจำนวนฉบับ (แยกตามขั้นตอน)','1 1 100%',1],['money','สรุปยอดเงิน (แยกตามขั้นตอน)','1 1 100%',1],['sup','ขอสนับสนุนเงิน (ฉบับและยอดเงิน)','1 1 100%',1],['perf','วัดประสิทธิภาพ (เวลาแต่ละขั้นตอน)','1 1 100%',0],['over','งานที่เกินเวลาเป้าหมาย','1 1 100%',0],['kpi','ภาพรวมยอด','1 1 100%',0],['todo','วันนี้ต้องทำ','1 1 100%',0],['pay','สายเขาเรียกเก็บเรา · เราโอน','1 1 100%',1],['recv','สายเขาแจ้งโอนให้เรา · เราส่งใบเสร็จ','1 1 100%',1],['chart','ยอดรายเดือน','2 1 460px',0],['prog','ความคืบหน้า','1 1 300px',0],['watchpay','รอรับใบเสร็จจากหน่วยงาน (เกินกำหนด/ใกล้ครบ)','1 1 420px',0],['watchrecv','ใบเสร็จที่เรายังไม่ได้ส่ง','1 1 420px',0],['due','ครบกำหนดรับใบเสร็จที่กำลังมา','1 1 420px',0],['agency','สรุปรายหน่วยบริการ','1 1 100%',0]];
+var DW_DEF=['cnt','money','sup','perf','over','chart','todo','watchpay','watchrecv','agency'];
+var DW_PRE={exec:['แบบภาพรวมผู้บริหาร',['cnt','money','sup','perf','chart','agency']],today:['แบบวันนี้ต้องทำ',['todo','over','cnt','watchpay','watchrecv','due']],all:['แสดงทุกอย่าง',DW.map(function(x){return x[0]})]};
 function dwKey(){return 'reg-dashw2:'+((state.me&&state.me.username)||'guest')}
 function dwLayout(){
   if(state.dwl&&state.dwl.key===dwKey())return state.dwl;
@@ -2176,7 +2202,7 @@ function dwLayout(){
   if(o&&Array.isArray(o.order)){
     o.order.forEach(function(i){if(ids.indexOf(i)>-1&&L.order.indexOf(i)<0)L.order.push(i)});
     L.hide=Object.assign({},o.hide||{});
-    ids.forEach(function(i){if(L.order.indexOf(i)<0){L.order.push(i);L.hide[i]=1}});
+    ids.forEach(function(i){if(L.order.indexOf(i)<0){L.order.push(i);if(i!=='sup')L.hide[i]=1}});
   }else dwApply(L,DW_DEF);
   state.dwl=L;return L;
 }
@@ -2233,13 +2259,14 @@ function drawDash(){
       if(k==='wait'||k==='soon')DU.push({r:r,st:st});
     }
   });
-  var agNames={};state.records.forEach(function(r){if(r.agency)agNames[r.agency]=1});
+  var agNames={};state.records.concat(state.sups||[]).forEach(function(r){if(r.agency)agNames[r.agency]=1});
   var opts='<option value="">ทุกหน่วยบริการ</option>'+Object.keys(agNames).sort().map(function(n){return '<option value="'+esc(n)+'"'+(d.ag===n?' selected':'')+'>'+esc(n)+'</option>'}).join('');
   var curPer=dashPer(),ml=monthList(),fys={};ml.forEach(function(m){fys[fyOf(m)]=1});
   var perOpt='<option value="all"'+(curPer==='all'?' selected':'')+'>ทั้งหมด</option><optgroup label="ปีงบประมาณ (ต.ค. – ก.ย.)">'+Object.keys(fys).sort().reverse().map(function(y){return '<option value="fy:'+y+'"'+(curPer==='fy:'+y?' selected':'')+'>ปีงบประมาณ '+y+'</option>'}).join('')+'</optgroup><optgroup label="รายเดือน">'+ml.map(function(m){return '<option value="ym:'+m+'"'+(curPer==='ym:'+m?' selected':'')+'>'+perLabel('ym:'+m)+'</option>'}).join('')+'</optgroup>';
   var isM=curPer.indexOf('ym:')===0,mi=ml.indexOf(curPer.slice(3));
   var h='<div class="dfilter"><div class="actions" style="align-items:center"><button type="button" class="btn sm" data-act="dperstep" data-v="1" aria-label="เดือนก่อนหน้า"'+(isM&&mi<ml.length-1?'':' disabled')+'>◀</button><select id="d_per" aria-label="เลือกเดือนหรือช่วงเวลา">'+perOpt+'</select><button type="button" class="btn sm" data-act="dperstep" data-v="-1" aria-label="เดือนถัดไป"'+(isM&&mi>0?'':' disabled')+'>▶</button></div><select id="d_ag" aria-label="หน่วยบริการ">'+opts+'</select><button type="button" class="btn sm" data-act="dwopen" aria-expanded="'+(d.edit?'true':'false')+'">ปรับแต่งแดชบอร์ด</button>'+expBtns('D')+'</div><p class="sub" style="margin:8px 0 0">ช่วงที่แสดง: <b>'+esc(perLabel(curPer))+'</b> · นับตาม “วันที่รับหนังสือ” · '+rows.length+' ฉบับ</p>'+(d.edit?dwPanel():'');
-  if(!rows.length){box.innerHTML=h+'<div class="empty" style="margin-top:14px">'+(state.loaded||!state.hasDb?'ไม่มีรายการในช่วงที่เลือก':'กำลังโหลดรายการ…')+'</div>';return}
+  var SUPD=(state.sups||[]).filter(function(r){return (!d.ag||r.agency===d.ag)&&perMatch(r,dashPer())});
+  if(!rows.length&&!SUPD.length){box.innerHTML=h+'<div class="empty" style="margin-top:14px">'+(state.loaded||!state.hasDb?'ไม่มีรายการในช่วงที่เลือก':'กำลังโหลดรายการ…')+'</div>';return}
   var pp=pct(P.paid,P.tot),rp=pct(R.sent,R.tot);
   var payOpen=PK.audit.n+PK.letter.n,payRc=PK.wait.n+PK.soon.n+PK.late.n,recvOpen=R.n-RK.done.n;
   /* สาย 1: เขาเรียกเก็บเรา */
@@ -2308,6 +2335,23 @@ function drawDash(){
   var dues=DU.slice(0,6).map(function(w){var st=w.st;
     return '<div class="dwr"><span class="pill '+st.k+'">เหลือ '+st.left+' วัน</span><div class="m"><b>'+esc(w.r.agency||'-')+'</b><small>'+esc(w.r.receiveNo||'')+' · ครบ '+fmtShort(st.due)+'</small></div><b class="num">'+fmtMoney(w.r.amount)+'</b></div>'}).join('');
   W.due='<div class="dcard"><h2>ครบกำหนดรับใบเสร็จที่กำลังมา</h2><span class="sub">ยังไม่เกินกำหนด · เรียงตามวันครบกำหนด</span>'+(dues||'<div class="empty">ไม่มีรายการรอใบเสร็จ</div>')+(DU.length>6?'<div class="sub" style="margin-top:8px">และอีก '+(DU.length-6)+' รายการ</div>':'')+'</div>';
+  /* ===== ขอสนับสนุนเงิน ===== */
+  var SK={},SN=0,SS=0,SDn=0,SDs=0,SBD=[];
+  SUP_STEPS.forEach(function(k){SK[k]={n:0,s:0}});
+  SUPD.forEach(function(r){var k=supStep(r),a=Number(r.amount)||0;SK[k].n++;SK[k].s+=a;SN++;SS+=a;
+    if(k==='sdone'){SDn++;SDs+=a;var ra=String((r.wf||{}).recordedAt||'').slice(0,10);if(ra)SBD.push(bd(recvDate(r),ra))}});
+  var sAvg=SBD.length?(SBD.reduce(function(x,y){return x+y},0)/SBD.length).toFixed(1):'-',sOpen=SN-SDn;
+  var sOk=perm('S')!=='none';
+  var sTile=function(k,money){var o=SK[k];return '<button type="button" class="dsb" style="border-top-color:'+(k==='sdone'?'var(--mint-ink)':'var(--accent)')+'" data-act="sgo" data-f="'+(k==='sdone'?'done':'pending')+'"'+(sOk?'':' disabled')+'><span class="l">'+SUP_LBL[k]+'</span><b>'+(money?fmtMoney(o.s):o.n)+'</b><small>'+(money?o.n+' ฉบับ':'ฉบับ')+'</small></button>'};
+  W.sup='<div class="dsec" style="margin-top:0"><span class="dtag" style="background:hsl(150 40% 90%);color:hsl(150 45% 24%)">ขอสนับสนุนเงิน</span><span class="sub">หน่วยงานอื่นขอเงินบำรุงจาก รพ. · '+esc(perLabel(dashPer()))+'</span></div>'
+   +'<div class="dk">'
+   +'<div class="dkc"><div class="l">หนังสือขอสนับสนุนทั้งหมด</div><div class="v">'+SN+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="s">ยอดรวม '+fmtMoney(SS)+' บาท</div></div>'
+   +'<div class="dkc wn"><div class="l">กำลังดำเนินการ</div><div class="v">'+sOpen+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="s">'+fmtMoney(SS-SDs)+' บาท</div></div>'
+   +'<div class="dkc ok"><div class="l">เสร็จสิ้น (จ่ายแล้ว)</div><div class="v">'+fmtMoney(SDs)+'</div><div class="dprog"><div class="tr"><i style="width:'+pct(SDs,SS)+'%"></i></div><b>'+pct(SDs,SS)+'%</b></div><div class="s">'+SDn+' ฉบับ</div></div>'
+   +'<div class="dkc"><div class="l">เวลาเฉลี่ยจนเสร็จสิ้น</div><div class="v">'+sAvg+' <span style="font-size:1rem;font-weight:400">วัน</span></div><div class="s">วันทำการ นับจากวันที่รับหนังสือ</div></div></div>'
+   +'<div class="dsec"><span class="sub"><b>จำนวนฉบับ</b> ที่อยู่ในแต่ละขั้นตอน</span></div><div class="dst">'+SUP_STEPS.map(function(k){return sTile(k,false)}).join('')+'</div>'
+   +'<div class="dsec"><span class="sub"><b>ยอดเงิน</b> ที่อยู่ในแต่ละขั้นตอน</span></div><div class="dst">'+SUP_STEPS.map(function(k){return sTile(k,true)}).join('')+'</div>'
+   +'<p class="sub" style="margin:4px 0 0">แยกจากรายการเรียกเก็บและแจ้งโอน · กดที่ช่องเพื่อไปดูรายการ</p>';
   /* ===== สรุปจำนวนฉบับ / ยอดเงิน แยกตามขั้นตอน ===== */
   var SG={recv:{},pay:{}},TOT={recv:{n:0,s:0},pay:{n:0,s:0}};
   rows.forEach(function(r){var fl=flowOf(r),k=stageOf(r),a=Number(r.amount)||0,o=SG[fl][k]||(SG[fl][k]={n:0,s:0});o.n++;o.s+=a;TOT[fl].n++;TOT[fl].s+=a});
@@ -2332,6 +2376,7 @@ function drawDash(){
      +'<p class="sub" style="margin:4px 0 0">'+(money?'ยอดเงินตามจำนวนเงินในหนังสือที่รับ':'นับตามขั้นตอนที่เอกสารอยู่ตอนนี้')+' · กดที่ช่องเพื่อไปดูรายการ</p>';
   };
   W.cnt=sect(false);W.money=sect(true);
+  if(sOpen>0){W.todo=W.todo.replace(/<b>(\d+)<\/b> จาก (\d+) รายการ/,function(m,x,y){return '<b>'+(+x+sOpen)+'</b> จาก '+(+y+SN)+' รายการ'}).replace(/<div class="empty">[^<]*<\/div>/,'').replace(/<\/div>$/,'<div class="dwr"><span class="pill audit">'+sOpen+' รายการ</span><div class="m"><b>ขอสนับสนุนเงิน · กำลังดำเนินการ</b></div><b class="num">'+fmtMoney(SS-SDs)+'</b><button type="button" class="btn sm" data-act="sgo" data-f="pending"'+(sOk?'':' disabled')+'>เปิด</button></div></div>')}
   /* ===== วัดประสิทธิภาพ ===== */
   var PS={},OV=[];SEG.forEach(function(g){PS[g.k]={n:0,sum:0,max:0,ok:0,open:0,over:0}});
   rows.forEach(function(r){segsOf(r).forEach(function(x){

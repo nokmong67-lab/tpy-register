@@ -771,7 +771,7 @@ function bahtText(n){var f=(Math.round(Number(n||0)*100)/100).toFixed(2).split('
 /* ---------- state ---------- */
 var TABS=[['D','แดชบอร์ด','สรุปยอดทั้งหมด'],['1','รับหนังสือ','บันทึกข้อมูล'],['5','ส่งต่อเอกสาร','ธุรการ / การเงิน / บัญชี'],['3','ทำหนังสือ','แจ้งโอน / ส่งใบเสร็จ'],['4','ติดตามใบเสร็จ','ภายใน 30 วัน'],['S','ขอสนับสนุนเงิน','เสนอ ผอ. → เบิกจ่าย']];
 var state={records:[],settings:{},tab:'D',editId:null,sel:null,q:'',f:{1:'',2:'pending',3:'pending',4:'all',5:'pending'},hasDb:false,canWrite:true,err:'',loaded:false,me:null,users:[],hasUsers:null,isEditor:false,editUser:null,booting:true,mesig:''};
-state.dir4='pay';state.dir3='pay';state.agencies={};
+state.dir4='pay';state.dir3='pay';state.k5='all';state.g5=undefined;state.agencies={};
 var db=null,dl=null,usr=null;
 try{var saved=localStorage.getItem('reg-tab');if(saved&&/^[1-4D]$/.test(saved))state.tab=saved==='2'?'5':saved}catch(e){}
 
@@ -919,6 +919,17 @@ function segHtml3(){
   var n={pay:0,recv:0};state.records.forEach(function(r){if(audited(r)&&!lettered(r))n[flowOf(r)]++});
   return '<div class="chips" role="radiogroup" aria-label="เลือกรายการ">'+[['pay','รายการแจ้งโอน (เขาเรียกเก็บเรา · เราโอนเงิน)'],['recv','รายการใบเสร็จ (เขาแจ้งโอนให้เรา · เราส่งใบเสร็จ)']].map(function(c){return '<label class="chip"><input type="radio" name="d3" value="'+c[0]+'"'+(state.dir3===c[0]?' checked':'')+'><span>'+c[1]+(n[c[0]]?' · ยังไม่ทำ '+n[c[0]]:'')+'</span></label>'}).join('')+'</div>';
 }
+var GRP5=[['all','รวมทุกกลุ่มงาน'],['clerk','ธุรการ'],['fin','การเงิน'],['acc','บัญชี'],['done','เสร็จสิ้น']];
+function grp5(r){var s=wfStep(r);return s==='done'?'done':(s==='fin'?'fin':((s==='acc'||s==='acc1'||s==='acc2')?'acc':'clerk'))}
+function g5cur(){if(state.g5===undefined){var j=state.me&&state.me.job;state.g5=(j==='clerk'||j==='fin'||j==='acc')?j:'all'}return state.g5}
+function rcptNo5(r){var l=r.letter||{},t=r.track||{},f=(r.wf||{}).fin||{};
+  if(flowOf(r)==='recv'){var n=f.no?(f.book?f.book+'/':'')+f.no:(l.receiptNo||'');return n?esc(n)+'<span class="sub2">ใบเสร็จที่ รพ.ออก</span>':'-'}
+  return t.receivedNo?esc(t.receivedNo)+'<span class="sub2">ใบเสร็จจากหน่วยงาน</span>':'-'}
+function seg5(){var k=state.k5||'all',n={all:0,pay:0,recv:0};state.records.forEach(function(r){if(wfStep(r)!=='done'){n.all++;n[flowOf(r)]++}});
+  return '<div class="chips" role="radiogroup" aria-label="ประเภทหนังสือ">'+[['all','ทั้งหมด'],['pay','เรียกเก็บ'],['recv','แจ้งโอน']].map(function(c){return '<label class="chip"><input type="radio" name="k5" value="'+c[0]+'"'+(k===c[0]?' checked':'')+'><span>'+c[1]+(n[c[0]]?' · ค้าง '+n[c[0]]:'')+'</span></label>'}).join('')+'</div>'}
+function chips5(){var g=g5cur(),k=state.k5||'all',n={all:0,clerk:0,fin:0,acc:0,done:0};
+  state.records.forEach(function(r){if(k!=='all'&&flowOf(r)!==k)return;var x=grp5(r);n[x]++;if(x!=='done')n.all++});
+  return '<div class="chips" role="radiogroup" aria-label="กลุ่มงาน">'+GRP5.map(function(c){return '<label class="chip"><input type="radio" name="g5" value="'+c[0]+'"'+(g===c[0]?' checked':'')+'><span>'+c[1]+' · '+n[c[0]]+'</span></label>'}).join('')+'</div>'}
 var CHIPS4R=[['all','ทั้งหมด'],['send','รอส่งใบเสร็จ'],['done','ส่งแล้ว']];
 var CHIPS={
   1:[['','ทั้งหมด'],['เรียกเก็บ','เรียกเก็บ'],['แจ้งโอน','แจ้งโอน']],
@@ -930,8 +941,9 @@ var CHIPS={
 function drawToolbar(){
   var t=state.tab;
   var chips='<div class="chips" role="group" aria-label="กรองรายการ">'+(t==='4'&&state.dir4==='recv'?CHIPS4R:(t==='3'?(state.dir3==='recv'?CHIPS3R:CHIPS3P):CHIPS[t])).map(function(c){return '<label class="chip"><input type="radio" name="flt" value="'+c[0]+'"'+(state.f[t]===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('')+'</div>';
+  if(t==='5')chips=chips5();
   var right='<span style="display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center">'+expBtns(t==='4'?'4':t,t==='4'?state.dir4:'')+(t==='1'?'<button type="button" class="btn sm" data-act="csv">CSV</button>':'')+'</span>';
-  var seg='';if(t==='3')seg=segHtml3();if(t==='4')seg='<div class="chips" role="radiogroup" aria-label="ใบเสร็จ">'+[['pay','รอรับใบเสร็จจากหน่วยงาน (เขาเรียกเก็บเรา)'],['recv','ต้องส่งใบเสร็จให้หน่วยงาน (เขาแจ้งโอนให้เรา)']].map(function(c){return '<label class="chip"><input type="radio" name="d4" value="'+c[0]+'"'+(state.dir4===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('')+'</div>';
+  var seg='';if(t==='5')seg=seg5();if(t==='3')seg=segHtml3();if(t==='4')seg='<div class="chips" role="radiogroup" aria-label="ใบเสร็จ">'+[['pay','รอรับใบเสร็จจากหน่วยงาน (เขาเรียกเก็บเรา)'],['recv','ต้องส่งใบเสร็จให้หน่วยงาน (เขาแจ้งโอนให้เรา)']].map(function(c){return '<label class="chip"><input type="radio" name="d4" value="'+c[0]+'"'+(state.dir4===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('')+'</div>';
   var srch='<label class="lsearch"><input type="text" id="lq" placeholder="ค้นหา หน่วยงาน / เลขรับ / เลขหนังสือ" autocomplete="off" aria-label="ค้นหารายการ" value="'+esc(state.q)+'"></label>';
   var back=t!=='1'?'<button type="button" class="btn sm" data-tab="1">← กลับรายการรับหนังสือ</button>':'';
   $('#toolbar').innerHTML='<div class="left" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">'+back+srch+seg+chips+'</div>'+right;
@@ -1185,7 +1197,7 @@ function viewRows(){
   var t=state.tab,f=state.f[t],q=state.q.trim().toLowerCase(),rows=state.records.slice();
   if(t==='1'&&f)rows=rows.filter(function(r){return r.type===f});
   if(t==='2')rows=rows.filter(function(r){return f==='all'||(f==='pending'?!audited(r):audited(r))});
-  if(t==='5')rows=rows.filter(function(r){return (f==='all'||(f==='pending'?wfStep(r)!=='done':wfStep(r)==='done'))});
+  if(t==='5'){var g5=g5cur();rows=rows.filter(function(r){return (!state.k5||state.k5==='all'||flowOf(r)===state.k5)&&(g5==='every'||(g5==='all'?wfStep(r)!=='done':grp5(r)===g5))})}
   if(t==='3')rows=rows.filter(function(r){return audited(r)&&(!state.dir3||flowOf(r)===state.dir3)&&(f==='all'||(f==='pending'?!lettered(r):lettered(r)))});
   if(t==='4')rows=rows.filter(function(r){if(flowOf(r)!==state.dir4||!lettered(r))return false;var k=status(r).k;
     if(state.dir4==='recv')return f==='all'||k===f;
@@ -1226,9 +1238,9 @@ function drawList(){
       return '<tr class="'+(state.sel===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+two(r.docNo,'ลงวันที่ '+fmtShort(r.docDate))+'</td><td><span class="tag">'+esc(r.type)+'</span></td><td class="r num">'+fmtMoney(r.amount)+'</td><td>'+(a.date?two(a.memoNo,'ลงวันที่ '+fmtShort(a.memoDate)):'-')+'</td><td>'+(a.date?'<span class="pill '+(a.result==='fix'?'soon':'done')+'">'+(a.result==='fix'?'มีข้อสังเกต':'ถูกต้อง')+'</span>':'<span class="pill audit">รอตรวจสอบ</span>')+wfShort(r)+'</td><td><button class="btn sm'+(a.date?'':' primary')+'" type="button" data-act="pick" data-id="'+r.id+'">'+(a.date?'เปิด':'ตรวจสอบ')+'</button></td></tr>';
     }).join(''),foot.replace('__C__','4').replace('__D__','3'));
   }else if(t==='5'){
-    h=table([['เลขรับ'],['หน่วยงาน'],['หนังสือ'],['ประเภท'],['เป็นเงิน (บาท)','r'],['ตรวจสอบเมื่อ'],['ขั้นตอนปัจจุบัน'],['']],rows.map(function(r){
-      var w=r.wf||{},f2=w.fin||{};
-      return '<tr class="'+(state.sel===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+two(r.docNo,'ลงวันที่ '+fmtShort(r.docDate))+'</td><td><span class="tag">'+esc(r.type)+'</span></td><td class="r num">'+fmtMoney(r.amount)+'</td><td>'+fmtShort((r.audit||{}).date)+'</td><td><span class="pill '+(wfStep(r)==='done'?'done':(wfStep(r)==='ins'?'late':'wait'))+'">'+esc(wfLabel(r))+'</span>'+(f2.no?'<span class="sub2">ใบเสร็จ '+esc(f2.book||'-')+'/'+esc(f2.no)+'</span>':'')+'</td><td><button class="btn sm'+(wfStep(r)==='done'?'':' primary')+'" type="button" data-act="pick" data-id="'+r.id+'">'+(wfStep(r)==='done'?'เปิด':'ส่งต่อ')+'</button></td></tr>';
+    h=table([['เลขรับ'],['หน่วยงาน'],['หนังสือ'],['ประเภท'],['เป็นเงิน (บาท)','r'],['เลขที่ใบเสร็จ'],['อยู่ที่กลุ่มงาน'],['']],rows.map(function(r){
+      var dn=wfStep(r)==='done';
+      return '<tr class="'+(state.sel===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+two(r.docNo,'ลงวันที่ '+fmtShort(r.docDate))+'</td><td><span class="tag">'+esc(r.type)+'</span></td><td class="r num">'+fmtMoney(r.amount)+'</td><td>'+rcptNo5(r)+'</td><td><span class="pill '+(dn?'done':(wfStep(r)==='ins'?'late':'wait'))+'">'+esc(wfLabel(r))+'</span>'+((r.audit||{}).date?'<span class="sub2">ตรวจสอบเมื่อ '+fmtShort(r.audit.date)+'</span>':'')+'</td><td><button class="btn sm'+(dn?'':' primary')+'" type="button" data-act="pick" data-id="'+r.id+'">'+(dn?'เปิด':'ส่งต่อ')+'</button></td></tr>';
     }).join(''),foot.replace('__C__','4').replace('__D__','3'));
   }else if(t==='3'){
     var rv3=state.dir3==='recv';
@@ -1581,9 +1593,9 @@ var SEC_NAME={D:'แดชบอร์ด','1':'รับหนังสือ',
 function secRows(sec,dir,keep){
   var t=sec==='4p'||sec==='4r'?'4':sec;
   if(keep)return viewRows();
-  var sv=[state.tab,state.f[t],state.q,state.dir4],sv3=state.dir3;state.dir3='';
+  var sv=[state.tab,state.f[t],state.q,state.dir4],sv3=state.dir3,sv5=[state.k5,state.g5];state.dir3='';state.k5='all';state.g5='every';
   state.tab=t;state.f[t]='all';state.q='';if(t==='4')state.dir4=sec==='4r'?'recv':'pay';
-  var rows=viewRows();state.tab=sv[0];state.f[t]=sv[1];state.q=sv[2];state.dir4=sv[3];state.dir3=sv3;return rows;
+  var rows=viewRows();state.tab=sv[0];state.f[t]=sv[1];state.q=sv[2];state.dir4=sv[3];state.dir3=sv3;state.k5=sv5[0];state.g5=sv5[1];return rows;
 }
 function tblFor(sec,rows){
   var M=function(x){return Number(x||0)};
@@ -1819,7 +1831,7 @@ document.addEventListener('click',function(ev){
   else if(act==='delex'){guard(async function(){var ex=state.records.concat(state.sups||[]).filter(function(r){return r.isExample});for(var i=0;i<ex.length;i++)await recRef(ex[i].id).delete();toast('ลบข้อมูลตัวอย่างแล้ว')})}
   else if(act==='csv')exportCsv();
   else if(act==='dagency'){state.dash.ag=state.dash.ag===el.dataset.v?'':el.dataset.v;drawDash()}
-  else if(act==='go'){if(el.dataset.t==='2'){el.dataset.t='5'}if(el.dataset.d3)state.dir3=el.dataset.d3;if(el.dataset.d)state.dir4=el.dataset.d;else if(el.dataset.t==='4')state.dir4='pay';setTab(el.dataset.t);if(el.dataset.f){state.f[el.dataset.t]=el.dataset.f;drawToolbar();drawList()}}
+  else if(act==='go'){if(el.dataset.t==='2'){el.dataset.t='5'}if(el.dataset.d3)state.dir3=el.dataset.d3;if(el.dataset.d)state.dir4=el.dataset.d;else if(el.dataset.t==='4')state.dir4='pay';setTab(el.dataset.t);if(el.dataset.f){state.f[el.dataset.t]=el.dataset.f;if(el.dataset.t==='5'){state.g5=el.dataset.f==='done'?'done':'all';state.k5='all'}drawToolbar();drawList()}}
   else if(act==='colorpop'){var pp=document.getElementById('colorPop');if(pp){var op=pp.hidden;if(op)drawColorPop();pp.hidden=!op;el.setAttribute('aria-expanded',String(op))}}
   else if(act==='hue'){applyHue(Number(el.dataset.hue),true);drawColorPop()}
   else if(act==='uedit'){state.editUser=id;drawUserForm();drawUsersList();var ub=$('#userFormBox');if(ub&&ub.scrollIntoView)ub.scrollIntoView({block:'nearest'})}
@@ -1839,7 +1851,7 @@ document.addEventListener('click',function(ev){
   else if(act==='logreload')loadLogs();
   else if(act==='savejobperms')saveJobPerms();
   else if(act==='wfview'){state.wfView=state.wfView||{};var cr2=cur(),wv=el.dataset.v;if(cr2&&wfStep(cr2)==='ins'&&wv===((cr2.wf||{}).backTo||'clerk'))wv='ins';state.wfView[id]=wv;var wc2=$('#wfCard');if(cr2&&wc2)wc2.outerHTML=wfCard(cr2)}
-  else if(act==='rowgo'){var rg=state.records.filter(function(x){return x.id===id})[0];if(!rg)return;var tg=el.dataset.t;if(tg==='4')state.dir4=flowOf(rg);if(tg==='3')state.dir3=flowOf(rg);setTab(tg);state.f[tg]='all';state.sel=id;drawToolbar();drawForm();drawList();var fb2=$('#formBox');if(fb2&&fb2.scrollIntoView)fb2.scrollIntoView({block:'start'})}
+  else if(act==='rowgo'){var rg=state.records.filter(function(x){return x.id===id})[0];if(!rg)return;var tg=el.dataset.t;if(tg==='4')state.dir4=flowOf(rg);if(tg==='3')state.dir3=flowOf(rg);if(tg==='5'){state.k5='all';state.g5=grp5(rg)}setTab(tg);state.f[tg]='all';state.sel=id;drawToolbar();drawForm();drawList();var fb2=$('#formBox');if(fb2&&fb2.scrollIntoView)fb2.scrollIntoView({block:'start'})}
   else if(act==='calopen'){var nt=document.querySelector('[data-nat="'+el.dataset.for+'"]');if(nt){try{nt.showPicker()}catch(e){nt.focus();nt.click()}}}
   else if(act==='exp'){var xf=el.dataset.f,xs=el.dataset.s,xd=el.dataset.d||'';if(xf==='report')openReport(xs,xd,true,false);else if(xf==='pdf')openReport(xs,xd,true,true);else exportXlsx(xs,xd,true)}
   else if(act==='rptclose')closeReport();
@@ -1878,6 +1890,8 @@ document.addEventListener('change',function(ev){
   if(ev.target.id==='logUser'){drawLogs();return}
   if(ev.target.id==='pgsize'){state.pageSize=ev.target.value==='all'?'all':Number(ev.target.value);drawList();return}
   if(ev.target.name==='dper'||ev.target.id==='d_per'){state.dash.per=ev.target.value;drawDash()}
+  else if(ev.target.name==='k5'){state.k5=ev.target.value;drawToolbar();drawList()}
+  else if(ev.target.name==='g5'){state.g5=ev.target.value;drawToolbar();drawList()}
   else if(ev.target.name==='d3'){state.dir3=ev.target.value;state.f[3]='pending';state.sel=null;drawToolbar();drawForm();drawList()}
   else if(ev.target.name==='d4'){state.dir4=ev.target.value;state.f[4]='all';state.sel=null;drawToolbar();drawForm();drawList()}
   else if(ev.target.id==='d_ag'){state.dash.ag=ev.target.value;drawDash()}

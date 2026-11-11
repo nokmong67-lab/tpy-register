@@ -677,8 +677,12 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
   </section>
 
   <section id="logBox" class="card" hidden>
-    <div class="fhead"><h2>ประวัติการใช้งาน</h2><p class="recline">ใครเข้ามาทำอะไร เมื่อไร (วันเวลา) · เห็นได้เฉพาะซูเปอร์แอดมิน · ไม่นับผู้เยี่ยมชม</p></div>
-    <div class="actions" style="padding:0 24px 12px"><label class="sub" style="display:inline">ผู้ใช้ <select id="logUser"><option value="">ทุกคน</option></select></label><button class="btn sm" type="button" data-act="logreload">โหลดใหม่</button><span id="logExp"></span><span class="sub" id="logCount" style="display:inline"></span></div>
+    <div class="fhead"><h2>ประวัติการใช้งาน</h2><p class="recline">ใครเข้าใช้ระบบ ทำอะไร เมื่อไร (วันเวลา) · เห็นได้เฉพาะซูเปอร์แอดมิน · ไม่นับผู้เยี่ยมชมที่ไม่ล็อกอิน</p></div>
+    <div class="actions" style="padding:0 24px 8px"><label class="sub" style="display:inline">ช่วงเวลา <select id="logPer"><option value="1">วันนี้</option><option value="7">7 วันล่าสุด</option><option value="30" selected>30 วันล่าสุด</option><option value="0">ทั้งหมด</option></select></label></div>
+    <h3 style="margin:4px 24px 8px;font-size:1.05rem">ใครเข้าใช้ระบบบ้าง</h3>
+    <div class="tablebox"><table><thead><tr><th>ผู้ใช้</th><th>กลุ่มงาน</th><th>เข้าล่าสุด</th><th class="r">ครั้งที่เข้าใช้ (ตามช่วงเวลา)</th><th>ทำรายการล่าสุด</th><th>สถานะ</th></tr></thead><tbody id="whoBody"></tbody></table></div>
+    <h3 style="margin:16px 24px 8px;font-size:1.05rem">รายการทั้งหมด</h3>
+    <div class="actions" style="padding:0 24px 12px"><label class="sub" style="display:inline">ผู้ใช้ <select id="logUser"><option value="">ทุกคน</option></select></label><label class="sub" style="display:inline"><input type="checkbox" id="logOnly"> ดูเฉพาะการเข้าสู่ระบบ</label><button class="btn sm" type="button" data-act="logreload">โหลดใหม่</button><span id="logExp"></span><span class="sub" id="logCount" style="display:inline"></span></div>
     <div class="tablebox"><table><thead><tr><th>วันเวลา</th><th>ผู้ใช้</th><th>การกระทำ</th><th>รายละเอียด</th></tr></thead><tbody id="logBody"></tbody></table></div>
   </section>
 
@@ -954,16 +958,35 @@ function drawToolbar(){
 /* ---------- forms ---------- */
 function drawForm(){
   var t=state.tab,box=$('#formBox');
-  if(t==='1'){box.innerHTML=canEdit('1')?form1():'<div class="hint">คุณดูรายการได้อย่างเดียว ไม่มีสิทธิ์เพิ่มหรือแก้ไขหนังสือ</div>';return}
+  if(t==='1'){box.innerHTML=canEdit('1')?form1():'<div class="hint">คุณดูรายการได้อย่างเดียว ไม่มีสิทธิ์เพิ่มหรือแก้ไขหนังสือ</div>';syncPay();return}
   var r=cur();
   if(!r){
     var msg={5:'เลือก “ส่งต่อ” ที่รายการในตารางด้านล่าง เพื่อดำเนินการของงานธุรการ การเงิน และบัญชี รายการจะแสดงในส่วนนี้หลังตรวจสอบแล้ว',2:'เลือก “ตรวจสอบ” ที่รายการในตารางด้านล่าง เพื่อบันทึกผลและทำบันทึกข้อความ',3:'เลือก “ทำหนังสือ” ที่รายการในตารางด้านล่าง รายการจะแสดงในขั้นตอนนี้หลังตรวจสอบแล้ว',4:(state.dir4==='recv'?'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่ส่งใบเสร็จให้หน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือส่งใบเสร็จแล้ว':'เลือก “บันทึก” ที่รายการในตารางด้านล่าง เพื่อลงวันที่โอนเงินและวันที่รับใบเสร็จจากหน่วยงาน รายการจะแสดงในส่วนนี้หลังทำหนังสือแจ้งโอนแล้ว')}[t];
     box.innerHTML='<div class="hint">'+msg+'</div>';return;
   }
   box.innerHTML=t==='2'?'<div class="split2"><div class="sp-left">'+paperCard('paper2','บันทึกข้อความ')+'</div><div class="sp-right">'+form2(r)+'</div></div>':(t==='5'?head5(r)+wfCard(r):(t==='3'?form3split(r):form4(r)));
-  if(t==='4')updateDue();else if(t==='3'){syncKind();drawPapers3()}else if(t==='2')drawPaper2();
+  if(t==='4')updateDue();else if(t==='3'){syncKind();syncPay();drawPapers3()}else if(t==='2')drawPaper2();
 }
 function detailList(){var o=uniqRecent(state.records,function(x){return x.detail},200);return '<datalist id="detailList">'+o.map(function(t){return '<option value="'+esc(t)+'">'}).join('')+'</datalist>'}
+function recvPay(r,l){l=l||{};var f=(r.wf||{}).fin||{},tr=r.track||{};
+  return {kind:l.payKind||r.payKind||'transfer',date:l.receiptPaid||r.payDate||tr.transferDate||'',bank:l.chqBank||r.chqBank||'',no:l.chqNo||r.chqNo||'',cdate:l.chqDate||r.chqDate||'',book:l.receiptBook||f.book||'',rno:l.receiptNo||f.no||'',rdate:l.receiptDate||f.date||''}}
+function payTxt(p){return p.kind==='cheque'?' เช็ค'+(/^ธนาคาร/.test(String(p.bank||'').trim())?' ':'ธนาคาร ')+or(p.bank)+' เลขที่ '+or(p.no)+' ลงวันที่ '+fmtLong(p.cdate):(p.date?' โอนเมื่อวันที่ '+fmtLong(p.date):'')}
+function payBlock(pf,p,rc){
+  var c=rc?' pk-r':'';
+  return '<div class="fld wide'+c+'"><span class="lbl">หน่วยงานชำระเงินโดย</span><div class="chips" role="radiogroup" aria-label="รูปแบบการชำระเงิน">'+[['transfer','โอนเงิน'],['cheque','ส่งเช็ค']].map(function(v){return '<label class="chip"><input type="radio" name="'+pf+'_pk" id="'+pf+'_pk_'+v[0]+'" value="'+v[0]+'"'+(p.kind===v[0]?' checked':'')+'><span>'+v[1]+'</span></label>'}).join('')+'</div></div>'
+   +fld(pf+'_pdate','โอนเมื่อวันที่',inp(pf+'_pdate',p.date,'type="date"'),'pk-t'+c)
+   +fld(pf+'_cbank','ธนาคาร / สาขา (เช็ค)',inp(pf+'_cbank',p.bank,'autocomplete="off" placeholder="เช่น ธนาคารกรุงไทย สาขาสระแก้ว"'),'pk-c'+c)
+   +fld(pf+'_cno','เลขที่เช็ค',inp(pf+'_cno',p.no,'autocomplete="off"'),'pk-c'+c)
+   +fld(pf+'_cdate','ลงวันที่เช็ค',inp(pf+'_cdate',p.cdate,'type="date"'),'pk-c'+c);
+}
+function syncPay(){
+  document.querySelectorAll('form').forEach(function(f){var pk=f.querySelector('input[name$="_pk"]:checked');if(!pk)return;
+    var tp=f.querySelector('input[name="type"]:checked'),recv=!tp||tp.value==='แจ้งโอน';
+    f.querySelectorAll('.pk-r').forEach(function(e){e.hidden=!recv});
+    f.querySelectorAll('.pk-t').forEach(function(e){e.hidden=!recv||pk.value!=='transfer'});
+    f.querySelectorAll('.pk-c').forEach(function(e){e.hidden=!recv||pk.value!=='cheque'});
+  });
+}
 function form1(){
   var r=state.editId?state.records.filter(function(x){return x.id===state.editId})[0]:null;
   r=r||{type:'เรียกเก็บ'};
@@ -976,6 +999,7 @@ function form1(){
    +fld('r_docDate','วันที่หนังสือ',inp('r_docDate',r.docDate||'','type="date"'))
    +fld('r_recvDate','วันที่รับหนังสือ (เว้นว่าง = วันนี้)',inp('r_recvDate',state.editId?recvDate(r):TODAY,'type="date"'))
    +'<div class="fld wide"><span class="lbl" id="lblType">ประเภท</span>'+chips+'<p class="sub" style="margin:6px 0 0"><b>เรียกเก็บ</b> = หน่วยงานเรียกเก็บเงินจากเรา (เราโอน แล้วรอรับใบเสร็จ) · <b>แจ้งโอน</b> = หน่วยงานโอนเงินให้เรา (เราต้องส่งใบเสร็จให้)</p></div>'
+   +payBlock('r',recvPay(r),true)
    +fld('r_amount','เป็นเงิน (บาท)',inp('r_amount',r.amount!=null&&r.amount!==undefined&&r.amount!==''?fmtMoney(r.amount):'','inputmode="decimal" data-money placeholder="0.00" autocomplete="off"'))
    +fld('r_detail','รายละเอียด',inp('r_detail',r.detail||'','list="detailList" autocomplete="off" placeholder="พิมพ์ แล้วระบบจะแสดงข้อความที่เคยพิมพ์"')+detailList(),'wide')
    +lnkFld('r_link','ลิงก์หนังสือที่ได้รับ (เรียกเก็บ / แจ้งโอน)',r.link)
@@ -1140,7 +1164,7 @@ function form3(r){
   return h.replace('<div class="pair">','<div class="pair one">');
 }
 function form3all(r){
-  var l=r.letter||{},s=state.settings;
+  var l=r.letter||{},s=state.settings,rp=recvPay(r,l);
   return head(r,'ทำหนังสือ').replace(/^/,'<div class="card" style="margin-bottom:16px">')+'</div><div class="pair">'
    +'<form id="f3a" class="card" novalidate><h3>หนังสือแจ้งโอน <span class="recline">(เอกสารเรียกเก็บ)</span></h3><div class="grid">'
    +'<div class="fld wide"><span class="lbl">รูปแบบหนังสือ</span><div class="chips" role="radiogroup" aria-label="รูปแบบหนังสือ">'+['out','in'].map(function(v){return '<label class="chip"><input type="radio" name="la_kind" id="la_kind_'+v+'" value="'+v+'"'+(((l.transferKind||'out'))===v?' checked':'')+'><span>'+(v==='out'?'หนังสือภายนอก':'หนังสือภายใน (บันทึกข้อความ)')+'</span></label>'}).join('')+'</div></div>'
@@ -1156,10 +1180,12 @@ function form3all(r){
    +'<div class="fld wide"><span class="lbl">รูปแบบหนังสือ</span><div class="chips" role="radiogroup" aria-label="รูปแบบหนังสือ">'+['out','in'].map(function(v){return '<label class="chip"><input type="radio" name="lb_kind" id="lb_kind_'+v+'" value="'+v+'"'+(((l.receiptKind||'out'))===v?' checked':'')+'><span>'+(v==='out'?'หนังสือภายนอก':'หนังสือภายใน (บันทึกข้อความ)')+'</span></label>'}).join('')+'</div></div>'
    +fld('lb_no','หนังสือที่',inp('lb_no',l.receiptLetterNo||letterPfx(),'autocomplete="off"'))
    +fld('lb_date','ลงวันที่',inp('lb_date',l.receiptLetterDate||TODAY,'type="date"'))
-   +fld('lb_receipt','ใบเสร็จรับเงินเลขที่ (ส่งมาด้วย)',inp('lb_receipt',l.receiptNo||'','autocomplete="off"'))
+   +fld('lb_book','ใบเสร็จรับเงิน เล่มที่ (ดึงจากงานการเงินให้)',inp('lb_book',rp.book,'autocomplete="off"'))
+   +fld('lb_receipt','เลขที่',inp('lb_receipt',rp.rno,'autocomplete="off"'))
+   +fld('lb_rdate','ใบเสร็จลงวันที่',inp('lb_rdate',rp.rdate,'type="date"'))
    +letterBtn('lb_linkbtn')
    +fld('lb_to','เรียน (หนังสือภายในจะเติม “ผู้อำนวยการ” นำหน้าให้)',inp('lb_to',l.receiptTo||r.agency||'','autocomplete="off"'))
-   +fld('lb_tdate','โอนเงินเมื่อวันที่',inp('lb_tdate',l.receiptPaid||(r.track&&r.track.transferDate)||'','type="date"'),'in-b')
+   +payBlock('lb',rp,false).replace(/id="lb_pdate"/,'id="lb_tdate"')
    +'</div><p class="err" id="e3b" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+dis()+'>บันทึก</button><button class="btn" type="button" data-act="letterB">'+(canEdit('3')?'บันทึกและ':'')+'ดาวน์โหลด (.docx)</button></div></form></div>';
 }
 function form4(r){
@@ -1489,16 +1515,11 @@ function memoLetterA(r,l){
   return b+memoSign();
 }
 function memoLetterB(r,l){
-  var money=fmtMoneyDoc(r.amount)+' บาท ('+bahtText(r.amount)+')',d=r.detail||'';
-  var b=memoHead(l.receiptLetterNo,l.receiptLetterDate,'ขอส่งใบเสร็จรับเงิน'+d,l.receiptTo||r.agency);
-  b+=HSEC('1.เรื่องเดิม');
-  b+=HPAR('ตามที่ '+r.agency+' ได้'+typeVerb(r)+d+' เป็นเงิน '+money+' นั้น');
-  b+=HSEC('2.ข้อเท็จจริง');
-  b+=HPAR(hosp()+' ได้รับเงินและดำเนินการเรียบร้อยแล้ว'+(l.receiptPaid?' เมื่อวันที่ '+fmtLong(l.receiptPaid):''));
-  b+=HSEC('3.ข้อพิจารณา');
-  b+=HPAR('จึงขอส่งใบเสร็จรับเงิน เลขที่ '+or(l.receiptNo,'……………………')+' จำนวน 1 ฉบับ มาพร้อมหนังสือฉบับนี้');
-  b+=HSEC('4.ข้อเสนอ');
-  b+=HPAR('จึงเรียนมาเพื่อโปรดทราบ');
+  var p=recvPay(r,l),money=fmtMoneyDoc(r.amount)+' บาท ('+bahtText(r.amount)+')',d=r.detail||'';
+  var b=memoHead(l.receiptLetterNo,l.receiptLetterDate,'ขอส่งใบเสร็จรับเงิน',l.receiptTo||r.agency);
+  b+=HPAR('ตามหนังสือ '+r.agency+' ที่ '+or(r.docNo)+' ลงวันที่ '+fmtLong(r.docDate)+(d?' เรื่อง '+d:'')+' เป็นจำนวนเงิน '+money+payTxt(p)+' ความแจ้งแล้ว นั้น');
+  b+=HPAR('ในการนี้ '+hosp()+' จึงขอส่งใบเสร็จรับเงิน เล่มที่ '+or(p.book,'………')+' เลขที่ '+or(p.rno,'………')+' ลงวันที่ '+fmtLong(p.rdate)+' แนบมาพร้อมหนังสือฉบับนี้');
+  b+=HPAR('จึงเรียนมาเพื่อโปรดพิจารณาดำเนินการต่อไป');
   return b+memoSign();
 }
 function letterAXml(r,l){
@@ -1512,12 +1533,13 @@ function letterAXml(r,l){
 }
 function letterBXml(r,l){
   if(l.receiptKind==='in')return memoLetterB(r,l);
-  return letterBody({no:l.receiptLetterNo,date:l.receiptLetterDate,to:l.receiptTo,subject:'ส่งใบเสร็จรับเงิน'+(r.detail?' '+r.detail:''),
+  var p=recvPay(r,l),rc='เล่มที่ '+or(p.book,'………')+' เลขที่ '+or(p.rno,'………')+' ลงวันที่ '+fmtLong(p.rdate);
+  return letterBody({no:l.receiptLetterNo,date:l.receiptLetterDate,to:l.receiptTo,subject:'ขอส่งใบเสร็จรับเงิน',
     ref:'หนังสือ '+r.agency+' ที่ '+r.docNo+' ลงวันที่ '+fmtLong(r.docDate),
-    encl:'ใบเสร็จรับเงิน เลขที่ '+or(l.receiptNo,'……………………')+' จำนวน 1 ฉบับ',
-    paras:['ตามหนังสือที่อ้างถึง '+r.agency+' ได้'+typeVerb(r)+' เป็นเงิน '+fmtMoneyDoc(r.amount)+' บาท ('+bahtText(r.amount)+') นั้น',
-      'โรงพยาบาลได้รับเงินและดำเนินการเรียบร้อยแล้ว จึงขอส่งใบเสร็จรับเงินมาพร้อมหนังสือฉบับนี้',
-      'จึงเรียนมาเพื่อโปรดทราบ']});
+    encl:'ใบเสร็จรับเงิน '+rc+' จำนวน 1 ฉบับ',
+    paras:['ตามหนังสือที่อ้างถึง '+r.agency+(r.detail?' เรื่อง '+r.detail:' ได้'+(p.kind==='cheque'?'ส่งเช็ค':'โอนเงิน'))+' เป็นจำนวนเงิน '+fmtMoneyDoc(r.amount)+' บาท ('+bahtText(r.amount)+')'+payTxt(p)+' นั้น',
+      'ในการนี้ '+hosp()+' ได้รับเงินจำนวนดังกล่าวเรียบร้อยแล้ว พร้อมส่งใบเสร็จรับเงิน '+rc+' แนบมาพร้อมหนังสือฉบับนี้',
+      'จึงเรียนมาเพื่อโปรดพิจารณาดำเนินการต่อไป']});
 }
 async function letterADocx(r,l){await buildDocx(letterAXml(r,l),safeName((l.transferKind==='in'?'บันทึกข้อความแจ้งโอน_':'หนังสือแจ้งโอน_')+r.receiveNo)+'.docx')}
 async function letterBDocx(r,l){await buildDocx(letterBXml(r,l),safeName((l.receiptKind==='in'?'บันทึกข้อความส่งใบเสร็จ_':'หนังสือส่งใบเสร็จ_')+r.receiveNo)+'.docx')}
@@ -1539,7 +1561,7 @@ function syncKind(){
 }
 function readLetter(w){
   return w==='A'?{transferKind:kindOf('la'),transferLink:val('la_link'),transferNo:val('la_no'),transferDate:val('la_date'),transferTo:val('la_to'),transferMonth:val('la_month'),transferPaid:val('la_tdate'),transferAcct:val('la_acct')}
-    :{receiptKind:kindOf('lb'),receiptLink:val('lb_link'),receiptLetterNo:val('lb_no'),receiptLetterDate:val('lb_date'),receiptNo:val('lb_receipt'),receiptTo:val('lb_to'),receiptPaid:val('lb_tdate')};
+    :{receiptKind:kindOf('lb'),receiptLink:val('lb_link'),receiptLetterNo:val('lb_no'),receiptLetterDate:val('lb_date'),receiptNo:val('lb_receipt'),receiptTo:val('lb_to'),receiptPaid:val('lb_pdate'),receiptBook:val('lb_book'),receiptDate:val('lb_rdate'),payKind:(document.querySelector('input[name="lb_pk"]:checked')||{}).value||'transfer',chqBank:val('lb_cbank'),chqNo:val('lb_cno'),chqDate:val('lb_cdate')};
 }
 function drawPapers3(){
   var r=cur();if(!r)return;
@@ -1567,6 +1589,23 @@ function logAct(act,detail){
 }
 function fmtTs(ms){var d=new Date(ms);if(isNaN(d))return '-';var z=function(n){return ('0'+n).slice(-2)};return d.getDate()+' '+TH_MS[d.getMonth()]+' '+(d.getFullYear()+543)+' '+z(d.getHours())+':'+z(d.getMinutes())+':'+z(d.getSeconds())}
 var logRows=[];
+var LOGIN_ACTS=['เข้าสู่ระบบ','เปิดใช้งาน'];
+function logSince(){var v=($('#logPer')||{}).value,d=v===undefined?30:Number(v);if(!d)return 0;var t=new Date();t.setHours(0,0,0,0);return t.getTime()-(d-1)*86400000}
+function logFiltered(){var u=($('#logUser')||{}).value,only=($('#logOnly')||{}).checked,since=logSince();
+  return logRows.filter(function(x){return (!u||x.user===u)&&(!since||x.at>=since)&&(!only||LOGIN_ACTS.indexOf(x.act)>=0)})}
+function drawWho(){
+  var box=$('#whoBody');if(!box)return;var since=logSince(),m={};
+  (state.users||[]).forEach(function(u){m[u.username]={u:u.username,name:u.displayName||u.username,job:u.role==='super'?'ซูเปอร์แอดมิน':(u.job?JOB_LBL[u.job]:'ผู้ใช้งาน'),off:u.active===false,last:0,cnt:0,act:null,actAt:0,seen:0}});
+  logRows.forEach(function(x){var o=m[x.user];if(!o)o=m[x.user]={u:x.user,name:x.name||x.user,job:'-',off:false,last:0,cnt:0,act:null,actAt:0,seen:0};
+    if(x.at>o.seen)o.seen=x.at;
+    if(LOGIN_ACTS.indexOf(x.act)>=0){if(x.at>o.last)o.last=x.at;if(!since||x.at>=since)o.cnt++}
+    else if(x.at>o.actAt){o.actAt=x.at;o.act=x.act+(x.detail?' · '+x.detail:'')}});
+  var t0=new Date();t0.setHours(0,0,0,0);t0=t0.getTime();
+  var a=Object.keys(m).map(function(k){return m[k]}).sort(function(x,y){return y.seen-x.seen||x.u.localeCompare(y.u)});
+  box.innerHTML=a.length?a.map(function(o){
+    var st=o.off?['late','ระงับ']:(!o.seen?['late','ไม่เคยเข้า']:(o.seen>=t0?['done','เข้าวันนี้']:(o.seen>=t0-6*86400000?['wait','ภายใน 7 วัน']:['late','นานกว่า 7 วัน'])));
+    return '<tr><td>'+esc(o.name)+'<span class="wfsmall">'+esc(o.u)+'</span></td><td>'+esc(o.job)+'</td><td>'+(o.last?esc(fmtTs(o.last)):'-')+'</td><td class="r num">'+o.cnt+'</td><td>'+(o.act?esc(fmtTs(o.actAt))+'<span class="wfsmall">'+esc(o.act)+'</span>':'-')+'</td><td><span class="pill '+st[0]+'">'+st[1]+'</span></td></tr>'}).join(''):'<tr><td colspan="6">ยังไม่มีผู้ใช้</td></tr>';
+}
 async function loadLogs(){
   var box=$('#logBody');if(!box)return;$('#logExp').innerHTML=expBtns('logs');box.innerHTML='<tr><td colspan="4">กำลังโหลด…</td></tr>';
   try{
@@ -1575,10 +1614,10 @@ async function loadLogs(){
     var us={};a.forEach(function(x){us[x.user]=x.name||x.user});
     var sel=$('#logUser'),cv=sel.value;sel.innerHTML='<option value="">ทุกคน</option>'+Object.keys(us).sort().map(function(u){return '<option value="'+esc(u)+'">'+esc(us[u])+' ('+esc(u)+')</option>'}).join('');sel.value=cv;
     drawLogs();
-  }catch(e){box.innerHTML='<tr><td colspan="4">โหลดประวัติไม่สำเร็จ (ต้องเป็นซูเปอร์แอดมิน และใช้ Code.gs เวอร์ชันล่าสุด)</td></tr>'}
+  }catch(e){console.error('loadLogs',e);box.innerHTML='<tr><td colspan="4">โหลดประวัติไม่สำเร็จ (ต้องเป็นซูเปอร์แอดมิน และใช้ Code.gs เวอร์ชันล่าสุด)</td></tr>'}
 }
 function drawLogs(){
-  var u=$('#logUser').value,a=logRows.filter(function(x){return !u||x.user===u}),box=$('#logBody');
+  var a=logFiltered(),box=$('#logBody');drawWho();
   $('#logCount').textContent='แสดง '+Math.min(a.length,300)+' จาก '+a.length+' รายการ (ล่าสุดก่อน)';
   box.innerHTML=a.length?a.slice(0,300).map(function(x){return '<tr><td>'+esc(fmtTs(x.at))+'</td><td>'+esc(x.name||x.user)+'<span class="wfsmall">'+esc(x.user)+'</span></td><td>'+esc(x.act)+'</td><td>'+esc(x.detail||'')+'</td></tr>'}).join(''):'<tr><td colspan="4">ยังไม่มีประวัติ</td></tr>';
 }
@@ -1636,7 +1675,7 @@ function buildReport(sec,dir,keep){
   var s2=sec==='4'?(dir==='recv'?'4r':'4p'):sec,hn=(state.settings||{}).hospital||'โรงพยาบาลตาพระยา';
   var rep;
   if(s2==='D')rep=dashReport();
-  else if(s2==='logs'){var u=($('#logUser')||{}).value,a=logRows.filter(function(x){return !u||x.user===u});rep={title:'ประวัติการใช้งาน',sub:u?'ผู้ใช้: '+u:'ผู้ใช้: ทุกคน',tables:[{name:'',head:['วันเวลา','ผู้ใช้','ชื่อ','การกระทำ','รายละเอียด'],money:[],rows:a.map(function(x){return [fmtTs(x.at),x.user,x.name||'',x.act,x.detail||'']})}]}}
+  else if(s2==='logs'){var u=($('#logUser')||{}).value,a=logFiltered();rep={title:'ประวัติการใช้งาน',sub:u?'ผู้ใช้: '+u:'ผู้ใช้: ทุกคน',tables:[{name:'',head:['วันเวลา','ผู้ใช้','ชื่อ','การกระทำ','รายละเอียด'],money:[],rows:a.map(function(x){return [fmtTs(x.at),x.user,x.name||'',x.act,x.detail||'']})}]}}
   else{var rows=secRows(s2,dir,keep),t=tblFor(s2,rows);t.name='';
     var tot=0;rows.forEach(function(r){tot+=Number(r.amount)||0});
     rep={title:SEC_NAME[s2],sub:'จำนวน '+rows.length+' รายการ · รวม '+fmtMoney(tot)+' บาท'+(keep&&state.q?' · ค้นหา: '+state.q:''),tables:[t]}}
@@ -1732,6 +1771,9 @@ async function submit1(){
   if(!d.docDate)return setErr('e1','เลือกวันที่หนังสือ');
   if(isNaN(amt)||amt<0)return setErr('e1','กรอกจำนวนเงินเป็นตัวเลข');
   var lk=safeUrl(val('r_link'));if(lk===null)return setErr('e1',LINK_ERR);d.link=lk;
+  var pk=(document.querySelector('input[name="r_pk"]:checked')||{}).value||'transfer',isR=d.type==='แจ้งโอน';
+  d.payKind=isR?pk:'';d.payDate=isR&&pk==='transfer'?val('r_pdate'):'';d.chqBank=isR&&pk==='cheque'?val('r_cbank'):'';d.chqNo=isR&&pk==='cheque'?val('r_cno'):'';d.chqDate=isR&&pk==='cheque'?val('r_cdate'):'';
+  if(isR&&pk==='cheque'&&!d.chqNo)return setErr('e1','กรอกเลขที่เช็ค');
   d.amount=Math.round(amt*100)/100;d.updatedAt=Date.now();d.updatedBy=uname();setErr('e1','');
   await guard(async function(){
     if(state.editId){await recRef(state.editId).update(d);logAct('แก้ไขรายการรับหนังสือ',d.receiveNo+' '+d.agency);toast('บันทึกการแก้ไขแล้ว')}
@@ -1887,9 +1929,10 @@ document.addEventListener('focusout',function(ev){var e=ev.target;if(e&&e.datase
 document.addEventListener('change',function(ev){
   if(ev.target.dataset&&ev.target.dataset.nat){setDateIso(ev.target.dataset.nat,ev.target.value,false);return}
   if(ev.target.dataset&&ev.target.dataset.dtxt){dateTxtBlur(ev.target);return}
-  if(ev.target.id==='logUser'){drawLogs();return}
+  if(ev.target.id==='logUser'||ev.target.id==='logPer'||ev.target.id==='logOnly'){drawLogs();return}
   if(ev.target.id==='pgsize'){state.pageSize=ev.target.value==='all'?'all':Number(ev.target.value);drawList();return}
   if(ev.target.name==='dper'||ev.target.id==='d_per'){state.dash.per=ev.target.value;drawDash()}
+  else if(ev.target.name==='type'||/_pk$/.test(ev.target.name||'')){syncPay();schedulePreview()}
   else if(ev.target.name==='k5'){state.k5=ev.target.value;drawToolbar();drawList()}
   else if(ev.target.name==='g5'){state.g5=ev.target.value;drawToolbar();drawList()}
   else if(ev.target.name==='d3'){state.dir3=ev.target.value;state.f[3]='pending';state.sel=null;drawToolbar();drawForm();drawList()}
@@ -2710,7 +2753,7 @@ drawApp();
   if(sess&&sess.u&&NAME_RE.test(sess.u)){
     try{
       var d=await window.claude.gs.login(sess.u,sess.h);
-      if(d){d.hash=sess.h;await startSession(sess.u,d);return}
+      if(d){d.hash=sess.h;await startSession(sess.u,d);try{var td=iso(new Date());if(sessionStorage.getItem('reg-open')!==td){sessionStorage.setItem('reg-open',td);logAct('เปิดใช้งาน','กลับมาใช้งาน')}}catch(e){}return}
     }catch(e){}
   }
   if(state.hasUsers){enterGuest();return}

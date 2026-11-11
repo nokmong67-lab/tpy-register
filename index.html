@@ -624,7 +624,7 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
       <li>ทำหนังสือส่งใบเสร็จ แล้วบันทึกวันที่ส่ง</li></ol>
       <p class="sub">ส่งคืนได้ทุกขั้น ต้องระบุเหตุผล ระบบส่งอีเมลแจ้งเตือนไปที่ tpy10867@gmail.com</p></div>
     <div><h3>ขอสนับสนุนเงิน (เมนู 6)</h3><ol>
-      <li>รับหนังสือ เกษียน เสนอ ผอ. (ธุรการ) ลงวันที่เสนอและวันที่ ผอ. สั่งการ</li>
+      <li>รับหนังสือ เกษียน เสนอ ผอ. (ธุรการ) แล้วบันทึกผลพิจารณา: <b>อนุมัติให้จ่าย</b> (ระบุยอดอนุมัติ ไปต่อ) · <b>ไม่อนุมัติ</b> (ระบุเหตุผล ปิดเรื่อง) · ยังไม่ตัดสิน = รอ ผอ. พิจารณา</li>
       <li>ตรวจสอบ พิมพ์ชื่อผู้ตรวจสอบหรืองานที่ตรวจสอบเอง (ไม่มีการตั้งหนี้) แล้วกด “ส่งต่อเพื่อดำเนินการ”</li>
       <li>การเงินทำเบิกจ่าย ลงวันที่ขออนุมัติ วันที่จ่าย เลขที่เช็ค</li>
       <li>บัญชีบันทึกจ่าย เสร็จสิ้น</li></ol>
@@ -1217,7 +1217,7 @@ function drawList(){
   else if(allRows.length)pg='<div class="pager"><span>แสดง '+allRows.length+' รายการ</span></div>';
   box.innerHTML=h+pg;
 }
-function refresh(){if(!state.me||state.tab==='0')return;if(state.tab==='S'){drawNotices();drawSupList();return}if(state.tab==='2'&&state.sel&&document.getElementById('paper2'))drawPaper2();drawNotices();drawStats();drawList();if(state.tab==='D'&&typeof drawDash==='function')drawDash()}
+function refresh(){if(!state.me||state.tab==='0')return;if(state.tab==='S'){drawNotices();var ss0=document.getElementById('supStrip');if(ss0)ss0.innerHTML=supStrip();drawSupList();return}if(state.tab==='2'&&state.sel&&document.getElementById('paper2'))drawPaper2();drawNotices();drawStats();drawList();if(state.tab==='D'&&typeof drawDash==='function')drawDash()}
 
 /* ---------- docx ---------- */
 var FONT='TH SarabunPSK';
@@ -1794,6 +1794,7 @@ document.addEventListener('click',function(ev){
   else if(act==='sedit'){if(!canEdit('S'))return;state.supEdit=id;drawSup();var sf=document.getElementById('supForm');if(sf&&sf.scrollIntoView)sf.scrollIntoView({block:'nearest'})}
   else if(act==='sexample')supExamples();
   else if(act==='sgo'){if(perm('S')==='none')return;state.supF=el.dataset.f||'pending';setTab('S')}
+  else if(act==='sf'){state.supF=el.dataset.f;var ss=document.getElementById('supStrip');if(ss)ss.innerHTML=supStrip();drawSupList()}
   else if(act==='sclr'){state.supEdit=null;drawSup()}
   else if(act==='sdel'){supDel(id)}
   else if(act==='sview'){state.supView=state.supView||{};state.supView[state.supSel]=el.dataset.v;drawSupWf()}
@@ -2352,21 +2353,24 @@ function drawDash(){
     return '<div class="dwr"><span class="pill '+st.k+'">เหลือ '+st.left+' วัน</span><div class="m"><b>'+esc(w.r.agency||'-')+'</b><small>'+esc(w.r.receiveNo||'')+' · ครบ '+fmtShort(st.due)+'</small></div><b class="num">'+fmtMoney(w.r.amount)+'</b></div>'}).join('');
   W.due='<div class="dcard"><h2>ครบกำหนดรับใบเสร็จที่กำลังมา</h2><span class="sub">ยังไม่เกินกำหนด · เรียงตามวันครบกำหนด</span>'+(dues||'<div class="empty">ไม่มีรายการรอใบเสร็จ</div>')+(DU.length>6?'<div class="sub" style="margin-top:8px">และอีก '+(DU.length-6)+' รายการ</div>':'')+'</div>';
   /* ===== ขอสนับสนุนเงิน ===== */
-  var SK={},SN=0,SS=0,SDn=0,SDs=0,SBD=[];
+  var SC={wait:{n:0,s:0},appr:{n:0,s:0},paid:{n:0,s:0},rej:{n:0,s:0}},SK={},SN=SUPD.length,SBD=[],sReq=0;
   SUP_STEPS.forEach(function(k){SK[k]={n:0,s:0}});
-  SUPD.forEach(function(r){var k=supStep(r),a=Number(r.amount)||0;SK[k].n++;SK[k].s+=a;SN++;SS+=a;
-    if(k==='sdone'){SDn++;SDs+=a;var ra=String((r.wf||{}).recordedAt||'').slice(0,10);if(ra)SBD.push(bd(recvDate(r),ra))}});
-  var sAvg=SBD.length?(SBD.reduce(function(x,y){return x+y},0)/SBD.length).toFixed(1):'-',sOpen=SN-SDn;
-  var sOk=perm('S')!=='none';
-  var sTile=function(k,money){var o=SK[k];return '<button type="button" class="dsb" style="border-top-color:'+(k==='sdone'?'var(--mint-ink)':'var(--accent)')+'" data-act="sgo" data-f="'+(k==='sdone'?'done':'pending')+'"'+(sOk?'':' disabled')+'><span class="l">'+SUP_LBL[k]+'</span><b>'+(money?fmtMoney(o.s):o.n)+'</b><small>'+(money?o.n+' ฉบับ':'ฉบับ')+'</small></button>'};
+  SUPD.forEach(function(r){var c=supCat(r),a=(c==='appr'||c==='paid')?supAmt(r):(Number(r.amount)||0);SC[c].n++;SC[c].s+=a;sReq+=Number(r.amount)||0;
+    if(c!=='rej'){var k=supStep(r);SK[k].n++;SK[k].s+=a}
+    if(c==='paid'){var ra=String((r.wf||{}).recordedAt||'').slice(0,10);if(ra)SBD.push(bd(recvDate(r),ra))}});
+  var sAvg=SBD.length?(SBD.reduce(function(x,y){return x+y},0)/SBD.length).toFixed(1):'-',sOpen=SC.wait.n+SC.appr.n,sOpenAmt=SC.wait.s+SC.appr.s;
+  var sOk=perm('S')!=='none',apAll=SC.appr.s+SC.paid.s;
+  var sTile=function(k,money){var o=SK[k];return '<button type="button" class="dsb" style="border-top-color:'+(k==='sdone'?'var(--mint-ink)':'var(--accent)')+'" data-act="sgo" data-f="'+(k==='sdone'?'paid':'pending')+'"'+(sOk?'':' disabled')+'><span class="l">'+SUP_LBL[k]+'</span><b>'+(money?fmtMoney(o.s):o.n)+'</b><small>'+(money?o.n+' ฉบับ':'ฉบับ')+'</small></button>'};
+  var sCard=function(c,cls,t,sub){return '<button type="button" class="dkc '+cls+'" style="text-align:left;cursor:pointer" data-act="sgo" data-f="'+c+'"'+(sOk?'':' disabled')+'><div class="l">'+t+'</div><div class="v">'+SC[c].n+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="s">'+fmtMoney(SC[c].s)+' บาท'+(sub||'')+'</div></button>'};
   W.sup='<div class="dsec" style="margin-top:0"><span class="dtag" style="background:hsl(150 40% 90%);color:hsl(150 45% 24%)">ขอสนับสนุนเงิน</span><span class="sub">หน่วยงานอื่นขอเงินบำรุงจาก รพ. · '+esc(perLabel(dashPer()))+'</span></div>'
    +'<div class="dk">'
-   +'<div class="dkc"><div class="l">หนังสือขอสนับสนุนทั้งหมด</div><div class="v">'+SN+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="s">ยอดรวม '+fmtMoney(SS)+' บาท</div></div>'
-   +'<div class="dkc wn"><div class="l">กำลังดำเนินการ</div><div class="v">'+sOpen+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="s">'+fmtMoney(SS-SDs)+' บาท</div></div>'
-   +'<div class="dkc ok"><div class="l">เสร็จสิ้น (จ่ายแล้ว)</div><div class="v">'+fmtMoney(SDs)+'</div><div class="dprog"><div class="tr"><i style="width:'+pct(SDs,SS)+'%"></i></div><b>'+pct(SDs,SS)+'%</b></div><div class="s">'+SDn+' ฉบับ</div></div>'
-   +'<div class="dkc"><div class="l">เวลาเฉลี่ยจนเสร็จสิ้น</div><div class="v">'+sAvg+' <span style="font-size:1rem;font-weight:400">วัน</span></div><div class="s">วันทำการ นับจากวันที่รับหนังสือ</div></div></div>'
-   +'<div class="dsec"><span class="sub"><b>จำนวนฉบับ</b> ที่อยู่ในแต่ละขั้นตอน</span></div><div class="dst">'+SUP_STEPS.map(function(k){return sTile(k,false)}).join('')+'</div>'
-   +'<div class="dsec"><span class="sub"><b>ยอดเงิน</b> ที่อยู่ในแต่ละขั้นตอน</span></div><div class="dst">'+SUP_STEPS.map(function(k){return sTile(k,true)}).join('')+'</div>'
+   +'<div class="dkc"><div class="l">หนังสือขอสนับสนุนทั้งหมด</div><div class="v">'+SN+' <span style="font-size:1rem;font-weight:400">ฉบับ</span></div><div class="s">ขอรวม '+fmtMoney(sReq)+' บาท · อนุมัติ '+fmtMoney(apAll)+' บาท</div></div>'
+   +sCard('wait','wn','รอ ผอ. พิจารณา (ยังไม่ให้จ่าย)')
+   +sCard('appr','','อนุมัติให้จ่าย (รอจ่าย)')
+   +'<button type="button" class="dkc ok" style="text-align:left;cursor:pointer" data-act="sgo" data-f="paid"'+(sOk?'':' disabled')+'><div class="l">จ่ายแล้ว</div><div class="v">'+fmtMoney(SC.paid.s)+'</div><div class="dprog"><div class="tr"><i style="width:'+pct(SC.paid.s,apAll)+'%"></i></div><b>'+pct(SC.paid.s,apAll)+'%</b></div><div class="s">'+SC.paid.n+' ฉบับ · ของยอดที่อนุมัติ · เฉลี่ย '+sAvg+' วันทำการ</div></button>'
+   +sCard('rej','','ไม่อนุมัติ')+'</div>'
+   +'<div class="dsec"><span class="sub"><b>จำนวนฉบับ</b> ที่อนุมัติ/อยู่ระหว่างเสนอ แยกตามขั้นตอน (ไม่รวมที่ไม่อนุมัติ)</span></div><div class="dst">'+SUP_STEPS.map(function(k){return sTile(k,false)}).join('')+'</div>'
+   +'<div class="dsec"><span class="sub"><b>ยอดเงิน</b> แยกตามขั้นตอน (ยอดอนุมัติ ถ้ายังไม่พิจารณาใช้ยอดที่ขอ)</span></div><div class="dst">'+SUP_STEPS.map(function(k){return sTile(k,true)}).join('')+'</div>'
    +'<p class="sub" style="margin:4px 0 0">แยกจากรายการเรียกเก็บและแจ้งโอน · กดที่ช่องเพื่อไปดูรายการ</p>';
   /* ===== สรุปจำนวนฉบับ / ยอดเงิน แยกตามขั้นตอน ===== */
   var SG={recv:{},pay:{}},TOT={recv:{n:0,s:0},pay:{n:0,s:0}};
@@ -2392,7 +2396,7 @@ function drawDash(){
      +'<p class="sub" style="margin:4px 0 0">'+(money?'ยอดเงินตามจำนวนเงินในหนังสือที่รับ':'นับตามขั้นตอนที่เอกสารอยู่ตอนนี้')+' · กดที่ช่องเพื่อไปดูรายการ</p>';
   };
   W.cnt=sect(false);W.money=sect(true);
-  if(sOpen>0){W.todo=W.todo.replace(/<b>(\d+)<\/b> จาก (\d+) รายการ/,function(m,x,y){return '<b>'+(+x+sOpen)+'</b> จาก '+(+y+SN)+' รายการ'}).replace(/<div class="empty">[^<]*<\/div>/,'').replace(/<\/div>$/,'<div class="dwr"><span class="pill audit">'+sOpen+' รายการ</span><div class="m"><b>ขอสนับสนุนเงิน · กำลังดำเนินการ</b></div><b class="num">'+fmtMoney(SS-SDs)+'</b><button type="button" class="btn sm" data-act="sgo" data-f="pending"'+(sOk?'':' disabled')+'>เปิด</button></div></div>')}
+  if(sOpen>0){W.todo=W.todo.replace(/<b>(\d+)<\/b> จาก (\d+) รายการ/,function(m,x,y){return '<b>'+(+x+sOpen)+'</b> จาก '+(+y+sOpen)+' รายการ'}).replace(/<div class="empty">[^<]*<\/div>/,'').replace(/<\/div>$/,'<div class="dwr"><span class="pill audit">'+sOpen+' รายการ</span><div class="m"><b>ขอสนับสนุนเงิน · กำลังดำเนินการ</b></div><b class="num">'+fmtMoney(sOpenAmt)+'</b><button type="button" class="btn sm" data-act="sgo" data-f="pending"'+(sOk?'':' disabled')+'>เปิด</button></div></div>')}
   /* ===== วัดประสิทธิภาพ ===== */
   var PS={},OV=[];SEG.forEach(function(g){PS[g.k]={n:0,sum:0,max:0,ok:0,open:0,over:0}});
   rows.forEach(function(r){segsOf(r).forEach(function(x){
@@ -2429,19 +2433,30 @@ state.sups=[];state.supSel=null;state.supEdit=null;state.supF='pending';state.su
 function supStep(r){return (r.wf&&r.wf.step)||'sdir'}
 function supCan(k){return canEdit('S')&&(isSuper()||!state.me.job||state.me.job===SUP_JOB[k])}
 function supCur(){return state.sups.filter(function(r){return r.id===state.supSel})[0]}
+var SUP_CAT={wait:'รอ ผอ. พิจารณา',appr:'อนุมัติให้จ่าย',paid:'จ่ายแล้ว',rej:'ไม่อนุมัติ'};
+function supCat(r){var w=r.wf||{};if(w.decision==='reject')return 'rej';var st=supStep(r);if(st==='sdone')return 'paid';if(w.decision==='approve'||st!=='sdir')return 'appr';return 'wait'}
+function supAmt(r){var w=r.wf||{};return (w.apprAmt!==undefined&&w.apprAmt!==null&&w.apprAmt!=='')?Number(w.apprAmt):(Number(r.amount)||0)}
+function supPaySum(r){var c=supCat(r);return c==='appr'||c==='paid'?supAmt(r):(Number(r.amount)||0)}
+function supMatch(r,f){var c=supCat(r);if(f==='all')return true;if(f==='pending')return c==='wait'||c==='appr';if(f==='done')return c==='paid'||c==='rej';return c===f}
 function supRows(){
   var q=String(state.q||'').trim().toLowerCase(),f=state.supF;
   return state.sups.filter(function(r){
-    if(f==='pending'&&supStep(r)==='sdone')return false;if(f==='done'&&supStep(r)!=='sdone')return false;
+    if(!supMatch(r,f))return false;
     if(!q)return true;return [r.receiveNo,r.agency,r.docNo,r.detail].join(' ').toLowerCase().indexOf(q)>=0;
   }).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0)});
 }
+function supStrip(){
+  var F=[['pending','กำลังดำเนินการ'],['wait','รอ ผอ. พิจารณา'],['appr','อนุมัติให้จ่าย'],['paid','จ่ายแล้ว'],['rej','ไม่อนุมัติ'],['all','ทั้งหมด']];
+  var col={pending:'var(--accent)',wait:'hsl(40 80% 50%)',appr:'hsl(205 70% 50%)',paid:'hsl(150 50% 38%)',rej:'hsl(350 60% 52%)',all:'var(--ink-2)'};
+  return '<div class="dst" role="group" aria-label="กรองรายการ">'+F.map(function(x){
+    var rs=state.sups.filter(function(r){return supMatch(r,x[0])}),sum=rs.reduce(function(a,r){return a+supPaySum(r)},0);
+    return '<button type="button" class="dsb" data-act="sf" data-f="'+x[0]+'" aria-pressed="'+(state.supF===x[0])+'" style="border-top-color:'+col[x[0]]+';'+(state.supF===x[0]?'outline:2px solid var(--accent);':'')+'"><span class="l">'+x[1]+'</span><b>'+rs.length+'</b><small>'+fmtMoney(sum)+' บาท</small></button>'}).join('')+'</div>'}
 function drawSup(){
   var box=$('#formBox');if(!box)return;
   var h='<div class="card" style="margin-bottom:16px"><div class="fhead"><h2>ขอสนับสนุนเงิน</h2><p class="recline">หน่วยงานอื่นทำหนังสือขอรับการสนับสนุนเงินบำรุงจาก รพ. · บันทึกหนังสือ แล้วติดตามขั้นตอนของ รพ. ตั้งแต่เสนอ ผอ. จนบันทึกบัญชีจ่าย</p></div>'
    +(canEdit('S')?supForm():'<div class="hint">คุณดูรายการได้อย่างเดียว ไม่มีสิทธิ์เพิ่มหรือแก้ไข</div>')+'</div>'
-   +(isSuper()&&canEdit('S')&&!state.sups.length?'<div class="notice"><span>ยังไม่มีรายการ ต้องการดูตัวอย่างการทำงานหรือไม่</span><button type="button" class="btn sm primary" data-act="sexample">สร้างตัวอย่าง 2 ฉบับ</button></div>':'')+'<div id="supWf"></div>'
-   +'<div class="card" style="margin-bottom:16px"><div class="toolbar"><div class="chips" role="group" aria-label="กรองรายการ">'+[['pending','กำลังดำเนินการ'],['done','เสร็จสิ้น'],['all','ทั้งหมด']].map(function(c){return '<label class="chip"><input type="radio" name="sflt" value="'+c[0]+'"'+(state.supF===c[0]?' checked':'')+'><span>'+c[1]+'</span></label>'}).join('')+'</div></div><div id="supList" class="tablebox"></div></div>';
+   +(isSuper()&&canEdit('S')&&!state.sups.length?'<div class="notice"><span>ยังไม่มีรายการ ต้องการดูตัวอย่างการทำงานหรือไม่</span><button type="button" class="btn sm primary" data-act="sexample">สร้างตัวอย่าง 4 ฉบับ (ครบทุกสถานะ)</button></div>':'')+'<div id="supWf"></div>'
+   +'<div class="card" style="margin-bottom:16px"><div id="supStrip">'+supStrip()+'</div><div id="supList" class="tablebox" style="margin-top:14px"></div></div>';
   box.innerHTML=h;drawSupWf();drawSupList();
 }
 function supForm(){
@@ -2486,11 +2501,13 @@ function drawSupList(){
   var box=document.getElementById('supList');if(!box)return;
   var rows=supRows();
   if(!rows.length){box.innerHTML='<div class="empty">'+(!state.loaded&&state.hasDb?'กำลังโหลดรายการ…':(state.q?'ไม่พบรายการที่ค้นหา':'ยังไม่มีรายการในตัวกรองนี้'))+'</div>';return}
-  var sum=rows.reduce(function(a,r){return a+(Number(r.amount)||0)},0);
-  box.innerHTML='<table class="tbl"><thead><tr><th>หน่วยงาน</th><th>หนังสือ</th><th>รายละเอียด</th><th class="r">ยอดเงิน (บาท)</th><th>ขั้นตอนของ รพ.</th><th></th></tr></thead><tbody>'
-   +rows.map(function(r){var st=supStep(r),lk=safeUrl(r.link);
-     return '<tr class="'+(state.supSel===r.id?'picked':'')+'"><td><b>'+esc(r.agency)+'</b>'+(r.receiveNo?'<div class="sub">เลขรับ '+esc(r.receiveNo)+'</div>':'')+(lk?'<div><a class="lk" href="'+esc(lk)+'" target="_blank" rel="noopener noreferrer">'+ico(LINK_IC,12)+'หนังสือ</a></div>':'')+'</td><td>'+esc(r.docNo)+'<div class="sub">ลงวันที่ '+fmtShort(r.docDate)+'</div><div class="sub">รับ '+fmtShort(recvDate(r))+'</div></td><td>'+esc(r.detail)+'</td><td class="r num">'+fmtMoney(r.amount)+'</td><td><span class="pill '+(st==='sdone'?'done':'wait')+'">'+SUP_LBL[st]+'</span></td><td><div class="rowact"><button class="btn sm'+(st==='sdone'?'':' primary')+'" type="button" data-act="spick" data-id="'+r.id+'">'+(st==='sdone'?'เปิด':'ดำเนินการ')+'</button><button class="btn sm" type="button" data-act="sedit" data-id="'+r.id+'"'+(canEdit('S')?'':' disabled')+'>แก้ไข</button><button class="btn sm danger" type="button" data-act="sdel" data-id="'+r.id+'"'+(canDel()?'':' disabled')+'>ลบ</button></div></td></tr>'}).join('')
-   +'</tbody><tfoot><tr><td colspan="3">รวม '+rows.length+' รายการ</td><td class="r num">'+fmtMoney(sum)+'</td><td colspan="2"></td></tr></tfoot></table>';
+  var sumReq=rows.reduce(function(a,r){return a+(Number(r.amount)||0)},0),sumAp=rows.reduce(function(a,r){var c=supCat(r);return a+((c==='appr'||c==='paid')?supAmt(r):0)},0);
+  var pc={wait:'wait',appr:'soon',paid:'done',rej:'late'};
+  box.innerHTML='<table class="tbl"><thead><tr><th>หน่วยงาน</th><th>หนังสือ</th><th>รายละเอียด</th><th class="r">ยอดที่ขอ (บาท)</th><th class="r">ยอดอนุมัติ (บาท)</th><th>ผลการพิจารณา</th><th></th></tr></thead><tbody>'
+   +rows.map(function(r){var st=supStep(r),c=supCat(r),lk=safeUrl(r.link),w=r.wf||{};
+     var ap=(c==='appr'||c==='paid')?(supAmt(r)!==(Number(r.amount)||0)?'<b>'+fmtMoney(supAmt(r))+'</b>':fmtMoney(supAmt(r))):'<span class="sub">-</span>';
+     return '<tr class="'+(state.supSel===r.id?'picked':'')+'"><td><b>'+esc(r.agency)+'</b>'+(r.receiveNo?'<div class="sub">เลขรับ '+esc(r.receiveNo)+'</div>':'')+(lk?'<div><a class="lk" href="'+esc(lk)+'" target="_blank" rel="noopener noreferrer">'+ico(LINK_IC,12)+'หนังสือ</a></div>':'')+'</td><td>'+esc(r.docNo)+'<div class="sub">ลงวันที่ '+fmtShort(r.docDate)+'</div><div class="sub">รับ '+fmtShort(recvDate(r))+'</div></td><td>'+esc(r.detail)+'</td><td class="r num">'+fmtMoney(r.amount)+'</td><td class="r num">'+ap+'</td><td><span class="pill '+pc[c]+'">'+SUP_CAT[c]+'</span>'+(c==='appr'?'<div class="sub">ขั้นตอน: '+SUP_LBL[st]+'</div>':'')+(c==='rej'&&w.dirNote?'<div class="sub">'+esc(w.dirNote)+'</div>':'')+(c==='paid'&&(w.fin||{}).payDate?'<div class="sub">จ่ายเมื่อ '+fmtShort(w.fin.payDate)+'</div>':'')+'</td><td><div class="rowact"><button class="btn sm'+(st==='sdone'?'':' primary')+'" type="button" data-act="spick" data-id="'+r.id+'">'+(st==='sdone'?'เปิด':'ดำเนินการ')+'</button><button class="btn sm" type="button" data-act="sedit" data-id="'+r.id+'"'+(canEdit('S')?'':' disabled')+'>แก้ไข</button><button class="btn sm danger" type="button" data-act="sdel" data-id="'+r.id+'"'+(canDel()?'':' disabled')+'>ลบ</button></div></td></tr>'}).join('')
+   +'</tbody><tfoot><tr><td colspan="3">รวม '+rows.length+' รายการ</td><td class="r num">'+fmtMoney(sumReq)+'</td><td class="r num">'+fmtMoney(sumAp)+'</td><td colspan="2"></td></tr></tfoot></table>';
 }
 function drawSupWf(){
   var box=document.getElementById('supWf');if(!box)return;
@@ -2498,17 +2515,19 @@ function drawSupWf(){
   var w=r.wf||{},st=supStep(r),f=w.fin||{},idx=SUP_STEPS.indexOf(st);
   var vs=(state.supView||{})[r.id];if(SUP_STEPS.indexOf(vs)<0)vs=st;
   var active=vs===st,can=supCan(vs);
-  var steps='<ol class="wfsteps">'+SUP_STEPS.map(function(k,i){var cls=(i<idx||st==='sdone')?'done':(i===idx?'now':'');
+  var steps='<ol class="wfsteps">'+SUP_STEPS.map(function(k,i){var cls=supCat(r)==='rej'?(i===0?'done':(k==='sdone'?'ret':'')):((i<idx||st==='sdone')?'done':(i===idx?'now':''));
     return '<li class="'+cls+(vs===k?' view':'')+'"><button type="button" data-act="sview" data-v="'+k+'" aria-pressed="'+(vs===k)+'"><b>'+(i<idx||st==='sdone'?'✓':i+1)+'</b>'+SUP_LBL[k]+'</button></li>'}).join('')+'</ol>';
   var B=function(a,t,c){return '<button class="btn '+(c||'')+'" type="button" data-act="swf" data-w="'+a+'"'+((active&&can)?'':' disabled')+'>'+t+'</button>'};
   var nt='<div class="fld wide"><label for="sw_note">ข้อความ / เหตุผล (จำเป็นเมื่อส่งคืน)</label><textarea id="sw_note" rows="2" autocomplete="off"></textarea></div>';
   var bx='';
   if(vs==='sdir'){
-    bx='<h4>รับหนังสือ เกษียน เสนอ ผู้อำนวยการ</h4><p class="sub">งานธุรการรับหนังสือ เกษียนหนังสือ และเสนอ ผอ. พิจารณา</p><div class="grid">'
+    var dec=w.decision==='approve'?'อนุมัติให้จ่ายแล้ว':(w.dirOrdDate?'ผอ. สั่งการแล้ว ยังไม่ระบุผล':'ยังรอ ผอ. พิจารณา');
+    bx='<h4>รับหนังสือ เกษียน เสนอ ผู้อำนวยการ · พิจารณาอนุมัติ</h4><p class="sub">ธุรการรับหนังสือ เกษียนหนังสือ เสนอ ผอ. แล้วบันทึกผลการพิจารณา · สถานะ: <b>'+dec+'</b>'+(w.fixNote&&w.fixBy?' · <b>ส่งคืนจาก '+esc(w.fixBy)+':</b> '+esc(w.fixNote):'')+'</p><div class="grid">'
      +fld('sw_dirdate','วันที่เสนอ ผอ.',dateInp('sw_dirdate',w.dirDate||''))
      +fld('sw_dirord','วันที่ ผอ. สั่งการ',dateInp('sw_dirord',w.dirOrdDate||''))
-     +fld('sw_dirnote','ข้อความเกษียน / คำสั่ง ผอ.',inp('sw_dirnote',w.dirNote||'','autocomplete="off"'),'wide')
-     +'</div><div class="wfact">'+B('dirsave','บันทึกข้อมูล')+B('dirnext','ส่งตรวจสอบ','primary')+'</div>';
+     +fld('sw_apr','ยอดที่อนุมัติ (บาท)',inp('sw_apr',fmtMoney(supAmt(r)),'inputmode="decimal" data-money placeholder="0.00" autocomplete="off"')+'<p class="sub" style="margin:6px 0 0">ยอดที่ขอ '+fmtMoney(r.amount)+' บาท · แก้ได้ถ้า ผอ. อนุมัติไม่เต็มจำนวน</p>')
+     +fld('sw_dirnote','ข้อความเกษียน / คำสั่ง ผอ. / เหตุผลที่ไม่อนุมัติ',inp('sw_dirnote',w.dirNote||'','autocomplete="off"'),'wide')
+     +'</div><div class="wfact">'+B('dirsave','บันทึก (ยังรอพิจารณา)')+B('dirnext','✓ อนุมัติให้จ่าย → ส่งตรวจสอบ','primary')+B('dirrej','✕ ไม่อนุมัติ (ปิดเรื่อง)','warn')+'</div>';
   }else if(vs==='sacc1'){
     bx='<h4>ตรวจสอบ</h4><p class="sub">งานบริหาร/งานที่รับผิดชอบตรวจสอบหนังสือขอสนับสนุน แล้วพิมพ์ชื่อผู้ตรวจสอบหรืองานที่ตรวจสอบ'+(w.fixNote&&w.fixBy?' · <b>การเงินส่งคืน:</b> '+esc(w.fixNote):'')+'</p><div class="grid">'
      +fld('sw_chkby','ผู้ตรวจสอบ / งานที่ตรวจสอบ',inp('sw_chkby',w.chkBy||'','list="supChkList" autocomplete="off" placeholder="พิมพ์ชื่อบุคคลหรือชื่องาน"')+'<datalist id="supChkList">'+uniqRecent(state.sups,function(x){return (x.wf||{}).chkBy},15).map(function(n){return '<option value="'+esc(n)+'">'}).join('')+'</datalist>')
@@ -2524,13 +2543,13 @@ function drawSupWf(){
   }else if(vs==='sacc2'){
     bx='<h4>งานบัญชี บันทึกจ่าย</h4><p class="sub">ขออนุมัติเมื่อ '+(f.reqDate?fmtShort(f.reqDate):'-')+' · จ่ายเมื่อ '+(f.payDate?fmtShort(f.payDate):'-')+' · เช็ค/อ้างอิง '+esc(f.cheque||'-')+'</p>'+nt+'<div class="wfact">'+B('recorded','✓ ถูกต้อง บันทึกบัญชีจ่าย (เสร็จสิ้น)','primary')+B('ret','ส่งคืนงานการเงิน','warn')+'</div>';
   }else{
-    bx='<h4>เสร็จสิ้น</h4><p class="sub">บันทึกบัญชีจ่ายแล้วเมื่อ '+esc(wfFmtAt(w.recordedAt))+(f.payDate?' · จ่ายเมื่อ '+fmtShort(f.payDate):'')+(f.cheque?' · เช็ค/อ้างอิง '+esc(f.cheque):'')+'</p>';
+    bx=supCat(r)==='rej'?'<h4>ไม่อนุมัติ · ปิดเรื่อง</h4><p class="sub">ผอ. ไม่อนุมัติ ลงวันที่สั่งการ '+(w.dirOrdDate?fmtShort(w.dirOrdDate):'-')+' · เหตุผล: '+esc(w.dirNote||'-')+'</p>':'<h4>เสร็จสิ้น</h4><p class="sub">บันทึกบัญชีจ่ายแล้วเมื่อ '+esc(wfFmtAt(w.recordedAt))+(f.payDate?' · จ่ายเมื่อ '+fmtShort(f.payDate):'')+(f.cheque?' · เช็ค/อ้างอิง '+esc(f.cheque):'')+'</p>';
   }
   var n2='';
   if(!active)n2='<p class="wfview">ดูอย่างเดียว · '+(SUP_STEPS.indexOf(vs)>idx?'ยังไม่ถึงขั้นนี้':'ขั้นนี้ผ่านไปแล้ว')+'</p>';
   else if(!can&&vs!=='sdone')n2='<p class="wfview">ขั้นนี้สำหรับ '+JOB_LBL[SUP_JOB[vs]]+' · บัญชีของคุณไม่มีบทบาทนี้ จึงดูได้อย่างเดียว</p>';
   if(!active)bx=bx.replace(/<(input|textarea|select|button)(?![^>]*\bdisabled)/g,'<$1 disabled');
-  var h='<section class="card wfcard"><h3>ขั้นตอนของ รพ. · '+esc(r.agency)+' · '+fmtMoney(r.amount)+' บาท</h3><p class="sub">'+esc(r.detail||'')+'</p>'+steps+'<div class="wfbox">'+n2+bx+'<p class="err" id="e_sw" role="alert"></p></div>';
+  var h='<section class="card wfcard"><h3>ขั้นตอนของ รพ. · '+esc(r.agency)+' · ขอ '+fmtMoney(r.amount)+' บาท'+((supCat(r)==='appr'||supCat(r)==='paid')?' · <span class="tag">อนุมัติ '+fmtMoney(supAmt(r))+' บาท</span>':(supCat(r)==='rej'?' · <span class="tag">ไม่อนุมัติ</span>':' · <span class="tag">รอ ผอ. พิจารณา</span>'))+'</h3><p class="sub">'+esc(r.detail||'')+'</p>'+steps+'<div class="wfbox">'+n2+bx+'<p class="err" id="e_sw" role="alert"></p></div>';
   var L=w.log||[];
   if(L.length)h+='<ul class="wflog">'+L.slice().reverse().map(function(x){return '<li><time>'+esc(wfFmtAt(x.at))+'</time><span>'+esc(x.by)+' · '+esc(x.act)+(x.note?' — '+esc(x.note):'')+'</span></li>'}).join('')+'</ul>';
   box.innerHTML=h+'</section>';
@@ -2540,11 +2559,12 @@ async function supDo(act){
   var w=JSON.parse(JSON.stringify(r.wf||{})),f=w.fin=w.fin||{};w.log=w.log||[];var now=wfNow(),by=wfBy(),note=val('sw_note');
   var lg=function(t,n){w.log.push({at:now,by:by,act:t,note:n||''})};
   var err=function(m){setErr('e_sw',m);return null};
-  if(document.getElementById('sw_dirdate')){w.dirDate=val('sw_dirdate');w.dirOrdDate=val('sw_dirord');w.dirNote=val('sw_dirnote')}
+  if(document.getElementById('sw_dirdate')){w.dirDate=val('sw_dirdate');w.dirOrdDate=val('sw_dirord');w.dirNote=val('sw_dirnote');var ap=parseFloat(val('sw_apr').replace(/,/g,''));w.apprAmt=isNaN(ap)?null:Math.round(ap*100)/100}
   if(document.getElementById('sw_chkby')){w.chkBy=val('sw_chkby');w.chkDate=val('sw_chkdate');w.chkNote=val('sw_chknote')}
   if(document.getElementById('sw_pay')){f.reqDate=val('sw_req');f.payDate=val('sw_pay');f.cheque=val('sw_chq')}
-  if(act==='dirsave')lg('บันทึกข้อมูลการเสนอ ผอ.');
-  else if(act==='dirnext'){if(!w.dirDate)return err('ลงวันที่เสนอ ผอ.');w.step='sacc1';lg('รับหนังสือ เกษียน เสนอ ผอ. ลงวันที่ '+fmtShort(w.dirDate)+' → ส่งตรวจสอบ',w.dirNote)}
+  if(act==='dirsave')lg('บันทึกข้อมูลการเสนอ ผอ. (ยังรอพิจารณา)');
+  else if(act==='dirrej'){if(!w.dirDate)return err('ลงวันที่เสนอ ผอ.');if(!w.dirOrdDate)return err('ลงวันที่ ผอ. สั่งการ');if(!w.dirNote)return err('ระบุเหตุผลที่ไม่อนุมัติในช่องข้อความเกษียน / คำสั่ง ผอ.');if(!confirm('ยืนยัน ผอ. ไม่อนุมัติ และปิดเรื่องนี้?'))return;w.decision='reject';w.step='sdone';w.closedAt=now;lg('ผอ. ไม่อนุมัติ ลงวันที่ '+fmtShort(w.dirOrdDate)+' → ปิดเรื่อง',w.dirNote)}
+  else if(act==='dirnext'){if(!w.dirDate)return err('ลงวันที่เสนอ ผอ.');if(!w.dirOrdDate)return err('ลงวันที่ ผอ. สั่งการ');if(w.apprAmt===null||w.apprAmt===undefined||w.apprAmt<=0)return err('กรอกยอดที่อนุมัติ');w.decision='approve';w.step='sacc1';lg('ผอ. อนุมัติให้จ่าย '+fmtMoney(w.apprAmt)+' บาท (สั่งการ '+fmtShort(w.dirOrdDate)+') → ส่งตรวจสอบ',w.dirNote)}
   else if(act==='chksave')lg('บันทึกข้อมูลการตรวจสอบ');
   else if(act==='accnext'){if(!w.chkBy)return err('พิมพ์ชื่อผู้ตรวจสอบ หรืองานที่ตรวจสอบ');if(!w.chkDate)return err('ลงวันที่ตรวจสอบ');w.step='sfin';delete w.fixNote;delete w.fixBy;lg('ตรวจสอบโดย '+w.chkBy+' ลงวันที่ '+fmtShort(w.chkDate)+' → ส่งงานการเงิน ทำเบิกจ่าย',note||w.chkNote)}
   else if(act==='finsave')lg('บันทึกข้อมูลงานการเงิน');
@@ -2567,20 +2587,26 @@ async function supExamples(){
   if(!isSuper()||!canEdit('S'))return;
   var t=Date.now(),by=wfBy();
   var L=function(at,act,note){return {at:at,by:by,act:act,note:note||''}};
-  var a={type:'ขอสนับสนุน',isExample:true,receiveNo:'3750/2569',agency:'สำนักงานสาธารณสุขจังหวัดสระแก้ว',docNo:'สก 0033.001.1/7333',docDate:'2026-11-02',receivedDate:'2026-11-02',amount:100000,
-    detail:'ขอรับการสนับสนุนเงินบำรุง เพื่อช่วยเหลือและบรรเทาความเดือดร้อนของประชาชนด้านสาธารณสุข กรณีอุทกภัย (จ่ายขาด)',link:'',createdAt:t,createdBy:uname(),
-    wf:{step:'sacc1',dirDate:'2026-11-02',dirOrdDate:'2026-11-02',dirNote:'เห็นควรมอบกลุ่มงานบริหารทั่วไป เพื่อโปรดดำเนินการ',log:[L('2026-11-02 13:30','รับหนังสือ เกษียน เสนอ ผอ. ลงวันที่ 2 พ.ย. 2569 → ส่งตรวจสอบ','เห็นควรมอบกลุ่มงานบริหารทั่วไป เพื่อโปรดดำเนินการ')]}};
-  var b={type:'ขอสนับสนุน',isExample:true,receiveNo:'3601/2569',agency:'สำนักงานสาธารณสุขอำเภอตาพระยา',docNo:'สก 0033.401/412',docDate:'2026-10-14',receivedDate:'2026-10-15',amount:30000,
-    detail:'ขอรับการสนับสนุนเงินบำรุง เพื่อใช้ในการรณรงค์ป้องกันโรคไข้เลือดออก (จ่ายขาด)',link:'',createdAt:t-1000,createdBy:uname(),
-    wf:{step:'sdone',dirDate:'2026-10-15',dirOrdDate:'2026-10-16',dirNote:'อนุมัติ',chkBy:'กลุ่มงานบริหารทั่วไป',chkDate:'2026-10-17',chkNote:'เอกสารครบถ้วน',recordedAt:'2026-10-27 14:05',fin:{reqDate:'2026-10-20',payDate:'2026-10-24',cheque:'0123456'},log:[
-      L('2026-10-16 10:00','รับหนังสือ เกษียน เสนอ ผอ. ลงวันที่ 15 ต.ค. 2569 → ส่งตรวจสอบ','อนุมัติ'),L('2026-10-17 09:20','ตรวจสอบโดย กลุ่มงานบริหารทั่วไป ลงวันที่ 17 ต.ค. 2569 → ส่งงานการเงิน ทำเบิกจ่าย','เอกสารครบถ้วน'),
-      L('2026-10-24 11:00','การเงินทำเบิกจ่าย ลงวันที่ 20 ต.ค. 2569 จ่ายเมื่อ 24 ต.ค. 2569 → ส่งงานบัญชี บันทึกจ่าย'),L('2026-10-27 14:05','บันทึกบัญชีจ่าย เสร็จสิ้น')]}};
+  var mk=function(o){return Object.assign({type:'ขอสนับสนุน',isExample:true,link:'',createdAt:t--,createdBy:uname()},o)};
+  var a=mk({receiveNo:'3750/2569',agency:'สำนักงานสาธารณสุขจังหวัดสระแก้ว',docNo:'สก 0033.001.1/7333',docDate:'2026-11-02',receivedDate:'2026-11-02',amount:100000,
+    detail:'ขอรับการสนับสนุนเงินบำรุง เพื่อช่วยเหลือและบรรเทาความเดือดร้อนของประชาชนด้านสาธารณสุข กรณีอุทกภัย (จ่ายขาด)',
+    wf:{step:'sacc1',decision:'approve',apprAmt:100000,dirDate:'2026-11-02',dirOrdDate:'2026-11-03',dirNote:'อนุมัติ ตามเสนอ',log:[L('2026-11-03 13:30','ผอ. อนุมัติให้จ่าย 100,000.00 บาท → ส่งตรวจสอบ','อนุมัติ ตามเสนอ')]}});
+  var b=mk({receiveNo:'3601/2569',agency:'สำนักงานสาธารณสุขอำเภอตาพระยา',docNo:'สก 0033.401/412',docDate:'2026-10-14',receivedDate:'2026-10-15',amount:30000,
+    detail:'ขอรับการสนับสนุนเงินบำรุง เพื่อใช้ในการรณรงค์ป้องกันโรคไข้เลือดออก (จ่ายขาด)',
+    wf:{step:'sdone',decision:'approve',apprAmt:20000,dirDate:'2026-10-15',dirOrdDate:'2026-10-16',dirNote:'อนุมัติ 20,000 บาท',chkBy:'กลุ่มงานบริหารทั่วไป',chkDate:'2026-10-17',chkNote:'เอกสารครบถ้วน',recordedAt:'2026-10-27 14:05',fin:{reqDate:'2026-10-20',payDate:'2026-10-24',cheque:'0123456'},log:[
+      L('2026-10-16 10:00','ผอ. อนุมัติให้จ่าย 20,000.00 บาท (สั่งการ 16 ต.ค. 2569) → ส่งตรวจสอบ','อนุมัติ 20,000 บาท'),L('2026-10-17 09:20','ตรวจสอบโดย กลุ่มงานบริหารทั่วไป ลงวันที่ 17 ต.ค. 2569 → ส่งงานการเงิน ทำเบิกจ่าย','เอกสารครบถ้วน'),
+      L('2026-10-24 11:00','การเงินทำเบิกจ่าย ลงวันที่ 20 ต.ค. 2569 จ่ายเมื่อ 24 ต.ค. 2569 → ส่งงานบัญชี บันทึกจ่าย'),L('2026-10-27 14:05','บันทึกบัญชีจ่าย เสร็จสิ้น')]}});
+  var c=mk({receiveNo:'3688/2569',agency:'องค์การบริหารส่วนตำบลตาพระยา',docNo:'สก 0023.4/88',docDate:'2026-10-28',receivedDate:'2026-10-29',amount:50000,
+    detail:'ขอรับการสนับสนุนเงินบำรุง เพื่อจัดงานประเพณีลอยกระทง',
+    wf:{step:'sdir',dirDate:'2026-10-30',log:[L('2026-10-30 09:00','บันทึกข้อมูลการเสนอ ผอ. (ยังรอพิจารณา)')]}});
+  var d=mk({receiveNo:'3702/2569',agency:'โรงเรียนบ้านตาพระยา',docNo:'ศธ 04163/115',docDate:'2026-10-20',receivedDate:'2026-10-21',amount:15000,
+    detail:'ขอรับการสนับสนุนเงินบำรุง เพื่อจัดซื้อครุภัณฑ์ห้องเรียน',
+    wf:{step:'sdone',decision:'reject',dirDate:'2026-10-22',dirOrdDate:'2026-10-23',dirNote:'ไม่อยู่ในวัตถุประสงค์ของเงินบำรุง',closedAt:'2026-10-23 15:00',log:[L('2026-10-23 15:00','ผอ. ไม่อนุมัติ ลงวันที่ 23 ต.ค. 2569 → ปิดเรื่อง','ไม่อยู่ในวัตถุประสงค์ของเงินบำรุง')]}});
   await guard(async function(){
-    for(var x of [a,b]){var ref=db.collection('records').doc();await ref.set(x);if(!state.sups.some(function(y){return y.id===ref.id}))state.sups.push(Object.assign({id:ref.id},x))}
-    logAct('สร้างข้อมูลตัวอย่างขอสนับสนุนเงิน','2 รายการ');state.supF='all';drawSup();drawNotices();toast('สร้างตัวอย่าง 2 ฉบับแล้ว');
+    for(var x of [a,b,c,d]){var ref=db.collection('records').doc();await ref.set(x);if(!state.sups.some(function(y){return y.id===ref.id}))state.sups.push(Object.assign({id:ref.id},x))}
+    logAct('สร้างข้อมูลตัวอย่างขอสนับสนุนเงิน','4 รายการ');state.supF='all';drawSup();drawNotices();toast('สร้างตัวอย่าง 4 ฉบับแล้ว');
   });
 }
-document.addEventListener('change',function(ev){if(ev.target&&ev.target.name==='sflt'){state.supF=ev.target.value;drawSupList()}});
 
 /* ---------- boot ---------- */
 function use(n){return (window.claude&&window.claude.use)?window.claude.use(n).catch(function(){return null}):Promise.resolve(null)}

@@ -1619,7 +1619,7 @@ function drawBell(keep){
   var b=$('#btnBell');if(!b||!state.me)return;
   if(state.me.guest||!state.loaded){b.hidden=true;return}
   b.hidden=false;var t=myTasks(),seen=bellSeen(),nw=t.filter(function(x){return !seen[x.key]}).length;
-  var bd=b.querySelector('.bdg');bd.textContent=t.length>99?'99+':String(t.length);bd.hidden=!t.length;
+  var bd=b.querySelector('.bdg');bd.textContent=nw>99?'99+':String(nw);bd.hidden=!nw;
   b.classList.toggle('ring',nw>0);
   b.setAttribute('aria-label','แจ้งเตือนงาน '+t.length+' เรื่อง'+(nw?' ใหม่ '+nw:''));
   if(nw>0&&nw!==bellLast){toast('มีงานใหม่ '+nw+' เรื่องมาที่งานของคุณ — กดกระดิ่งเพื่อดู')}

@@ -333,6 +333,13 @@ body{padding:0}
 .tools{display:flex;gap:10px;align-items:center;position:relative;flex-wrap:wrap;justify-content:flex-end}
 .colorbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 16px;border-radius:14px}
 .who{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:14px;padding:9px 14px;font-size:.88rem;font-weight:600}
+.pwwrap{position:relative;display:block}.pwwrap input{padding-right:84px}.pweye{position:absolute;right:6px;top:50%;transform:translateY(-50%);min-height:34px;padding:0 12px;border:0;border-radius:10px;background:var(--mint);color:var(--mint-ink);font:inherit;font-size:.85rem;font-weight:700;cursor:pointer}
+.bellbtn{position:relative;padding:0 12px}.bellbtn .bdg{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;background:#B3261E;color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.bellbtn.ring svg{animation:bring 1.2s ease-in-out 2}@keyframes bring{0%,100%{transform:rotate(0)}20%{transform:rotate(14deg)}40%{transform:rotate(-12deg)}60%{transform:rotate(8deg)}80%{transform:rotate(-6deg)}}
+@media(prefers-reduced-motion:reduce){.bellbtn.ring svg{animation:none}}
+.bellpop{position:absolute;right:0;top:calc(100% + 8px);width:min(420px,calc(100vw - 32px));max-height:70vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:0 14px 36px hsl(var(--h) 40% 10%/.2);z-index:30}
+.bellpop h3{margin:4px 6px 8px;font-size:1rem}.bellitem{display:block;width:100%;text-align:left;font:inherit;color:var(--ink);background:transparent;border:0;border-radius:12px;padding:10px 12px;cursor:pointer}.bellitem:hover,.bellitem:focus-visible{background:var(--mint)}
+.bellitem b{display:block}.bellitem span.s{display:block;font-size:.85rem;color:var(--muted,#4a6361)}.bellnew{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:#B3261E;color:#fff;font-size:.72rem;font-weight:700}
 .colorpop{position:absolute;right:0;top:calc(100% + 8px);width:min(330px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 16px 14px;box-shadow:0 14px 36px hsl(var(--h) 40% 10%/.22);z-index:20}
 .colorpop h3{font-size:1rem;color:var(--ink)}
 .swatches{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 12px}
@@ -607,8 +614,10 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
 <header id="topbar" class="topbar" hidden>
   <label class="gsearch"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input type="text" id="gq" placeholder="ค้นหาหน่วยงาน เลขหนังสือ เลขรับ" autocomplete="off" aria-label="ค้นหา"></label>
   <div class="tools">
+    <button id="btnBell" class="btn bellbtn" type="button" data-act="bell" aria-expanded="false" aria-controls="bellPop" aria-label="แจ้งเตือนงาน" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="bdg" hidden></span></button>
     <button id="btnColor" class="btn colorbtn" type="button" data-act="colorpop" aria-expanded="false" aria-controls="colorPop"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.4-1-1.6-1-2.7 0-1 .8-1.5 1.8-1.5H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg>สีธีม</button>
     <span class="who" id="who"></span>
+    <div id="bellPop" class="bellpop" role="dialog" aria-label="งานที่รอคุณ" hidden></div>
     <div id="colorPop" class="colorpop" role="dialog" aria-label="เลือกสีธีม" hidden></div>
   </div>
 </header>
@@ -1580,6 +1589,49 @@ function dupReceive(no,exceptId){var n=normNo(no);if(!n)return null;return state
 function setErr(id,m){var e=document.getElementById(id);if(e)e.textContent=m||''}
 
 /* ---------- ประวัติการใช้งาน (สำหรับซูเปอร์แอดมิน) ---------- */
+/* ---------- ล็อกอินค้างไว้ / ดูรหัสผ่าน / กระดิ่ง ---------- */
+function sessGet(){var v=null;try{v=localStorage.getItem('reg-sess')}catch(e){}if(!v){try{v=sessionStorage.getItem('reg-sess')}catch(e){}}return v}
+function sessSet(v){var ok=false;try{localStorage.setItem('reg-sess',v);ok=true}catch(e){}if(!ok){try{sessionStorage.setItem('reg-sess',v)}catch(e){}}}
+function sessDel(){try{localStorage.removeItem('reg-sess')}catch(e){}try{sessionStorage.removeItem('reg-sess')}catch(e){}}
+function addEyes(){
+  document.querySelectorAll('input[type=password]').forEach(function(i){
+    if(i.parentNode&&i.parentNode.classList&&i.parentNode.classList.contains('pwwrap'))return;
+    var w=document.createElement('span');w.className='pwwrap';i.parentNode.insertBefore(w,i);w.appendChild(i);
+    var b=document.createElement('button');b.type='button';b.className='pweye';b.textContent='แสดง';b.setAttribute('aria-label','แสดงรหัสผ่าน');
+    b.addEventListener('click',function(){var sh=i.type==='password';i.type=sh?'text':'password';b.textContent=sh?'ซ่อน':'แสดง';b.setAttribute('aria-label',sh?'ซ่อนรหัสผ่าน':'แสดงรหัสผ่าน')});
+    w.appendChild(b);
+  });
+}
+try{new MutationObserver(addEyes).observe(document.body,{childList:true,subtree:true})}catch(e){}
+function bellKey(){return 'reg-bell-'+(state.me&&state.me.username)}
+function bellSeen(){try{return JSON.parse(localStorage.getItem(bellKey())||'{}')||{}}catch(e){return {}}}
+function bellSave(m){try{localStorage.setItem(bellKey(),JSON.stringify(m))}catch(e){}}
+function lastAt(r){var lg=(r.wf&&r.wf.log)||[],t=lg.length?lg[lg.length-1].at:'';if(t){var d=new Date(String(t).replace(' ','T'));if(!isNaN(d))return d.getTime()}return r.createdAt||0}
+function myTasks(){
+  var me=state.me;if(!me||me.guest)return [];
+  var all=isSuper()||!me.job,j=me.job,out=[];
+  state.records.forEach(function(r){var s=wfStep(r);if(s==='done')return;if(all||wfJob(s)===j)out.push({id:r.id,key:r.id+'|'+s,kind:'wf',title:(r.receiveNo||'')+' · '+(r.agency||''),step:wfLabel(r),at:lastAt(r)})});
+  state.sups.forEach(function(r){var s=supStep(r);if(s==='sdone')return;if(all||SUP_JOB[s]===j)out.push({id:r.id,key:r.id+'|'+s,kind:'sup',title:(r.receiveNo||'')+' · '+(r.agency||''),step:'ขอสนับสนุนเงิน · '+(SUP_LBL[s]||s),at:lastAt(r)})});
+  out.sort(function(a,b){return a.at-b.at});return out;
+}
+var bellLast=-1;
+function drawBell(keep){
+  var b=$('#btnBell');if(!b||!state.me)return;
+  if(state.me.guest||!state.loaded){b.hidden=true;return}
+  b.hidden=false;var t=myTasks(),seen=bellSeen(),nw=t.filter(function(x){return !seen[x.key]}).length;
+  var bd=b.querySelector('.bdg');bd.textContent=t.length>99?'99+':String(t.length);bd.hidden=!t.length;
+  b.classList.toggle('ring',nw>0);
+  b.setAttribute('aria-label','แจ้งเตือนงาน '+t.length+' เรื่อง'+(nw?' ใหม่ '+nw:''));
+  if(nw>0&&nw!==bellLast){toast('มีงานใหม่ '+nw+' เรื่องมาที่งานของคุณ — กดกระดิ่งเพื่อดู')}
+  bellLast=nw;
+  var pp=$('#bellPop');if(!keep&&pp&&!pp.hidden)drawBellPop();
+}
+function drawBellPop(){
+  var pp=$('#bellPop'),t=myTasks(),seen=bellSeen(),now=Date.now();
+  pp.innerHTML='<h3>งานที่รอคุณ '+t.length+' เรื่อง</h3>'+(t.length?t.slice(0,40).map(function(x){var d=x.at?Math.max(0,Math.floor((now-x.at)/86400000)):0;
+    return '<button type="button" class="bellitem" data-act="bellgo" data-k="'+x.kind+'" data-id="'+esc(x.id)+'"><b>'+esc(x.title)+(seen[x.key]?'':'<span class="bellnew">ใหม่</span>')+'</b><span class="s">'+esc(x.step)+(x.at?' · รอ '+(d?d+' วัน':'วันนี้'):'')+'</span></button>'}).join(''):'<p class="sub" style="margin:8px 6px">ไม่มีงานค้างที่งานของคุณ</p>')+(t.length>40?'<p class="sub" style="margin:8px 6px">แสดง 40 เรื่องแรก</p>':'');
+  var m={};t.forEach(function(x){m[x.key]=1});bellSave(m);
+}
 function rl(r){return r?((r.receiveNo||'')+' '+(r.agency||'')).trim():''}
 function logAct(act,detail){
   try{
@@ -1874,6 +1926,10 @@ document.addEventListener('click',function(ev){
   else if(act==='csv')exportCsv();
   else if(act==='dagency'){state.dash.ag=state.dash.ag===el.dataset.v?'':el.dataset.v;drawDash()}
   else if(act==='go'){if(el.dataset.t==='2'){el.dataset.t='5'}if(el.dataset.d3)state.dir3=el.dataset.d3;if(el.dataset.d)state.dir4=el.dataset.d;else if(el.dataset.t==='4')state.dir4='pay';setTab(el.dataset.t);if(el.dataset.f){state.f[el.dataset.t]=el.dataset.f;if(el.dataset.t==='5'){state.g5=el.dataset.f==='done'?'done':'all';state.k5='all'}drawToolbar();drawList()}}
+  else if(act==='bell'){var bp=$('#bellPop');if(bp){var ob=bp.hidden;if(ob)drawBellPop();bp.hidden=!ob;el.setAttribute('aria-expanded',String(ob));if(ob)drawBell(true)}}
+  else if(act==='bellgo'){var bp2=$('#bellPop');if(bp2)bp2.hidden=true;$('#btnBell').setAttribute('aria-expanded','false');
+    if(el.dataset.k==='sup'){setTab('S');state.supSel=id;state.supEdit=null;drawSup();var sw0=document.getElementById('supWf');if(sw0&&sw0.scrollIntoView)sw0.scrollIntoView({block:'nearest'})}
+    else{var rg0=state.records.filter(function(x){return x.id===id})[0];if(rg0){state.k5='all';state.g5=grp5(rg0);setTab('5');state.f['5']='all';state.sel=id;drawToolbar();drawForm();drawList();var fb0=$('#formBox');if(fb0&&fb0.scrollIntoView)fb0.scrollIntoView({block:'start'})}}}
   else if(act==='colorpop'){var pp=document.getElementById('colorPop');if(pp){var op=pp.hidden;if(op)drawColorPop();pp.hidden=!op;el.setAttribute('aria-expanded',String(op))}}
   else if(act==='hue'){applyHue(Number(el.dataset.hue),true);drawColorPop()}
   else if(act==='uedit'){state.editUser=id;drawUserForm();drawUsersList();var ub=$('#userFormBox');if(ub&&ub.scrollIntoView)ub.scrollIntoView({block:'nearest'})}
@@ -2027,7 +2083,7 @@ async function startSession(u,d){
   state.me={username:u,displayName:d.displayName||u,role:d.role==='super'?'super':'user',perms:d.perms||{},del:!!d.del,job:d.job||'',hash:d.hash};
   state.mesig=sigOf(d);
   window.claude.setAuth(u,d.hash);
-  try{sessionStorage.setItem('reg-sess',JSON.stringify({u:u,h:d.hash}))}catch(e){}
+  sessSet(JSON.stringify({u:u,h:d.hash}))
   startData();drawApp();
 }
 function clearData(){
@@ -2042,7 +2098,7 @@ function enterGuest(){
 function logout(msg){
   window.claude.setAuth(null);
   clearData();state.me=null;
-  try{sessionStorage.removeItem('reg-sess')}catch(e){}
+  sessDel()
   drawApp();if(msg)setErr('el',msg);
 }
 function agKey(n){var h=5381,t=String(n||'').trim();for(var i=0;i<t.length;i++)h=((h*33)^t.charCodeAt(i))>>>0;return 'a'+h.toString(16)+t.length}
@@ -2063,7 +2119,7 @@ function startData(){
     state.loaded=true;state.err='';
     if(state.sel&&!cur()){state.sel=null;if(state.tab!=='S')drawForm()}
     if(state.editId&&!state.records.some(function(r){return r.id===state.editId})){state.editId=null;drawForm()}
-    refresh();
+    refresh();drawBell();
   },function(e){state.err=(e&&e.code)||'error';state.loaded=true;refresh()}));
   unsubs.push(db.doc('settings/main').onSnapshot(function(s){state.settings=s.exists?Object.assign({},s.data()):{};fillSettings()},function(){}));
   if(!state.me.guest)unsubs.push(db.doc('users/'+state.me.username).onSnapshot(function(s){
@@ -2161,7 +2217,7 @@ async function saveUser(){
     toast(editing?'บันทึกผู้ใช้แล้ว':'เพิ่มผู้ใช้แล้ว');
   },'admin');
   if(!ok){if(self)state.me.hash=prevHash;return}
-  if(self&&pw){try{sessionStorage.setItem('reg-sess',JSON.stringify({u:u,h:d.hash}))}catch(e){}}
+  if(self&&pw){sessSet(JSON.stringify({u:u,h:d.hash}))}
   state.editUser=null;drawUserForm();drawUsersList();
 }
 function delUser(id,el){
@@ -2199,7 +2255,7 @@ function drawApp(){
   var inApp=!!state.me;
   $('#authBox').hidden=inApp;$('#appBox').hidden=!inApp;$('#hbar').hidden=!inApp;$('#side').hidden=!inApp;$('#topbar').hidden=!inApp;$('#shell').className=inApp?'withside':'';
   if(!inApp){drawAuth();drawNotices();return}
-  $('#who').textContent=state.me.displayName+(isSuper()?' · ซูเปอร์แอดมิน':(state.me.guest?' · ดูอย่างเดียว':''));
+  $('#who').textContent=state.me.displayName+(isSuper()?' · ซูเปอร์แอดมิน':(state.me.guest?' · ดูอย่างเดียว':''));bellLast=-1;drawBell();
   $('#btnLogout').textContent=state.me.guest?'เข้าสู่ระบบเพื่อแก้ไข':'ออกจากระบบ';
   $('#hello').textContent='สวัสดี '+state.me.displayName;
   $('#datechip').textContent='วัน'+TH_DAY[new Date().getDay()]+'ที่ '+fmtLong(TODAY);
@@ -2749,7 +2805,7 @@ drawApp();
   state.booting=false;
   if(!db){drawApp();return}
   try{var sn=await db.collection('users').limit(1).get();state.hasUsers=!sn.empty}catch(e){state.hasUsers=true}
-  var sess=null;try{sess=JSON.parse(sessionStorage.getItem('reg-sess')||'null')}catch(e){}
+  var sess=null;try{sess=JSON.parse(sessGet()||'null')}catch(e){}
   if(sess&&sess.u&&NAME_RE.test(sess.u)){
     try{
       var d=await window.claude.gs.login(sess.u,sess.h);

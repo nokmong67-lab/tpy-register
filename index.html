@@ -1059,6 +1059,7 @@ function wfBy(){return (state.me&&(state.me.displayName||state.me.username))||'�
 function wfNow(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
 function wfFmtAt(t){var m=/^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})$/.exec(t||'');return m?(+m[3])+' '+TH_MS[+m[2]-1]+' '+(+m[1]+543)+' '+m[4]:(t||'')}
 function head5(r){return '<div class="card" style="margin-bottom:16px">'+head(r,'ส่งต่อเอกสารภายใน (งานธุรการ / การเงิน / บัญชี)')+'</div>'}
+function goLetter(r){if(!perm('3')||perm('3')==='none')return '';return '<button class="btn" type="button" data-act="rowgo" data-t="3" data-id="'+esc(r.id)+'">'+(flowOf(r)==='recv'?'ไปทำหนังสือส่งใบเสร็จ':'ไปทำหนังสือแจ้งโอน')+' →</button>'}
 function wfCard(r){
   var w=r.wf||{},st=wfStep(r),a=r.audit||{},recv=flowOf(r)==='recv',seq=wfSeq(r),d=dis(),f=w.fin||{};
   var ready=true;
@@ -1088,13 +1089,13 @@ function wfCard(r){
      +fld('wf_book','เล่มที่',inp('wf_book',f.book||'','autocomplete="off"'))
      +fld('wf_no','เลขที่',inp('wf_no',f.no||'','autocomplete="off"'))
      +fld('wf_rdate','วันที่ออกใบเสร็จ',dateInp('wf_rdate',f.date||''))
-     +'</div>'+nt+'<div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('tonext','ส่งให้งานบัญชี','primary')+B('ret','ส่งคืนงานธุรการ (แจ้งอีเมล)','warn')+'</div>';
+     +'</div>'+nt+'<div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('tonext','ส่งให้งานบัญชี','primary')+B('ret','ส่งคืนงานธุรการ (แจ้งอีเมล)','warn')+goLetter(r)+'</div>';
   }else if(vs==='fin'){
     box='<h4>งานการเงิน ขออนุมัติเบิกจ่าย</h4><p class="sub">เมื่อจ่ายเงินแล้ว ลงวันที่จ่ายและเลขที่เช็ค'+(w.fixNote&&w.fixBy?' · <b>บัญชีส่งคืน:</b> '+esc(w.fixNote):'')+'</p><div class="grid">'
      +fld('wf_reqdate','วันที่ทำขออนุมัติเบิกจ่าย',dateInp('wf_reqdate',f.reqDate||''))
      +fld('wf_pdate','วันที่จ่าย',dateInp('wf_pdate',f.payDate||''))
      +fld('wf_chq','เลขที่เช็ค',inp('wf_chq',f.cheque||'','autocomplete="off"'))
-     +'</div><div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('finreq',f.reqDate?'✓ ทำขออนุมัติเบิกจ่ายแล้ว (แก้วันที่)':'บันทึก: ทำขออนุมัติเบิกจ่ายแล้ว')+B('tonext','ส่งให้งานบัญชี บันทึกบัญชีรับจ่าย','primary')+'</div>';
+     +'</div><div class="wfact">'+B('finsave','บันทึกข้อมูล')+B('finreq',f.reqDate?'✓ ทำขออนุมัติเบิกจ่ายแล้ว (แก้วันที่)':'บันทึก: ทำขออนุมัติเบิกจ่ายแล้ว')+B('tonext','ส่งให้งานบัญชี บันทึกบัญชีรับจ่าย','primary')+goLetter(r)+'</div>';
   }else if(vs==='acc'){
     box='<h4>งานบัญชี ตรวจสอบเอกสารและใบเสร็จรับเงิน</h4><p class="sub">ใบเสร็จเล่มที่ '+esc(f.book||'-')+' เลขที่ '+esc(f.no||'-')+' ลงวันที่ '+(f.date?fmtShort(f.date):'-')+'</p>'+nt+'<div class="wfact">'+B('recorded','✓ ถูกต้อง บันทึกบัญชีรับจ่าย','primary')+B('ret','ส่งคืนงานการเงิน (แจ้งอีเมล)','warn')+'</div>';
   }else if(vs==='acc1'){

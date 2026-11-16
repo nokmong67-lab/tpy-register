@@ -333,6 +333,7 @@ body{padding:0}
 .tools{display:flex;gap:10px;align-items:center;position:relative;flex-wrap:wrap;justify-content:flex-end}
 .colorbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 16px;border-radius:14px}
 .who{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:14px;padding:9px 14px;font-size:.88rem;font-weight:600}
+.grprow{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin:6px 0;cursor:pointer}.grprow input{width:20px;height:20px;min-height:0;margin-top:2px;flex:0 0 auto}
 .pwwrap{position:relative;display:block}.pwwrap input{padding-right:84px}.pweye{position:absolute;right:6px;top:50%;transform:translateY(-50%);min-height:34px;padding:0 12px;border:0;border-radius:10px;background:var(--mint);color:var(--mint-ink);font:inherit;font-size:.85rem;font-weight:700;cursor:pointer}
 .bellbtn{position:relative;padding:0 12px}.bellbtn .bdg{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;background:#B3261E;color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px}
 .bellbtn.ring svg{animation:bring 1.2s ease-in-out 2}@keyframes bring{0%,100%{transform:rotate(0)}20%{transform:rotate(14deg)}40%{transform:rotate(-12deg)}60%{transform:rotate(8deg)}80%{transform:rotate(-6deg)}}
@@ -719,7 +720,9 @@ tbody tr.picked td,tbody tr.picked:nth-child(odd) td{background:var(--accent-sof
         <div class="fld"><label for="s_auditorPos">ตำแหน่งผู้ตรวจสอบ (ขึ้นบรรทัดใหม่ได้)</label><textarea id="s_auditorPos" rows="2"></textarea></div>
         <div class="fld"><label for="s_signer">ผู้ลงนามในหนังสือ และช่องข้อเสนอแนะท้ายบันทึกข้อความ</label><input type="text" id="s_signer"></div>
         <div class="fld"><label for="s_signerPos">ตำแหน่งผู้ลงนาม (ขึ้นบรรทัดใหม่ได้)</label><textarea id="s_signerPos" rows="2"></textarea></div>
-        <div class="fld wide"><label for="s_address">ที่อยู่โรงพยาบาล (หัวหนังสือ)</label><textarea id="s_address" rows="2"></textarea></div>
+        <div class="fld"><label for="s_closeUnit">กลุ่มงาน (ท้ายหนังสือ)</label><input type="text" id="s_closeUnit" placeholder="กลุ่มงานบริหารทั่วไป งานการเงิน"></div>
+        <div class="fld"><label for="s_closeTel">โทร (ท้ายหนังสือ)</label><input type="text" id="s_closeTel" placeholder="0 3726 9009 ต่อ 1103"></div>
+        <div class="fld wide"><label for="s_address">ที่อยู่โรงพยาบาล (หัวหนังสือ · ไม่ต้องใส่ชื่อโรงพยาบาลซ้ำ ใส่ อำเภอ / จังหวัด รหัสไปรษณีย์ บรรทัดละส่วน)</label><textarea id="s_address" rows="2"></textarea></div>
         <div class="fld wide"><label for="s_account">ข้อมูลบัญชีรับโอน (ใส่ในหนังสือแจ้งโอน)</label><textarea id="s_account" rows="2"></textarea></div>
       </div>
       <h3 style="margin:18px 0 4px">เป้าหมายเวลาการทำงาน (นับวันทำการ)</h3>
@@ -1173,6 +1176,24 @@ function form3(r){
   h=flowOf(r)==='recv'?h.slice(0,a)+h.slice(b):h.slice(0,b)+h.slice(e);
   return h.replace('<div class="pair">','<div class="pair one">');
 }
+/* ---------- รวมหนังสือหลายฉบับในหนังสือแจ้งโอน/ส่งใบเสร็จฉบับเดียว ---------- */
+function grpIds(w){var r=cur();if(!r)return [];var ids=[r.id];document.querySelectorAll('input.'+(w==='A'?'g3a':'g3b')+':checked').forEach(function(c){ids.push(c.dataset.id)});return ids}
+function grpRecs(r,ids){var out=[r];(ids||[]).forEach(function(id){if(id===r.id)return;var x=state.records.filter(function(y){return y.id===id})[0];if(x)out.push(x)});return out}
+function sumF(a,f){return Math.round(a.reduce(function(t,x){return t+f(x)},0)*100)/100}
+function grpDetail(a){var u=[];a.forEach(function(x){var d=String(x.detail||'').trim();if(d&&u.indexOf(d)<0)u.push(d)});return u.length===1?u[0]:''}
+function grpBlock(r,l,w){
+  var key=w==='A'?'transferGroup':'receiptGroup',cls=w==='A'?'g3a':'g3b',pf=w==='A'?'la':'lb',fl=flowOf(r),cur0=l[key]||[];
+  var c=state.records.filter(function(x){return x.id!==r.id&&flowOf(x)===fl&&x.agency===r.agency&&audited(x)&&(!lettered(x)||cur0.indexOf(x.id)>=0)});
+  return '<div class="fld wide"><span class="lbl">รวมหนังสืออื่นของ '+esc(r.agency)+' ไว้ในหนังสือฉบับเดียวกัน (เลือกได้หลายฉบับ)</span>'
+   +(c.length?c.map(function(x,i){return '<label class="grprow"><input type="checkbox" class="'+cls+'" id="'+pf+'_g_'+i+'" data-id="'+esc(x.id)+'"'+(cur0.indexOf(x.id)>=0?' checked':'')+'><span><b>'+esc(x.receiveNo)+'</b> · หนังสือที่ '+esc(x.docNo)+' ลงวันที่ '+fmtShort(x.docDate)+(x.detail?' · '+esc(x.detail):'')+' · '+fmtMoney(x.amount)+' บาท</span></label>'}).join(''):'<p class="sub" style="margin:4px 0">ไม่มีหนังสืออื่นของหน่วยงานนี้ที่รอทำหนังสือประเภทเดียวกัน</p>')
+   +'<div class="sub" id="'+pf+'_gsum" style="margin-top:6px"></div></div>';
+}
+function grpTag(r,rv){var g=((r.letter||{})[rv?'receiptGroup':'transferGroup'])||[];if(g.length<2)return '';var o=g.filter(function(i){return i!==r.id}).map(function(i){var x=state.records.filter(function(y){return y.id===i})[0];return x?x.receiveNo:''}).filter(Boolean);return '<span class="sub2">รวมกับเรื่อง '+esc(o.join(', '))+'</span>'}
+function updGrpSum(){
+  var r=cur();if(!r)return;
+  [['A','la'],['B','lb']].forEach(function(x){var el=document.getElementById(x[1]+'_gsum');if(!el)return;var G=grpRecs(r,grpIds(x[0])),t=sumF(G,function(y){return Number(y.amount)||0});el.innerHTML=G.length>1?'<b>รวม '+G.length+' ฉบับ · ยอดรวม '+fmtMoney(t)+' บาท</b>':'ฉบับเดียว (ไม่ได้เลือกรวม)'});
+}
+function recpt(x,l0){var p=recvPay(x,l0||{});return 'เล่มที่ '+or(p.book,'………')+' เลขที่ '+or(p.rno,'………')+' ลงวันที่ '+fmtLong(p.rdate)}
 function form3all(r){
   var l=r.letter||{},s=state.settings,rp=recvPay(r,l);
   return head(r,'ทำหนังสือ').replace(/^/,'<div class="card" style="margin-bottom:16px">')+'</div><div class="pair">'
@@ -1185,7 +1206,7 @@ function form3all(r){
    +fld('la_month','ประจำเดือน (เช่น เมษายน 2569 เว้นว่างได้)',inp('la_month',l.transferMonth||r.period||'','autocomplete="off"'),'in-a')
    +fld('la_tdate','โอนเงินเมื่อวันที่',inp('la_tdate',l.transferPaid||(r.track&&r.track.transferDate)||'','type="date"'),'in-a')
    +fld('la_acct','โอนเข้าบัญชี (ธนาคาร สาขา ชื่อบัญชี เลขที่บัญชี) · ระบบจำบัญชีตามหน่วยงานให้ ลบออกได้',inp('la_acct',l.transferAcct!==undefined?l.transferAcct:(state.agencies[r.agency]||''),'autocomplete="off"'),'wide in-a')
-   +'</div><p class="err" id="e3a" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+dis()+'>บันทึก</button><button class="btn" type="button" data-act="letterA">'+(canEdit('3')?'บันทึกและ':'')+'ดาวน์โหลด (.docx)</button></div></form>'
+   +(flowOf(r)==='pay'?grpBlock(r,l,'A'):'')+sgBlock('la',l)+'</div><p class="err" id="e3a" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+dis()+'>บันทึก</button><button class="btn" type="button" data-act="letterA">'+(canEdit('3')?'บันทึกและ':'')+'ดาวน์โหลด (.docx)</button></div></form>'
    +'<form id="f3b" class="card" novalidate><h3>หนังสือส่งใบเสร็จ <span class="recline">(เอกสารแจ้งโอนเงิน)</span></h3><div class="grid">'
    +'<div class="fld wide"><span class="lbl">รูปแบบหนังสือ</span><div class="chips" role="radiogroup" aria-label="รูปแบบหนังสือ">'+['out','in'].map(function(v){return '<label class="chip"><input type="radio" name="lb_kind" id="lb_kind_'+v+'" value="'+v+'"'+(((l.receiptKind||'out'))===v?' checked':'')+'><span>'+(v==='out'?'หนังสือภายนอก':'หนังสือภายใน (บันทึกข้อความ)')+'</span></label>'}).join('')+'</div></div>'
    +fld('lb_no','หนังสือที่',inp('lb_no',l.receiptLetterNo||letterPfx(),'autocomplete="off"'))
@@ -1196,7 +1217,7 @@ function form3all(r){
    +letterBtn('lb_linkbtn')
    +fld('lb_to','เรียน (หนังสือภายในจะเติม “ผู้อำนวยการ” นำหน้าให้)',inp('lb_to',l.receiptTo||r.agency||'','autocomplete="off"'))
    +payBlock('lb',rp,false).replace(/id="lb_pdate"/,'id="lb_tdate"')
-   +'</div><p class="err" id="e3b" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+dis()+'>บันทึก</button><button class="btn" type="button" data-act="letterB">'+(canEdit('3')?'บันทึกและ':'')+'ดาวน์โหลด (.docx)</button></div></form></div>';
+   +(flowOf(r)==='recv'?grpBlock(r,l,'B'):'')+sgBlock('lb',l)+'</div><p class="err" id="e3b" role="alert"></p><div class="actions"><button class="btn primary" type="submit"'+dis()+'>บันทึก</button><button class="btn" type="button" data-act="letterB">'+(canEdit('3')?'บันทึกและ':'')+'ดาวน์โหลด (.docx)</button></div></form></div>';
 }
 function form4(r){
   if(flowOf(r)!=='recv')return form4pay(r);
@@ -1283,7 +1304,7 @@ function drawList(){
     h=table([['เลขรับ'],['หน่วยงาน'],['หนังสือ'],['เป็นเงิน (บาท)','r'],[rv3?'หนังสือส่งใบเสร็จ':'หนังสือแจ้งโอน'],['สถานะ'],['']],rows.map(function(r){
       var l=r.letter||{},t3=r.track||{},ok=lettered(r),dt=rv3?l.receiptLetterDate:l.transferDate,no=rv3?l.receiptLetterNo:l.transferNo;
       var pill=ok?'<span class="pill done">'+(rv3?'ออกใบเสร็จแล้ว':'ทำแจ้งโอนแล้ว')+'</span>'+(rv3?'<span class="sub2">'+(t3.sentDate?'ส่งแล้ว '+fmtShort(t3.sentDate):'ยังไม่ได้ส่ง')+'</span>':''):'<span class="pill late">'+(rv3?'ยังไม่ออกใบเสร็จ':'ยังไม่ทำแจ้งโอน')+'</span><span class="sub2">ค้าง '+diffDays((r.audit||{}).date,TODAY)+' วัน (ตั้งแต่ตรวจสอบ)</span>';
-      return '<tr class="'+(state.sel===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+two(r.docNo,'ลงวันที่ '+fmtShort(r.docDate))+'</td><td class="r num">'+fmtMoney(r.amount)+'</td><td>'+(ok?two(no,'ลงวันที่ '+fmtShort(dt)):'-')+'</td><td>'+pill+'</td><td><button class="btn sm'+(ok?'':' primary')+'" type="button" data-act="pick" data-id="'+r.id+'">'+(ok?'เปิด':(rv3?'ทำใบเสร็จ':'ทำแจ้งโอน'))+'</button></td></tr>';
+      return '<tr class="'+(state.sel===r.id?'picked':'')+'"><td>'+esc(r.receiveNo)+docLinks(r)+'</td><td>'+esc(r.agency)+'</td><td>'+two(r.docNo,'ลงวันที่ '+fmtShort(r.docDate))+'</td><td class="r num">'+fmtMoney(r.amount)+'</td><td>'+(ok?two(no,'ลงวันที่ '+fmtShort(dt))+grpTag(r,rv3):'-')+'</td><td>'+pill+'</td><td><button class="btn sm'+(ok?'':' primary')+'" type="button" data-act="pick" data-id="'+r.id+'">'+(ok?'เปิด':(rv3?'ทำใบเสร็จ':'ทำแจ้งโอน'))+'</button></td></tr>';
     }).join(''),foot.replace('__C__','3').replace('__D__','3'));
   }else if(state.dir4==='recv'){
     h=table([['เลขรับ'],['หน่วยงาน'],['หนังสือส่งใบเสร็จ'],['เป็นเงิน (บาท)','r'],['รอมาแล้ว'],['สถานะ'],['ส่งใบเสร็จแล้ว'],['']],rows.map(function(r){
@@ -1395,13 +1416,22 @@ var MEMO_TO='ผู้อำนวยการโรงพยาบาลตา�
 function fmtMoneyDoc(n){var v=Math.round(Number(n||0)*100)/100;return Number.isInteger(v)?v.toLocaleString('en-US'):v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function hosp(){return state.settings.hospital||'โรงพยาบาลตาพระยา'}
 function lines(t){return String(t||'').split('\n').map(function(x){return x.trim()}).filter(Boolean)}
-function contactLines(){
-  var s=state.settings,out=[];
-  out.push(s.unitFull||s.unit||'กลุ่มงาน / ฝ่าย '+DOTS);
-  out.push('โทร. '+or(s.phone,'…………………')+(s.fax?'  โทรสาร '+s.fax:''));
-  if(s.email)out.push('ไปรษณีย์อิเล็กทรอนิกส์ '+s.email);
-  return out;
-}
+var DEF_UNIT='กลุ่มงานบริหารทั่วไป งานการเงิน',DEF_TEL='0 3726 9009 ต่อ 1103',DEF_ADDR=['อำเภอตาพระยา','จังหวัดสระแก้ว 27180'];
+function addrLines(){var h=hosp(),o=lines((state.settings||{}).address).filter(function(x){return x.indexOf(h)!==0});return o.length?o:DEF_ADDR}
+function sgn(l){l=l||{};var s=state.settings,raw=String(l.sgName||s.signer||'').trim(),extra='',m=raw.match(/^\(?\s*([^()]*?)\s*\)\s*([\s\S]*)$/);
+  var name=raw,pos=l.sgPos!=null&&l.sgPos!==''?lines(l.sgPos):lines(s.signerPos);
+  if(m){name=m[1];extra=m[2].trim()}else name=raw.replace(/^\(|\)$/g,'');
+  pos=pos.map(function(t){return t.replace('('+name+')','').replace(name,'').trim()}).filter(Boolean);
+  if(!pos.length&&extra)pos=lines(extra);
+  return {name:name,pos:pos,unit:l.sgUnit||s.closeUnit||DEF_UNIT,tel:l.sgTel||s.closeTel||DEF_TEL}}
+function sgBlock(pf,l){var g=sgn(l);
+  return '<div class="fld wide"><span class="lbl">ผู้ลงนามและท้ายหนังสือ (แก้ได้ก่อนดาวน์โหลด · ค่าเริ่มต้นมาจากตั้งค่าหน่วยงาน)</span></div>'
+   +fld(pf+'_sgn','ผู้ลงนาม (ชื่อ)',inp(pf+'_sgn',g.name,'autocomplete="off"'))
+   +fld(pf+'_sgp','ตำแหน่งผู้ลงนาม (ขึ้นบรรทัดใหม่ได้)','<textarea id="'+pf+'_sgp" rows="2">'+esc(g.pos.join('\n'))+'</textarea>')
+   +fld(pf+'_sgu','กลุ่มงาน (ท้ายหนังสือ)',inp(pf+'_sgu',g.unit,'autocomplete="off"'))
+   +fld(pf+'_sgt','โทร (ท้ายหนังสือ)',inp(pf+'_sgt',g.tel,'autocomplete="off"'))}
+function contactLines(l){var g=sgn(l),s=state.settings,out=[g.unit,'โทร '+g.tel];
+  if(s.email&&/@/.test(s.email))out.push('ไปรษณีย์อิเล็กทรอนิกส์ '+s.email);return out}
 function memoXml(r,a){
   var s=state.settings;
   var unitShort=String(s.unit||'').replace(/^\(|\)$/g,'');
@@ -1439,13 +1469,13 @@ function memoXml(r,a){
   pos.forEach(function(t){b+=P([t],{left:4536,align:'center'})});
   b+=BLANK(1);
   var dots='…………………………………';
-  var cPos=lines(s.signerPos);if(!cPos.length)cPos=[MEMO_TO];
+  var sg0=sgn({}),cPos=sg0.pos;if(!cPos.length)cPos=[MEMO_TO];
   b+=BLANK(1);
   b+=P(['ข้อเสนอแนะ'],{left:1417});
   b+=P([dots],{left:567});
   b+=P([dots],{left:567});
   b+=BLANK(3);
-  b+=P(['('+or(s.signer,'………………………………')+')'],{right:4536,align:'center'});
+  b+=P(['('+or(sg0.name,'………………………………')+')'],{right:4536,align:'center'});
   cPos.forEach(function(t){b+=P([t],{right:4536,align:'center'})});
   return b;
 }
@@ -1455,7 +1485,7 @@ function letterBody(o){
   b+=CRESTPARA(3);
   b+=BLANK(1);
   b+=P(['ที่ '+or(o.no,'……………………'),'\t',hosp()],{tabs:[4536]});
-  lines(s.address).forEach(function(line){b+=P([line],{left:4536})});
+  addrLines().forEach(function(line){b+=P([line],{left:4536})});
   b+=BLANK(1);
   b+=P([fmtLong(o.date)],{left:4536});
   b+=BLANK(1);
@@ -1468,10 +1498,10 @@ function letterBody(o){
   b+=BLANK(1);
   b+=P(['ขอแสดงความนับถือ'],{left:4536,align:'center'});
   b+=BLANK(3);
-  b+=P(['('+or(s.signer)+')'],{left:4536,align:'center'});
-  b+=P([or(s.signerPos,'ตำแหน่ง '+DOTS)],{left:4536,align:'center'});
+  var g=sgn(o.sg);b+=P(['('+or(g.name)+')'],{left:4536,align:'center'});
+  (g.pos.length?g.pos:['ตำแหน่ง '+DOTS]).forEach(function(t){b+=P([t],{left:4536,align:'center'})});
   b+=BLANK(1);
-  contactLines().forEach(function(line){b+=P([line],{})});
+  contactLines(o.sg).forEach(function(line){b+=P([line],{})});
   return b;
 }
 function memoHead(no,date,subject,to){
@@ -1485,9 +1515,9 @@ function memoHead(no,date,subject,to){
   b+=P([{t:'เรียน',b:true},' ',or(t)],{after:120});
   return b;
 }
-function memoSign(){
-  var s=state.settings,pos=lines(s.signerPos);if(!pos.length)pos=['ผู้อำนวยการ'+hosp()];
-  var b=BLANK(3)+P(['('+or(s.signer,'………………………………')+')'],{left:4536,align:'center'});
+function memoSign(l){
+  var g=sgn(l),pos=g.pos;if(!pos.length)pos=['ผู้อำนวยการ'+hosp()];
+  var b=BLANK(3)+P(['('+or(g.name,'………………………………')+')'],{left:4536,align:'center'});
   pos.forEach(function(t){b+=P([t],{left:4536,align:'center'})});
   return b;
 }
@@ -1506,49 +1536,60 @@ function TBL2(widths,rows,aligns){
 }
 var REG_TXT='1. ระเบียบกระทรวงสาธารณสุข ว่าด้วยเงินบำรุงของหน่วยบริการในสังกัดกระทรวงสาธารณสุข พ.ศ. 2562';
 function memoLetterA(r,l){
-  var d=r.detail||'',amt=fmtMoney(r.amount),money=amt+' บาท ('+bahtText(r.amount)+')';
-  var payV=audAmt(r),payS=fmtMoney(payV),diffV=Math.round(((Number(r.amount)||0)-payV)*100)/100,diffS=Math.abs(diffV)<0.005?'-':fmtMoney(diffV),moneyPay=payS+' บาท ('+bahtText(payV)+')';
+  var G=grpRecs(r,l.transferGroup),n=G.length,d=n===1?(r.detail||''):grpDetail(G);
+  var totA=sumF(G,function(x){return Number(x.amount)||0}),totP=sumF(G,audAmt),totD=Math.round((totA-totP)*100)/100;
+  var amt=fmtMoney(totA),money=amt+' บาท ('+bahtText(totA)+')',payS=fmtMoney(totP),diffS=Math.abs(totD)<0.005?'-':fmtMoney(totD),moneyPay=payS+' บาท ('+bahtText(totP)+')';
   var b=memoHead(l.transferNo,l.transferDate,'ขอแจ้งโอนเงิน'+d,l.transferTo||r.agency);
-  b+=P(['ตามที่ '+r.agency+' เรียกเก็บ'+d+(l.transferMonth?' ประจำเดือน '+l.transferMonth:'')+' เป็นเงินทั้งสิ้น '+money+' ความแจ้งแล้ว นั้น'],{first:1417,align:'thaiDistribute',after:60});
+  b+=P(['ตามที่ '+r.agency+' เรียกเก็บ'+d+(l.transferMonth?' ประจำเดือน '+l.transferMonth:'')+(n>1?' จำนวน '+n+' ฉบับ':'')+' เป็นเงินทั้งสิ้น '+money+' ความแจ้งแล้ว นั้น'],{first:1417,align:'thaiDistribute',after:60});
   b+=P(['ในการนี้ '+hosp()+' ได้ดำเนินการตรวจสอบรายละเอียด'+(d||'ค่ารักษาพยาบาล')+' รายการดังกล่าวข้างต้นเป็นที่เรียบร้อยแล้ว โดยมีรายละเอียดดังนี้'],{first:1417,align:'thaiDistribute',after:60});
-  b+=TBL2([500,2600,1500,1800,1000,1671],[
-    [{t:'ที่'},{t:'เลขที่หนังสือ'},{t:'ลงวันที่'},{t:'ยอดค่ารักษาพยาบาล'},{t:'ส่วนต่าง'},{t:'พิจารณาจ่าย(บาท)'}],
-    [{t:'1'},{t:r.docNo||''},{t:fmtShort(r.docDate)},{t:amt},{t:diffS},{t:payS}],
-    [{t:'รวมเป็นเงิน',span:3,b:true,align:'center'},{t:amt,b:true},{t:diffS,b:true},{t:payS,b:true}]
-  ],['center','left','left','right','center','right']);
+  var rows=[[{t:'ที่'},{t:'เลขที่หนังสือ'},{t:'ลงวันที่'},{t:'ยอดค่ารักษาพยาบาล'},{t:'ส่วนต่าง'},{t:'พิจารณาจ่าย(บาท)'}]];
+  G.forEach(function(x,i){var pv=audAmt(x),df=Math.round(((Number(x.amount)||0)-pv)*100)/100;rows.push([{t:String(i+1)},{t:x.docNo||''},{t:fmtShort(x.docDate)},{t:fmtMoney(x.amount)},{t:Math.abs(df)<0.005?'-':fmtMoney(df)},{t:fmtMoney(pv)}])});
+  rows.push([{t:'รวมเป็นเงิน',span:3,b:true,align:'center'},{t:amt,b:true},{t:diffS,b:true},{t:payS,b:true}]);
+  b+=TBL2([500,2600,1500,1800,1000,1671],rows,['center','left','left','right','center','right']);
   b+=P([
     'จึงขอแจ้งโอนเงิน'+(d||'ค่ารักษาพยาบาล')+' ตามรายละเอียดดังกล่าวข้างต้น ',
     {t:'เข้าบัญชี '+or(l.transferAcct,'………………………………')+' เป็นเงินทั้งสิ้น '+moneyPay+' ',b:true,u:true},
     ' เมื่อวันที่ '+fmtLong(l.transferPaid)+' ตามเอกสารที่แนบมาพร้อมนี้ เมื่อท่านได้รับเงินดังกล่าวเรียบร้อยแล้ว กรุณาออกใบเสร็จรับเงิน ให้กับ'+hosp()+' เพื่อแนบเอกสารจ่ายต่อไปด้วย'
   ],{first:1417,align:'thaiDistribute',before:60,after:60});
   b+=P(['จึงเรียนมาเพื่อโปรดพิจารณาดำเนินการต่อไป'],{first:1417,align:'thaiDistribute'});
-  return b+memoSign();
+  return b+memoSign(l);
 }
 function memoLetterB(r,l){
-  var p=recvPay(r,l),money=fmtMoneyDoc(r.amount)+' บาท ('+bahtText(r.amount)+')',d=r.detail||'';
+  var G=grpRecs(r,l.receiptGroup),n=G.length,p=recvPay(r,l),tot=sumF(G,function(x){return Number(x.amount)||0}),money=fmtMoneyDoc(tot)+' บาท ('+bahtText(tot)+')',d=r.detail||'';
   var b=memoHead(l.receiptLetterNo,l.receiptLetterDate,'ขอส่งใบเสร็จรับเงิน',l.receiptTo||r.agency);
-  b+=HPAR('ตามหนังสือ '+r.agency+' ที่ '+or(r.docNo)+' ลงวันที่ '+fmtLong(r.docDate)+(d?' เรื่อง '+d:'')+' เป็นจำนวนเงิน '+money+payTxt(p)+' ความแจ้งแล้ว นั้น');
-  b+=HPAR('ในการนี้ '+hosp()+' จึงขอส่งใบเสร็จรับเงิน เล่มที่ '+or(p.book,'………')+' เลขที่ '+or(p.rno,'………')+' ลงวันที่ '+fmtLong(p.rdate)+' แนบมาพร้อมหนังสือฉบับนี้');
+  if(n===1){
+    b+=HPAR('ตามหนังสือ '+r.agency+' ที่ '+or(r.docNo)+' ลงวันที่ '+fmtLong(r.docDate)+(d?' เรื่อง '+d:'')+' เป็นจำนวนเงิน '+money+payTxt(p)+' ความแจ้งแล้ว นั้น');
+    b+=HPAR('ในการนี้ '+hosp()+' จึงขอส่งใบเสร็จรับเงิน '+recpt(r,l)+' แนบมาพร้อมหนังสือฉบับนี้');
+  }else{
+    b+=HPAR('ตามหนังสือ '+r.agency+' จำนวน '+n+' ฉบับ ดังนี้');
+    G.forEach(function(x,i){b+=HPAR((i+1)+'. ที่ '+or(x.docNo)+' ลงวันที่ '+fmtLong(x.docDate)+(x.detail?' เรื่อง '+x.detail:'')+' เป็นจำนวนเงิน '+fmtMoneyDoc(x.amount)+' บาท')});
+    b+=HPAR('รวมเป็นจำนวนเงินทั้งสิ้น '+money+payTxt(p)+' ความแจ้งแล้ว นั้น');
+    b+=HPAR('ในการนี้ '+hosp()+' จึงขอส่งใบเสร็จรับเงิน จำนวน '+n+' ฉบับ ดังนี้');
+    G.forEach(function(x,i){b+=HPAR((i+1)+'. ใบเสร็จรับเงิน '+recpt(x,x===r?l:(x.letter||{}))+' (ตามหนังสือที่ '+or(x.docNo)+')')});
+    b+=HPAR('แนบมาพร้อมหนังสือฉบับนี้');
+  }
   b+=HPAR('จึงเรียนมาเพื่อโปรดพิจารณาดำเนินการต่อไป');
-  return b+memoSign();
+  return b+memoSign(l);
 }
 function letterAXml(r,l){
   if(l.transferKind==='in'){NOTHD=true;try{return memoLetterA(r,l)}finally{NOTHD=false}}
-  var s=state.settings;
-  return letterBody({no:l.transferNo,date:l.transferDate,to:l.transferTo,subject:'แจ้งโอนเงิน'+(r.detail?' '+r.detail:''),
-    ref:'หนังสือ '+r.agency+' ที่ '+r.docNo+' ลงวันที่ '+fmtLong(r.docDate),
-    paras:['ตามหนังสือที่อ้างถึง '+r.agency+' ได้'+typeVerb(r)+(r.detail?' เรื่อง '+r.detail:'')+' เป็นเงิน '+fmtMoneyDoc(r.amount)+' บาท ('+bahtText(r.amount)+') นั้น',
+  var s=state.settings,G=grpRecs(r,l.transferGroup),n=G.length,d=n===1?(r.detail||''):grpDetail(G),tot=sumF(G,function(x){return Number(x.amount)||0});
+  return letterBody({sg:l,no:l.transferNo,date:l.transferDate,to:l.transferTo,subject:'แจ้งโอนเงิน'+(d?' '+d:''),
+    ref:'หนังสือ '+r.agency+' '+G.map(function(x){return 'ที่ '+x.docNo+' ลงวันที่ '+fmtLong(x.docDate)}).join(' และ '),
+    paras:['ตามหนังสือที่อ้างถึง '+r.agency+' ได้'+typeVerb(r)+(d?' เรื่อง '+d:'')+(n>1?' จำนวน '+n+' ฉบับ':'')+' เป็นเงิน '+fmtMoneyDoc(tot)+' บาท ('+bahtText(tot)+') นั้น',
       'โรงพยาบาลขอแจ้งให้ท่านโอนเงินจำนวนดังกล่าว'+(s.account?' เข้าบัญชี '+String(s.account).replace(/\n+/g,' '):' เข้าบัญชีของโรงพยาบาล')+' และขอให้ส่งใบเสร็จรับเงินหรือหลักฐานการโอนเงินภายใน 30 วัน นับจากวันที่โอนเงิน',
       'จึงเรียนมาเพื่อโปรดทราบและดำเนินการ']});
 }
 function letterBXml(r,l){
   if(l.receiptKind==='in')return memoLetterB(r,l);
-  var p=recvPay(r,l),rc='เล่มที่ '+or(p.book,'………')+' เลขที่ '+or(p.rno,'………')+' ลงวันที่ '+fmtLong(p.rdate);
-  return letterBody({no:l.receiptLetterNo,date:l.receiptLetterDate,to:l.receiptTo,subject:'ขอส่งใบเสร็จรับเงิน',
-    ref:'หนังสือ '+r.agency+' ที่ '+r.docNo+' ลงวันที่ '+fmtLong(r.docDate),
-    encl:'ใบเสร็จรับเงิน '+rc+' จำนวน 1 ฉบับ',
-    paras:['ตามหนังสือที่อ้างถึง '+r.agency+(r.detail?' เรื่อง '+r.detail:' ได้'+(p.kind==='cheque'?'ส่งเช็ค':'โอนเงิน'))+' เป็นจำนวนเงิน '+fmtMoneyDoc(r.amount)+' บาท ('+bahtText(r.amount)+')'+payTxt(p)+' นั้น',
-      'ในการนี้ '+hosp()+' ได้รับเงินจำนวนดังกล่าวเรียบร้อยแล้ว พร้อมส่งใบเสร็จรับเงิน '+rc+' แนบมาพร้อมหนังสือฉบับนี้',
+  var G=grpRecs(r,l.receiptGroup),n=G.length,p=recvPay(r,l),d=n===1?(r.detail||''):grpDetail(G),tot=sumF(G,function(x){return Number(x.amount)||0});
+  var rcs=G.map(function(x){return recpt(x,x===r?l:(x.letter||{}))});
+  return letterBody({sg:l,no:l.receiptLetterNo,date:l.receiptLetterDate,to:l.receiptTo,subject:'ขอส่งใบเสร็จรับเงิน',
+    ref:'หนังสือ '+r.agency+' '+G.map(function(x){return 'ที่ '+x.docNo+' ลงวันที่ '+fmtLong(x.docDate)}).join(' และ '),
+    encl:n===1?'ใบเสร็จรับเงิน '+rcs[0]+' จำนวน 1 ฉบับ':'ใบเสร็จรับเงิน จำนวน '+n+' ฉบับ',
+    paras:['ตามหนังสือที่อ้างถึง '+r.agency+(d?' เรื่อง '+d:' ได้'+(p.kind==='cheque'?'ส่งเช็ค':'โอนเงิน'))+(n>1?' จำนวน '+n+' ฉบับ':'')+' เป็นจำนวนเงิน '+fmtMoneyDoc(tot)+' บาท ('+bahtText(tot)+')'+payTxt(p)+' นั้น',
+      n===1?'ในการนี้ '+hosp()+' ได้รับเงินจำนวนดังกล่าวเรียบร้อยแล้ว พร้อมส่งใบเสร็จรับเงิน '+rcs[0]+' แนบมาพร้อมหนังสือฉบับนี้'
+        :'ในการนี้ '+hosp()+' ได้รับเงินจำนวนดังกล่าวเรียบร้อยแล้ว พร้อมส่งใบเสร็จรับเงิน จำนวน '+n+' ฉบับ ได้แก่ '+rcs.map(function(x,i){return (i+1)+') '+x+' (ตามหนังสือที่ '+G[i].docNo+')'}).join(' ')+' แนบมาพร้อมหนังสือฉบับนี้',
       'จึงเรียนมาเพื่อโปรดพิจารณาดำเนินการต่อไป']});
 }
 async function letterADocx(r,l){await buildDocx(letterAXml(r,l),safeName((l.transferKind==='in'?'บันทึกข้อความแจ้งโอน_':'หนังสือแจ้งโอน_')+r.receiveNo)+'.docx')}
@@ -1570,8 +1611,8 @@ function syncKind(){
   document.querySelectorAll('.in-b').forEach(function(e){e.hidden=!b});
 }
 function readLetter(w){
-  return w==='A'?{transferKind:kindOf('la'),transferLink:val('la_link'),transferNo:val('la_no'),transferDate:val('la_date'),transferTo:val('la_to'),transferMonth:val('la_month'),transferPaid:val('la_tdate'),transferAcct:val('la_acct')}
-    :{receiptKind:kindOf('lb'),receiptLink:val('lb_link'),receiptLetterNo:val('lb_no'),receiptLetterDate:val('lb_date'),receiptNo:val('lb_receipt'),receiptTo:val('lb_to'),receiptPaid:val('lb_pdate'),receiptBook:val('lb_book'),receiptDate:val('lb_rdate'),payKind:(document.querySelector('input[name="lb_pk"]:checked')||{}).value||'transfer',chqBank:val('lb_cbank'),chqNo:val('lb_cno'),chqDate:val('lb_cdate')};
+  return w==='A'?{transferKind:kindOf('la'),transferLink:val('la_link'),transferNo:val('la_no'),transferDate:val('la_date'),transferTo:val('la_to'),transferMonth:val('la_month'),transferPaid:val('la_tdate'),transferAcct:val('la_acct'),transferGroup:grpIds('A'),sgName:val('la_sgn'),sgPos:val('la_sgp'),sgUnit:val('la_sgu'),sgTel:val('la_sgt')}
+    :{receiptKind:kindOf('lb'),receiptLink:val('lb_link'),receiptLetterNo:val('lb_no'),receiptLetterDate:val('lb_date'),receiptNo:val('lb_receipt'),receiptTo:val('lb_to'),receiptPaid:val('lb_pdate'),receiptBook:val('lb_book'),receiptDate:val('lb_rdate'),payKind:(document.querySelector('input[name="lb_pk"]:checked')||{}).value||'transfer',chqBank:val('lb_cbank'),chqNo:val('lb_cno'),chqDate:val('lb_cdate'),receiptGroup:grpIds('B'),sgName:val('lb_sgn'),sgPos:val('lb_sgp'),sgUnit:val('lb_sgu'),sgTel:val('lb_sgt')};
 }
 function drawPapers3(){
   var r=cur();if(!r)return;
@@ -1580,6 +1621,7 @@ function drawPapers3(){
     startAcc();try{x[2](r,readLetter(x[0]))}catch(e){ACC=null;return}
     el.innerHTML=takeAcc();
   });
+  updGrpSum();
 }
 var prevTimer;
 function schedulePreview(){clearTimeout(prevTimer);prevTimer=setTimeout(function(){if(state.tab==='3')drawPapers3();else if(state.tab==='2')drawPaper2()},120)}
@@ -1856,7 +1898,15 @@ async function saveLetter(which,download){
     if(!l.receiptLetterDate)return setErr('e3b','เลือกวันที่หนังสือ');
     l.receiptLink=LETTER_URL;setErr('e3b','');
   }
-  if(canEdit(state.tab))await guard(async function(){await recRef(r.id).update({letter:Object.assign({},r.letter||{},l),updatedAt:Date.now(),updatedBy:uname()});logAct(which==='A'?'ทำหนังสือแจ้งโอน':'ทำหนังสือส่งใบเสร็จ',rl(r));if(which==='A'&&l.transferKind==='in')await rememberAcct(r.agency,l.transferAcct);toast('บันทึกหนังสือแล้ว')});
+  if(canEdit(state.tab))await guard(async function(){await recRef(r.id).update({letter:Object.assign({},r.letter||{},l),updatedAt:Date.now(),updatedBy:uname()});
+    var gk=which==='A'?'transferGroup':'receiptGroup',newIds=l[gk]||[r.id],oldIds=(r.letter||{})[gk]||[],skip=which==='A'?[]:['receiptNo','receiptBook','receiptDate'];
+    var clr=which==='A'?['transferKind','transferLink','transferNo','transferDate','transferTo','transferMonth','transferPaid','transferAcct','transferGroup']:['receiptKind','receiptLink','receiptLetterNo','receiptLetterDate','receiptTo','receiptPaid','receiptBook','receiptDate','receiptNo','payKind','chqBank','chqNo','chqDate','receiptGroup'];
+    for(var gi=0;gi<newIds.length;gi++){var gid=newIds[gi];if(gid===r.id)continue;var gr=state.records.filter(function(y){return y.id===gid})[0];if(!gr)continue;
+      var gl=Object.assign({},gr.letter||{});Object.keys(l).forEach(function(k){if(skip.indexOf(k)<0)gl[k]=l[k]});gl[gk]=newIds;
+      await recRef(gid).update({letter:gl,updatedAt:Date.now(),updatedBy:uname()})}
+    for(var oi=0;oi<oldIds.length;oi++){var oid=oldIds[oi];if(oid===r.id||newIds.indexOf(oid)>=0)continue;var orr=state.records.filter(function(y){return y.id===oid})[0];if(!orr)continue;
+      var ol=Object.assign({},orr.letter||{});clr.forEach(function(k){delete ol[k]});
+      await recRef(oid).update({letter:ol,updatedAt:Date.now(),updatedBy:uname()})}logAct(which==='A'?'ทำหนังสือแจ้งโอน':'ทำหนังสือส่งใบเสร็จ',rl(r));if(which==='A'&&l.transferKind==='in')await rememberAcct(r.agency,l.transferAcct);toast('บันทึกหนังสือแล้ว')});
   if(download){
     var merged=Object.assign({},r.letter||{},l);
     if(which==='A')await letterADocx(r,merged);else await letterBDocx(r,merged);
@@ -1872,14 +1922,14 @@ async function save4(){
   await guard(async function(){await recRef(r.id).update({track:t,updatedAt:Date.now(),updatedBy:uname()});logAct('บันทึกการติดตามใบเสร็จ',rl(r));toast('บันทึกแล้ว')});
 }
 async function saveSettings(){
-  var o={hospital:val('s_hospital'),unit:val('s_unit'),unitFull:val('s_unitFull'),memoPrefix:val('s_memoPrefix'),letterPrefix:val('s_letterPrefix'),phone:val('s_phone'),fax:val('s_fax'),email:val('s_email'),auditor:val('s_auditor'),auditorPos:val('s_auditorPos'),signer:val('s_signer'),signerPos:val('s_signerPos'),address:val('s_address'),account:val('s_account')};
+  var o={hospital:val('s_hospital'),unit:val('s_unit'),unitFull:val('s_unitFull'),memoPrefix:val('s_memoPrefix'),letterPrefix:val('s_letterPrefix'),phone:val('s_phone'),fax:val('s_fax'),email:val('s_email'),auditor:val('s_auditor'),auditorPos:val('s_auditorPos'),signer:val('s_signer'),signerPos:val('s_signerPos'),closeUnit:val('s_closeUnit'),closeTel:val('s_closeTel'),address:val('s_address'),account:val('s_account')};
   o.sla={};SEG.forEach(function(g){var v=val('s_sla_'+g.k);o.sla[g.k]=v===''?null:Math.max(0,Math.round(Number(v)||0))});
   o.holidays=val('s_holidays').split(/[\n,;]+/).map(parseDMY).filter(Boolean);
   o=Object.assign({},state.settings,o);
   await guard(async function(){await db.doc('settings/main').set(o);logAct('แก้ไขการตั้งค่าหน่วยงาน','');toast('บันทึกการตั้งค่าแล้ว')},'admin');
 }
 function fillSettings(){
-  var s=state.settings;['hospital','unit','unitFull','memoPrefix','letterPrefix','phone','fax','email','auditor','auditorPos','signer','signerPos','address','account'].forEach(function(k){var e=document.getElementById('s_'+k);if(e&&document.activeElement!==e)e.value=s[k]||''});
+  var s=state.settings;['hospital','unit','unitFull','memoPrefix','letterPrefix','phone','fax','email','auditor','auditorPos','signer','signerPos','closeUnit','closeTel','address','account'].forEach(function(k){var e=document.getElementById('s_'+k);if(e&&document.activeElement!==e)e.value=k==='address'?addrLines().join('\n'):k==='closeUnit'?(s[k]||DEF_UNIT):k==='closeTel'?(s[k]||DEF_TEL):(s[k]||'')});
   var g=document.getElementById('slaGrid');if(g&&!g.firstChild)g.innerHTML=SEG.map(function(x){return '<div class="fld"><label for="s_sla_'+x.k+'">'+esc(x.lbl)+' <span style="font-weight:400">('+esc(x.flowLbl)+')</span></label><input type="text" inputmode="numeric" id="s_sla_'+x.k+'" placeholder="ไม่กำหนด"></div>'}).join('');
   SEG.forEach(function(x){var e=document.getElementById('s_sla_'+x.k);if(e&&document.activeElement!==e){var v=slaOf(x.k);e.value=v==null?'':v}});
   var h=document.getElementById('s_holidays');if(h&&document.activeElement!==h)h.value=holidays().map(fmtDMY).join('\n');
